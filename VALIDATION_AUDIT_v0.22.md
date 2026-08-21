@@ -97,8 +97,8 @@ before treating this local result as release-platform verification.
 
 The operational CI gap recorded above was subsequently closed without
 reinterpreting the original 180-test result. GitHub Actions run
-[`32410309111`](https://github.com/lysyloxidase/openhumsim-rl/actions/runs/32410309111)
-completed successfully for commit `6687c5431ae8640c4291fa400449017f470925b2`:
+[`32464610279`](https://github.com/lysyloxidase/openhumsim-rl/actions/runs/32464610279)
+completed successfully for commit `9cdecffa871d4f683736066be85ae5caf32967d8`:
 
 - full regression suite on Python 3.10, 3.12 and 3.14;
 - the v0.22 scientific-integrity gate;
