@@ -1,0 +1,38 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "OpenHumSim: demo",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "openhumsim_rl",
+      "args": [
+        "demo",
+        "--scenario",
+        "oral_glucose_75g",
+        "--minutes",
+        "180",
+        "--seed",
+        "42"
+      ],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "OpenHumSim: scientific validation",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/validation/run_validation_v22.py",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/src"
+      },
+      "console": "integratedTerminal",
+      "justMyCode": true
+    }
+  ]
+}

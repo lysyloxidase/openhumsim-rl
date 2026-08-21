@@ -1,0 +1,18 @@
+{
+  "version": "0.17.0",
+  "title": "Patient-ventilator interaction and pressure-support asynchrony",
+  "observation_count": 119,
+  "action_count": 8,
+  "scientific_validation": {"passed": 9, "total": 9},
+  "module_tests": {
+    "patient_ventilator_v017": 9,
+    "respiratory_cycle_v016": 10,
+    "respiratory_mechanics_v015": 9,
+    "pulmonary_v014": 8,
+    "pulmonary_v013": 8,
+    "blood_gas_v012": 8,
+    "event_replay": 6
+  },
+  "clinical_use": false,
+  "next": "bounded ventilator-control actions with deterministic-controller and RL benchmarks"
+}

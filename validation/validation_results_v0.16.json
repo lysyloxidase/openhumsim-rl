@@ -1,0 +1,104 @@
+{
+  "version": "0.16.0",
+  "summary": {
+    "passed": 10,
+    "total": 10,
+    "all_passed": true
+  },
+  "checks": [
+    {
+      "name": "equation_of_motion_numerical_closure",
+      "passed": true,
+      "values": {
+        "baseline_residual_cmH2O": 1.7763568394002505e-15,
+        "obstruction_residual_cmH2O": 3.552713678800501e-15
+      }
+    },
+    {
+      "name": "healthy_baseline_cycle",
+      "passed": true,
+      "values": {
+        "VT_L": 0.507235222356087,
+        "RR_bpm": 12.022811778465897,
+        "auto_PEEP_cmH2O": 1.8025657018117872e-14,
+        "PaCO2_mmHg": 40.14741890132427,
+        "time_constant_s": 0.13028312599888542
+      }
+    },
+    {
+      "name": "obstruction_mechanistic_direction",
+      "passed": true,
+      "values": {
+        "baseline_tau_s": 0.13028312599888542,
+        "obstructed_tau_s": 0.7854946815732315,
+        "baseline_resistive_work_J": 0.1407025713791974,
+        "obstructed_resistive_work_J": 0.41014987352164556,
+        "obstructed_auto_PEEP_cmH2O": 0.7856886513745314
+      }
+    },
+    {
+      "name": "human_copd_peepi_scale_anchor",
+      "passed": true,
+      "values": {
+        "model_auto_PEEP_cmH2O": 2.32238154936722,
+        "Dal_Vecchio_1990_mean_cmH2O": 2.4,
+        "Dal_Vecchio_1990_sd_cmH2O": 1.6
+      }
+    },
+    {
+      "name": "tachypnea_dynamic_hyperinflation",
+      "passed": true,
+      "values": {
+        "obstruction_auto_PEEP": 0.7856886513745314,
+        "tachypnea_auto_PEEP": 2.32238154936722,
+        "obstruction_DH_L": 0.057143912687698084,
+        "tachypnea_DH_L": 0.1696404309959021
+      }
+    },
+    {
+      "name": "pressure_control_work_partition",
+      "passed": true,
+      "values": {
+        "Pmus_peak_cmH2O": 0.0,
+        "Paw_peak_cmH2O": 15.0,
+        "ventilator_work_J_breath": 0.5183853495244599
+      }
+    },
+    {
+      "name": "pressure_control_does_not_abolish_obstructive_auto_peep",
+      "passed": true,
+      "values": {
+        "auto_PEEP_cmH2O": 1.9142083325284076,
+        "PaCO2_mmHg": 54.01991583406925
+      }
+    },
+    {
+      "name": "pv_hysteresis_and_intrinsic_peep_coupling",
+      "passed": true,
+      "values": {
+        "baseline_hysteresis_J": 0.0011366306506863798,
+        "obstruction_hysteresis_J": 0.013627595602403132,
+        "tachypnea_auto_PEEP": 2.32238154936722,
+        "tachypnea_PL_endexp": 7.32238154936722
+      }
+    },
+    {
+      "name": "within_breath_timestep_convergence",
+      "passed": true,
+      "values": {
+        "d_VT_L": 0.0005277407082354135,
+        "d_auto_PEEP_cmH2O": 0.005204781934139202,
+        "d_muscle_work_J": 0.0008779764456482431
+      }
+    },
+    {
+      "name": "legacy_conservation_with_cycle_dynamics",
+      "passed": true,
+      "values": {
+        "CO2_mass_residual_mmol": 2.842170943040401e-14,
+        "charge_residual_mEq_l": 4.0103742549035815e-10,
+        "blood_volume_residual_ml": 1.0913936421275139e-11
+      }
+    }
+  ]
+}

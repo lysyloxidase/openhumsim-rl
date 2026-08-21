@@ -1,0 +1,26 @@
+{
+  "version": "0.8.0",
+  "dataset": "Jaeb Center Glucose Sensor Profiles in Healthy Non-Diabetic Subjects (2017)",
+  "public_dataset_url": "https://live-jchrpublicdatasets.s3.amazonaws.com/Diabetes/Public%20Datasets/CGMND-af920dee-2d6e-4436-bc89-7a7b51239837.zip",
+  "publication": "Shah VN et al. J Clin Endocrinol Metab. 2019;104(10):4356-4364. PMID:31127824",
+  "published_aggregate_metrics": {
+    "n_participants": 153,
+    "age_range_years": "7-80",
+    "mean_average_glucose_mg_dl_typical_age_groups": [
+      98.0,
+      99.0
+    ],
+    "mean_average_glucose_mg_dl_over_60": 104.0,
+    "median_time_70_140_pct": 96.0,
+    "time_70_140_iqr_pct": [
+      93.0,
+      98.0
+    ],
+    "mean_within_person_cv_pct": 17.0,
+    "within_person_cv_sd_pct": 3.0,
+    "median_time_gt_140_pct": 2.1,
+    "median_time_lt_70_pct": 1.1,
+    "citation": "Shah VN et al. J Clin Endocrinol Metab. 2019;104(10):4356-4364. PMID:31127824"
+  },
+  "validation_role": "Independent free-living human CGM distribution reference. The raw archive is intentionally not bundled and can be downloaded locally with the CLI. These metrics are not protocol-matched to the OpenHumSim 75-g meal/glucose challenge."
+}

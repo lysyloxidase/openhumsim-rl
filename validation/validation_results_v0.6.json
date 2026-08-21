@@ -1,0 +1,224 @@
+{
+  "version": "0.6.0",
+  "checks": [
+    {
+      "name": "Dalla Man Table-I parameter transcription",
+      "value": 0.0,
+      "pass": true,
+      "tier": "source-fidelity",
+      "note": ""
+    },
+    {
+      "name": "75-g challenge produces bounded postprandial excursion",
+      "value": {
+        "peak_glucose": 167.48591489843156,
+        "time_min": 60.0,
+        "peak_insulin_uU_ml": 47.726024747964125,
+        "g420": 90.77461295653889
+      },
+      "pass": true,
+      "tier": "qualitative-biological",
+      "note": "Not an independently validated OGTT protocol."
+    },
+    {
+      "name": "Dalla GI mass conservation",
+      "value": 1.9099388737231493e-11,
+      "pass": true,
+      "tier": "physical-invariant",
+      "note": ""
+    },
+    {
+      "name": "Closed-loop baseline vs Broom\u00e9 quantitative scale",
+      "value": {
+        "sim": {
+          "cardiac_output_l_min": 4.6301736261721125,
+          "systolic_pressure_mmHg": 120.60710880003708,
+          "diastolic_pressure_mmHg": 73.8257761572168,
+          "central_venous_pressure_mmHg": 4.543442040641341,
+          "pulmonary_artery_pressure_mmHg": 15.548736793053294
+        },
+        "errors": {
+          "CO_rel": 0.09033916971078337,
+          "SBP_abs": 8.607108800037082,
+          "DBP_abs": 12.825776157216794,
+          "RAP_abs": 0.5434420406413407,
+          "PAP_abs": 4.548736793053294
+        }
+      },
+      "pass": true,
+      "tier": "external-quantitative",
+      "note": "Same class of model, not a parameter-identical reproduction."
+    },
+    {
+      "name": "Exercise hemodynamic scale",
+      "value": {
+        "HR": 147.84310137820296,
+        "CO": 10.747094981877414,
+        "MAP": 102.00450940980446
+      },
+      "pass": true,
+      "tier": "external-qualitative",
+      "note": "Broom\u00e9 exercise case reports HR 144 and CO >10 L/min."
+    },
+    {
+      "name": "Fick oxygen identity",
+      "value": 0.0,
+      "pass": true,
+      "tier": "physical-invariant",
+      "note": ""
+    },
+    {
+      "name": "Exercise oxygen supply remains positive",
+      "value": {
+        "DO2": 2007.903290203929,
+        "VO2": 1499.9999999999986,
+        "OER": 0.7470479316997652,
+        "SvO2": 25.191678492885078
+      },
+      "pass": true,
+      "tier": "physiological-sanity",
+      "note": ""
+    },
+    {
+      "name": "Renal pressure-autoregulation plateau",
+      "value": {
+        "80_140": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "at60": 0.5428571428571429
+      },
+      "pass": true,
+      "tier": "mechanistic-direction",
+      "note": ""
+    },
+    {
+      "name": "Respiratory-acidosis compensation slopes",
+      "value": {
+        "acute_mmol_per_10": 1.0,
+        "chronic_target_mmol_per_10": 3.5,
+        "renal_tau_min": 2880.0
+      },
+      "pass": true,
+      "tier": "medical-rule-consistency",
+      "note": "Matches ATS expected slopes; dynamics remain reduced-order."
+    },
+    {
+      "name": "PBPK mass conservation",
+      "value": 8.526512829121202e-14,
+      "pass": true,
+      "tier": "physical-invariant",
+      "note": ""
+    },
+    {
+      "name": "PBPK renal-clearance coupling",
+      "value": {
+        "normal": 0.05997551640897552,
+        "reduced": 0.014996034346218276
+      },
+      "pass": true,
+      "tier": "mechanistic-direction",
+      "note": "No real-drug PK data used; pharmacological validation remains absent."
+    },
+    {
+      "name": "Water/ion ledger closure",
+      "value": {
+        "water_L": -5.684341886080802e-14,
+        "max_ion_mmol": 7.275957614183426e-12
+      },
+      "pass": true,
+      "tier": "chemical-physical-invariant",
+      "note": ""
+    },
+    {
+      "name": "Cardiovascular timestep convergence",
+      "value": {
+        "MAP_abs": 1.619529151111422,
+        "CO_abs": 0.08613389215353706
+      },
+      "pass": true,
+      "tier": "numerical",
+      "note": ""
+    },
+    {
+      "name": "Dalla numerical convergence",
+      "value": {
+        "glucose_abs": 5.602061037279782e-08,
+        "insulin_abs": 4.167080902561793e-08
+      },
+      "pass": true,
+      "tier": "numerical",
+      "note": ""
+    },
+    {
+      "name": "10-seed multi-organ stress test",
+      "value": {
+        "finite": true,
+        "max_residuals": {
+          "water": 9.237055564881302e-14,
+          "ion": 7.73070496506989e-12,
+          "pbpk": 7.105427357601002e-14,
+          "fick": 1.1368683772161603e-13
+        },
+        "terminations": []
+      },
+      "pass": true,
+      "tier": "algorithmic-numerical",
+      "note": ""
+    }
+  ],
+  "summary": {
+    "passed": 15,
+    "failed": 0,
+    "total": 15
+  },
+  "known_unvalidated_or_missing": {
+    "full_electroneutrality": false,
+    "total_inorganic_carbon_conservation": false,
+    "real_drug_pbpk_calibration": false,
+    "patient_specific_validation": false,
+    "default_observation_is_markov_complete": false,
+    "kdigo_aki_diagnosis": false,
+    "subcutaneous_insulin_pk": false,
+    "vq_distribution_and_shunt": false
+  },
+  "interpretation": "Passing checks demonstrate source fidelity, internal conservation, numerical stability and selected external-scale plausibility. They do not constitute clinical validation of a whole-human simulator.",
+  "references": {
+    "dalla_man_2007": {
+      "title": "Meal Simulation Model of the Glucose-Insulin System",
+      "authors": "Dalla Man C, Rizza RA, Cobelli C",
+      "journal": "IEEE Transactions on Biomedical Engineering 54(10):1740-1749",
+      "doi": "10.1109/TBME.2007.893506",
+      "role": "normal-subject glucose-insulin model structure and Table-I parameters"
+    },
+    "broome_2013": {
+      "title": "Closed-loop real-time simulation model of hemodynamics and oxygen transport in the cardiovascular system",
+      "authors": "Broom\u00e9 M et al.",
+      "journal": "Biomedical Engineering Online 12:69",
+      "doi": "10.1186/1475-925X-12-69",
+      "role": "external quantitative scale for normal and exercise closed-loop hemodynamics"
+    },
+    "severinghaus_1979": {
+      "title": "Simple, accurate equations for human blood O2 dissociation computations",
+      "author": "Severinghaus JW",
+      "journal": "Journal of Applied Physiology 46(3):599-602",
+      "doi": "10.1152/jappl.1979.46.3.599",
+      "role": "standard-condition O2 saturation approximation"
+    },
+    "kdigo_2012": {
+      "title": "KDIGO Clinical Practice Guideline for Acute Kidney Injury",
+      "role": "AKI definition/staging semantics; creatinine and urine-output criteria"
+    },
+    "ats_abg": {
+      "title": "American Thoracic Society: Interpretation of Arterial Blood Gases",
+      "role": "expected acute/chronic respiratory acid-base compensation rules"
+    },
+    "fda_pbpk": {
+      "title": "Physiologically Based Pharmacokinetic Analyses \u2014 Format and Content",
+      "agency": "U.S. FDA",
+      "role": "PBPK credibility/context-of-use standard"
+    }
+  }
+}

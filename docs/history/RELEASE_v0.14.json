@@ -1,0 +1,15 @@
+{
+  "version": "0.14.0",
+  "title": "Regional pulmonary control: HPV + recruitment/derecruitment",
+  "scientific_validation": "9/9 PASS",
+  "module_tests": {
+    "test_pulmonary_v014.py": "8/8 PASS",
+    "test_pulmonary_v013.py": "8/8 PASS",
+    "test_blood_gas_v012.py": "8/8 PASS",
+    "test_event_replay.py": "6/6 PASS"
+  },
+  "known_uncompleted_check": "legacy 24-h reduced-renal-function pytest exceeded the available release-test runtime; not counted as pass",
+  "observation_dim": 80,
+  "action_dim": 8,
+  "next": "v0.15 lung/chest-wall mechanics, pressure-volume hysteresis, overdistension and PEEP-heart coupling"
+}

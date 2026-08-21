@@ -1,0 +1,55 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "OpenHumSim: setup",
+      "type": "shell",
+      "command": "uv sync --extra local",
+      "problemMatcher": []
+    },
+    {
+      "label": "OpenHumSim: doctor",
+      "type": "shell",
+      "command": "uv run openhumsim doctor",
+      "problemMatcher": []
+    },
+    {
+      "label": "OpenHumSim: demo",
+      "type": "shell",
+      "command": "uv run openhumsim demo --scenario baseline --minutes 60 --seed 42",
+      "problemMatcher": []
+    },
+    {
+      "label": "OpenHumSim: tests",
+      "type": "shell",
+      "command": "uv run pytest -q -ra",
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "OpenHumSim: scientific validation",
+      "type": "shell",
+      "command": "uv run python validation/run_validation_v22.py",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "OpenHumSim: dashboard",
+      "type": "shell",
+      "command": "uv run python examples/dashboard_server.py",
+      "problemMatcher": []
+    },
+    {
+      "label": "OpenHumSim: verify",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "OpenHumSim: tests",
+        "OpenHumSim: scientific validation"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

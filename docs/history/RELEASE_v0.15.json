@@ -1,0 +1,24 @@
+{
+  "version": "0.15.0",
+  "title": "Explicit respiratory mechanics and heart-lung interaction",
+  "observation_count": 92,
+  "action_count": 8,
+  "scientific_validation": {
+    "passed": 9,
+    "total": 9
+  },
+  "module_tests": {
+    "core_environment": 37,
+    "respiratory_mechanics_v015": 9,
+    "pulmonary_v014": 8,
+    "pulmonary_v013": 8,
+    "blood_gas_v012": 8,
+    "event_replay": 6
+  },
+  "known_limitations": [
+    "No patient-specific esophageal pressure calibration",
+    "No dynamic airway resistance/waveform model",
+    "No respiratory muscle pressure model",
+    "No clinical ventilator-setting validation"
+  ]
+}

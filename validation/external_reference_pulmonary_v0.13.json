@@ -1,0 +1,47 @@
+{
+  "version": "0.13.0",
+  "references": [
+    {
+      "citation": "Wagner PD, Saltzman HA, West JB. Measurement of continuous distributions of ventilation-perfusion ratios: theory. J Appl Physiol. 1974;36(5):588-599.",
+      "pmid": "4826323",
+      "role": "Primary methodological basis for representing the lung as a distribution of V/Q units rather than one homogeneous alveolus. OpenHumSim uses six reduced compartments; it does not perform MIGET inversion."
+    },
+    {
+      "citation": "Wagner PD et al. Continuous distributions of ventilation-perfusion ratios in normal subjects breathing air and 100% O2. J Clin Invest. 1974.",
+      "pmid": "4601004",
+      "role": "Primary healthy-human evidence for non-zero V/Q heterogeneity and small true-shunt fractions."
+    },
+    {
+      "citation": "Warren GL, Cureton KJ, Middendorf WF, Ray CA, Warren JA. Red blood cell pulmonary capillary transit time during exercise in athletes. Med Sci Sports Exerc. 1991.",
+      "pmid": "1798377",
+      "targets": {
+        "rest_transit_time_s": 1.05,
+        "exercise_transit_time_s_range": [0.42, 0.46],
+        "rest_PaO2_mmHg": 101.0,
+        "heavy_exercise_PaO2_mmHg": 85.0,
+        "heavy_exercise_AaDO2_mmHg": 22.3
+      },
+      "role": "Primary human exercise benchmark for pulmonary capillary transit time and widening of the alveolar-arterial O2 gradient. The cohort consisted of endurance athletes, so PaO2=85 mmHg is not imposed as a universal healthy-human target."
+    },
+    {
+      "citation": "Torre-Bueno JR et al. Diffusion limitation in normal humans during exercise at sea level and simulated altitude. J Appl Physiol. 1985.",
+      "pmid": "2984169",
+      "role": "Primary human evidence that V/Q inequality, diffusion resistance and shunt can be separated as contributors to arterial oxygenation."
+    }
+  ],
+  "model_scope": {
+    "vq_compartments": 6,
+    "true_shunt": true,
+    "finite_o2_diffusion": true,
+    "capillary_transit_time": true,
+    "dead_space_diagnostic": "Enghoff-like diagnostic plus reduced high-V/Q wasted ventilation",
+    "not_implemented": [
+      "MIGET inert-gas forward/inverse model",
+      "spatial gravity-dependent lung mechanics",
+      "explicit alveolar recruitment/derecruitment",
+      "membrane DLCO/DLNO chemistry",
+      "dynamic pulmonary vascular resistance per compartment",
+      "full regional CO2 blood-gas exchange within each compartment"
+    ]
+  }
+}

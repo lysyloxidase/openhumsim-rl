@@ -1,0 +1,30 @@
+{
+  "release": "0.15.0",
+  "references": [
+    {
+      "domain": "transpulmonary_pressure",
+      "source": "Akoumianaki et al., Am J Respir Crit Care Med 2014, PMID 24467647",
+      "constraint": "Esophageal pressure changes estimate pleural pressure changes; transpulmonary pressure is airway minus pleural/esophageal pressure."
+    },
+    {
+      "domain": "heart_lung_interaction",
+      "source": "Luecke & Pelosi, Crit Care 2005, PMID 16356246",
+      "constraint": "PEEP/positive-pressure ventilation can reduce venous return and cardiac output; effects depend on lung volume and cardiovascular state."
+    },
+    {
+      "domain": "heart_lung_interaction",
+      "source": "Hamahata et al., J Clin Med 2023, PMID 37541314",
+      "constraint": "Positive intrathoracic pressure decreases venous return and can be particularly detrimental in hypovolemia."
+    },
+    {
+      "domain": "mechanical_load",
+      "source": "Grieco et al., Ann Transl Med 2017, PMID 28828360",
+      "constraint": "Transpulmonary pressure separates pressure acting on lung from pressure used to distend chest wall."
+    },
+    {
+      "domain": "lung_volume_pvr",
+      "source": "Vieillard-Baron et al., Intensive Care Med 2016, PMID 27038480",
+      "constraint": "Tidal forces and PEEP affect RV afterload/PVR through lung volume and transpulmonary/intrathoracic pressure."
+    }
+  ]
+}

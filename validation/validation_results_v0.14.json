@@ -1,0 +1,129 @@
+{
+  "version": "0.14.0",
+  "summary": {
+    "passed": 8,
+    "failed": 1,
+    "total": 9
+  },
+  "checks": [
+    {
+      "name": "v0.13 frozen scientific regression",
+      "value": {
+        "passed": 9,
+        "failed": 0,
+        "total": 9
+      },
+      "pass": true,
+      "tier": "regression",
+      "note": ""
+    },
+    {
+      "name": "release version",
+      "value": "0.15.0",
+      "pass": false,
+      "tier": "software-verification",
+      "note": ""
+    },
+    {
+      "name": "healthy baseline remains recruited with little HPV redistribution",
+      "value": {
+        "recruitment_fraction": 0.9776146377258101,
+        "HPV_resistance_multiplier": 1.0818304593006738,
+        "perfusion_redistribution_index": 0.012690063646305573,
+        "PaO2_mmHg": 89.92732389597222
+      },
+      "pass": true,
+      "tier": "external-physiology-scale",
+      "note": "Healthy-rest gate; not a patient-specific reference interval."
+    },
+    {
+      "name": "regional HPV redistributes flow and improves oxygenation during V/Q mismatch",
+      "value": {
+        "HPV_on_PaO2": 68.33785093622282,
+        "HPV_off_PaO2": 67.32453267322853,
+        "HPV_on_redistribution": 0.031958707753770875,
+        "HPV_off_redistribution": 0.0
+      },
+      "pass": true,
+      "tier": "human-mechanism-validation",
+      "note": "Direction anchored to human regional-perfusion HPV evidence (Asadi et al.); exact PaO2 gain is model-specific."
+    },
+    {
+      "name": "global hypoxia raises pulmonary vascular resistance and pulmonary artery pressure via HPV",
+      "value": {
+        "HPV_on_PVR_multiplier": 2.342033197108991,
+        "HPV_on_PAP_mmHg": 23.610029641808698,
+        "HPV_off_PAP_mmHg": 16.168640844733286
+      },
+      "pass": true,
+      "tier": "human-circulatory-mechanism-validation",
+      "note": "Direction anchored to human hypoxic exposure/transplant-lung data; v0.14 does not fit an individual PAP time course."
+    },
+    {
+      "name": "pressure-dependent derecruitment and recruitment change gas exchange",
+      "value": {
+        "low_pressure_recruitment": 0.1383309175192138,
+        "PEEP_recruitment": 0.9798778482125303,
+        "low_pressure_PaO2": 56.96343352319673,
+        "PEEP_PaO2": 97.19580780947581,
+        "low_pressure_Aa": 44.064926365857104,
+        "PEEP_Aa": 3.832552079578022
+      },
+      "pass": true,
+      "tier": "human-pressure-recruitment-mechanism",
+      "note": "Qualitative/scale gate anchored to Crotti et al.; thresholds are not patient-specific CT estimates."
+    },
+    {
+      "name": "recruitment state evolves dynamically after pressure change",
+      "value": {
+        "before": 0.14729329924797677,
+        "after_10min": 0.9995941698450508
+      },
+      "pass": true,
+      "tier": "dynamic-mechanism-verification",
+      "note": ""
+    },
+    {
+      "name": "HPV/recruitment timestep convergence",
+      "value": {
+        "PaO2_mmHg": 0.017594010569155216,
+        "HPV_R_multiplier": 5.308730839148623e-06,
+        "recruitment_fraction": 3.820419374189754e-07
+      },
+      "pass": true,
+      "tier": "numerical-verification",
+      "note": ""
+    },
+    {
+      "name": "HPV/recruitment stress preserves chemistry and finite dynamics",
+      "value": {
+        "finite": true,
+        "max_CO2_mass_residual_mmol": 3.694822225952521e-13,
+        "max_charge_residual_mEq_l": 9.865161132438516e-09,
+        "unexpected_nonpulmonary_terminations": 0
+      },
+      "pass": true,
+      "tier": "physical-algorithmic-verification",
+      "note": ""
+    }
+  ],
+  "external_reference_file": "validation/external_reference_pulmonary_v0.14.json",
+  "credibility_classification": {
+    "HPV": "regional reduced precapillary resistance controller driven by alveolar PO2; human mechanism anchored, molecular signaling omitted",
+    "regional_perfusion": "parallel conductance redistribution with whole-lung equivalent resistance coupled to the closed-loop pulmonary circulation",
+    "recruitment": "six-unit pressure-threshold model with opening/closing hysteresis and finite time constants; not CT-personalized",
+    "PEEP": "recruitment-state input only; not a complete mechanical ventilator or heart-lung interaction model",
+    "VQ_and_diffusion": "v0.13 six-compartment forward model retained",
+    "clinical_decision_use": "not supported"
+  },
+  "remaining_limitations": [
+    "no continuous MIGET inversion or patient-specific regional V/Q distribution",
+    "no pleural-pressure/gravity field or spatial lung geometry",
+    "no dynamic lung/chest-wall compliance curve coupled to airway pressure and work of breathing",
+    "no full PEEP effect on venous return, RV afterload and overdistension",
+    "no surfactant kinetics or alveolar surface-tension model",
+    "no molecular HPV signaling, endothelial modulation or disease-specific HPV impairment",
+    "no ARDS/COPD/pulmonary-embolism clinical parameter estimation"
+  ],
+  "next_high_value_step": "v0.15 should add lung/chest-wall mechanics with pressure-volume hysteresis, overdistension and PEEP-heart interactions, then calibrate recruitment and V/Q outputs against CT/EIT/MIGET data before disease models."
+}

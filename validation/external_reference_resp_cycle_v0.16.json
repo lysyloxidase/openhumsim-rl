@@ -1,0 +1,35 @@
+{
+  "version": "0.16.0",
+  "references": [
+    {
+      "domain": "equation_of_motion_inertance",
+      "source": "Lanteri et al. Pediatr Pulmonol. 1999;28:130-138. PMID 10423313",
+      "constraint": "Complete single-compartment equation of motion contains resistance, elastance and inertance terms."
+    },
+    {
+      "domain": "respiratory_inertance_scale",
+      "source": "Kessler et al. Technol Health Care. 2000;8:1-14. PMID 10942987",
+      "constraint": "Physical respiratory-system inertance model used a physiologic parameter range of 0.06-0.2 mbar*s^2/L; v0.16 default 0.08 cmH2O*s^2/L lies in the same order after unit conversion."
+    },
+    {
+      "domain": "auto_peep_copd",
+      "source": "Dal Vecchio et al. Eur Respir J. 1990;3:74-80. PMID 2178961",
+      "constraint": "PEEPi was present in all 18 stable COPD patients and averaged 2.4 +/- 1.6 cmH2O."
+    },
+    {
+      "domain": "auto_peep_mechanism",
+      "source": "Haluszka et al. Am Rev Respir Dis. 1990;141:1194-1202. PMID 2111105",
+      "constraint": "Greater airway obstruction/resistance correlated with greater PEEPi and dynamic hyperinflation."
+    },
+    {
+      "domain": "pv_hysteresis",
+      "source": "Cheng et al. Respir Physiol. 1995. PMID 8904012",
+      "constraint": "Recruitment/derecruitment contributes to pressure-volume hysteresis."
+    },
+    {
+      "domain": "work_of_breathing_auto_peep",
+      "source": "Petrof et al. Am Rev Respir Dis. 1990;141:281-289. PMID 2405757",
+      "constraint": "External positive pressure can reduce work of breathing in severe COPD by counterbalancing intrinsic PEEP; v0.16 only models the threshold-load mechanism qualitatively."
+    }
+  ]
+}

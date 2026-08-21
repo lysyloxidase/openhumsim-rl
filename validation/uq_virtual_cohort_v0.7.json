@@ -1,0 +1,1108 @@
+{
+  "version": "0.7.0",
+  "design": {
+    "method": "Latin hypercube",
+    "n": 24,
+    "seed": 20260817,
+    "common_reset_seed": 123,
+    "baseline_cv_internal_step_s": 0.02,
+    "baseline_cv_warmup_min": 3.0,
+    "challenge_cv_internal_step_s": 0.04,
+    "challenge_cv_warmup_min": 1.5,
+    "interpretation": "Parameter ranges are robustness/UQ intervals, not fitted population distributions."
+  },
+  "baseline_summary": {
+    "cardiac_output_l_min": {
+      "mean": 4.880918708209252,
+      "sd": 0.30485949888423053,
+      "p05": 4.268841133930831,
+      "p50": 4.952154679698458,
+      "p95": 5.30295716790963,
+      "min": 4.196139143441337,
+      "max": 5.529260119235936
+    },
+    "cv_ejection_fraction": {
+      "mean": 0.6608148888158941,
+      "sd": 0.043494742906995204,
+      "p05": 0.6008535040541286,
+      "p50": 0.6519803235841144,
+      "p95": 0.7393856848387905,
+      "min": 0.5912446946915385,
+      "max": 0.7459283130819194
+    },
+    "pao2_mmHg": {
+      "mean": 87.3870775001476,
+      "sd": 2.8854215595209154,
+      "p05": 83.09747813459875,
+      "p50": 87.45606354087363,
+      "p95": 91.75940203392196,
+      "min": 82.72209342150981,
+      "max": 92.28108345994083
+    },
+    "paco2_mmHg": {
+      "mean": 41.90681850292751,
+      "sd": 0.0,
+      "p05": 41.90681850292751,
+      "p50": 41.90681850292751,
+      "p95": 41.90681850292751,
+      "min": 41.90681850292751,
+      "max": 41.90681850292751
+    },
+    "ph_arterial": {
+      "mean": 7.378507634287164,
+      "sd": 0.0,
+      "p05": 7.378507634287164,
+      "p50": 7.378507634287164,
+      "p95": 7.378507634287164,
+      "min": 7.378507634287164,
+      "max": 7.378507634287164
+    },
+    "gfr_ml_min": {
+      "mean": 111.21467705439979,
+      "sd": 11.57524445890898,
+      "p05": 94.64925062276471,
+      "p50": 110.8693120174279,
+      "p95": 128.9208677635263,
+      "min": 91.41323494312905,
+      "max": 129.8606161897989
+    },
+    "oxygen_delivery_ml_min": {
+      "mean": 929.4559537914087,
+      "sd": 88.83410137350201,
+      "p05": 801.5423251866465,
+      "p50": 922.5040930267182,
+      "p95": 1066.2053893348402,
+      "min": 764.4306653904239,
+      "max": 1070.1376701192382
+    }
+  },
+  "challenge_75g_summary": {
+    "glucose_peak_75g_mg_dl": {
+      "mean": 164.671525309303,
+      "sd": 9.766184210732067,
+      "p05": 151.90964582657224,
+      "p50": 161.54618519328955,
+      "p95": 180.39701497401006,
+      "min": 151.3629405813672,
+      "max": 180.6982831306341
+    },
+    "glucose_tpeak_75g_min": {
+      "mean": 62.916666666666664,
+      "sd": 2.8565227501671018,
+      "p05": 60.0,
+      "p50": 65.0,
+      "p95": 65.0,
+      "min": 60.0,
+      "max": 70.0
+    },
+    "insulin_peak_75g_uU_ml": {
+      "mean": 45.36098325465067,
+      "sd": 8.97779820844604,
+      "p05": 34.36853200672736,
+      "p50": 42.18056171863131,
+      "p95": 60.05491304613738,
+      "min": 33.793755642595265,
+      "max": 60.91575904231399
+    }
+  },
+  "external_envelope_coverage": {
+    "cardiac_output_l_min": {
+      "fraction_within_external_envelope": 1.0,
+      "count": 24,
+      "n": 24,
+      "range": [
+        3.3,
+        8.2
+      ]
+    },
+    "cv_ejection_fraction": {
+      "fraction_within_external_envelope": 1.0,
+      "count": 24,
+      "n": 24,
+      "range": [
+        0.55,
+        0.8
+      ]
+    },
+    "ph_arterial": {
+      "fraction_within_external_envelope": 1.0,
+      "count": 24,
+      "n": 24,
+      "range": [
+        7.35,
+        7.45
+      ]
+    },
+    "paco2_mmHg": {
+      "fraction_within_external_envelope": 1.0,
+      "count": 24,
+      "n": 24,
+      "range": [
+        35.0,
+        45.0
+      ]
+    },
+    "pao2_mmHg": {
+      "fraction_within_external_envelope": 1.0,
+      "count": 24,
+      "n": 24,
+      "range": [
+        80.0,
+        100.0
+      ]
+    },
+    "gfr_ml_min": {
+      "fraction_within_external_envelope": 1.0,
+      "count": 24,
+      "n": 24,
+      "range": [
+        90.0,
+        140.0
+      ]
+    }
+  },
+  "rank_sensitivity_top5": {
+    "cardiac_output_l_min": [
+      {
+        "parameter": "cv_resting_hr_bpm",
+        "spearman_rho": 0.6782608695652173
+      },
+      {
+        "parameter": "cv_r_systemic_scale",
+        "spearman_rho": -0.6330434782608695
+      },
+      {
+        "parameter": "body_weight_kg",
+        "spearman_rho": 0.5695652173913043
+      },
+      {
+        "parameter": "tbw_fraction",
+        "spearman_rho": 0.3739130434782608
+      },
+      {
+        "parameter": "dalla_gastric_absorption_scale",
+        "spearman_rho": 0.32
+      }
+    ],
+    "cv_ejection_fraction": [
+      {
+        "parameter": "body_weight_kg",
+        "spearman_rho": 0.6704347826086956
+      },
+      {
+        "parameter": "cv_lv_emax_scale",
+        "spearman_rho": 0.5191304347826087
+      },
+      {
+        "parameter": "tbw_fraction",
+        "spearman_rho": 0.2834782608695652
+      },
+      {
+        "parameter": "cv_r_systemic_scale",
+        "spearman_rho": -0.2782608695652174
+      },
+      {
+        "parameter": "baseline_aa_gradient_mmHg",
+        "spearman_rho": 0.23565217391304347
+      }
+    ],
+    "pao2_mmHg": [
+      {
+        "parameter": "baseline_aa_gradient_mmHg",
+        "spearman_rho": -0.9999999999999999
+      },
+      {
+        "parameter": "baseline_gfr_ml_min",
+        "spearman_rho": -0.6078260869565217
+      },
+      {
+        "parameter": "cv_lv_emax_scale",
+        "spearman_rho": -0.45826086956521733
+      },
+      {
+        "parameter": "cv_resting_hr_bpm",
+        "spearman_rho": 0.3834782608695652
+      },
+      {
+        "parameter": "hemoglobin_g_dl",
+        "spearman_rho": 0.2782608695652174
+      }
+    ],
+    "paco2_mmHg": [
+      {
+        "parameter": "ecf_fraction",
+        "spearman_rho": 0.2478260869565217
+      },
+      {
+        "parameter": "body_weight_kg",
+        "spearman_rho": 0.24260869565217388
+      },
+      {
+        "parameter": "respiratory_acidosis_efficiency",
+        "spearman_rho": -0.2278260869565217
+      },
+      {
+        "parameter": "cv_r_systemic_scale",
+        "spearman_rho": 0.20869565217391303
+      },
+      {
+        "parameter": "tbw_fraction",
+        "spearman_rho": -0.20608695652173914
+      }
+    ],
+    "ph_arterial": [
+      {
+        "parameter": "ecf_fraction",
+        "spearman_rho": 0.2478260869565217
+      },
+      {
+        "parameter": "body_weight_kg",
+        "spearman_rho": 0.24260869565217388
+      },
+      {
+        "parameter": "respiratory_acidosis_efficiency",
+        "spearman_rho": -0.2278260869565217
+      },
+      {
+        "parameter": "cv_r_systemic_scale",
+        "spearman_rho": 0.20869565217391303
+      },
+      {
+        "parameter": "tbw_fraction",
+        "spearman_rho": -0.20608695652173914
+      }
+    ],
+    "gfr_ml_min": [
+      {
+        "parameter": "baseline_gfr_ml_min",
+        "spearman_rho": 0.9999999999999999
+      },
+      {
+        "parameter": "baseline_aa_gradient_mmHg",
+        "spearman_rho": 0.6078260869565217
+      },
+      {
+        "parameter": "blood_volume_ml_per_kg",
+        "spearman_rho": -0.3756521739130434
+      },
+      {
+        "parameter": "tbw_fraction",
+        "spearman_rho": -0.2817391304347826
+      },
+      {
+        "parameter": "hemoglobin_g_dl",
+        "spearman_rho": -0.268695652173913
+      }
+    ],
+    "oxygen_delivery_ml_min": [
+      {
+        "parameter": "hemoglobin_g_dl",
+        "spearman_rho": 0.7365217391304346
+      },
+      {
+        "parameter": "cv_r_systemic_scale",
+        "spearman_rho": -0.5695652173913043
+      },
+      {
+        "parameter": "baseline_aa_gradient_mmHg",
+        "spearman_rho": -0.41739130434782606
+      },
+      {
+        "parameter": "cv_resting_hr_bpm",
+        "spearman_rho": 0.3660869565217391
+      },
+      {
+        "parameter": "cv_lv_emax_scale",
+        "spearman_rho": -0.34434782608695647
+      }
+    ],
+    "glucose_peak_75g_mg_dl": [
+      {
+        "parameter": "body_weight_kg",
+        "spearman_rho": -0.9704347826086955
+      },
+      {
+        "parameter": "dalla_gastric_absorption_scale",
+        "spearman_rho": -0.3991304347826086
+      },
+      {
+        "parameter": "ecf_fraction",
+        "spearman_rho": -0.2417391304347826
+      },
+      {
+        "parameter": "tbw_fraction",
+        "spearman_rho": -0.23130434782608694
+      },
+      {
+        "parameter": "blood_volume_ml_per_kg",
+        "spearman_rho": 0.2252173913043478
+      }
+    ],
+    "glucose_tpeak_75g_min": [
+      {
+        "parameter": "dalla_insulin_sensitivity_scale",
+        "spearman_rho": -0.5113043478260869
+      },
+      {
+        "parameter": "cv_r_systemic_scale",
+        "spearman_rho": -0.3678260869565217
+      },
+      {
+        "parameter": "body_weight_kg",
+        "spearman_rho": 0.3539130434782608
+      },
+      {
+        "parameter": "hemoglobin_g_dl",
+        "spearman_rho": 0.2843478260869565
+      },
+      {
+        "parameter": "blood_volume_ml_per_kg",
+        "spearman_rho": 0.2669565217391304
+      }
+    ],
+    "insulin_peak_75g_uU_ml": [
+      {
+        "parameter": "body_weight_kg",
+        "spearman_rho": -0.9347826086956521
+      },
+      {
+        "parameter": "dalla_gastric_absorption_scale",
+        "spearman_rho": -0.35826086956521735
+      },
+      {
+        "parameter": "dalla_insulin_sensitivity_scale",
+        "spearman_rho": -0.2791304347826086
+      },
+      {
+        "parameter": "tbw_fraction",
+        "spearman_rho": -0.26608695652173914
+      },
+      {
+        "parameter": "blood_volume_ml_per_kg",
+        "spearman_rho": 0.21130434782608692
+      }
+    ]
+  },
+  "patients": [
+    {
+      "patient_id": "VP-0000",
+      "body_weight_kg": 57.003802150405306,
+      "blood_volume_ml_per_kg": 77.9548371256766,
+      "tbw_fraction": 0.6305337653232803,
+      "ecf_fraction": 0.19073118910718684,
+      "hemoglobin_g_dl": 13.015685998937071,
+      "baseline_gfr_ml_min": 116.21935841884516,
+      "cv_resting_hr_bpm": 79.50263694522147,
+      "cv_r_systemic_scale": 1.0415940685572864,
+      "cv_lv_emax_scale": 1.062159612980591,
+      "baseline_aa_gradient_mmHg": 13.924372754670733,
+      "dalla_insulin_sensitivity_scale": 1.0386763373208279,
+      "dalla_gastric_absorption_scale": 0.9247625808106434,
+      "respiratory_acidosis_efficiency": 0.6808588105210321,
+      "pbpk_fraction_unbound": 0.49076218405706773,
+      "pbpk_hepatic_clint_l_min": 0.19045766368912492,
+      "cardiac_output_l_min": 4.955568394975746,
+      "cv_ejection_fraction": 0.6488867714507733,
+      "map_mmHg": 103.4611859686852,
+      "pao2_mmHg": 83.42210411666987,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 117.57043492508046,
+      "arterial_o2_content_ml_dl": 17.037598916883592,
+      "oxygen_delivery_ml_min": 844.3098671878133,
+      "glucose_peak_75g_mg_dl": 180.41886666797032,
+      "glucose_tpeak_75g_min": 60.0,
+      "insulin_peak_75g_uU_ml": 59.960283971417404
+    },
+    {
+      "patient_id": "VP-0001",
+      "body_weight_kg": 66.27917814062631,
+      "blood_volume_ml_per_kg": 79.77754920419058,
+      "tbw_fraction": 0.6214169699721611,
+      "ecf_fraction": 0.19892201741125592,
+      "hemoglobin_g_dl": 14.081635250944284,
+      "baseline_gfr_ml_min": 110.08151123813569,
+      "cv_resting_hr_bpm": 72.36821173395042,
+      "cv_r_systemic_scale": 1.0128087143625042,
+      "cv_lv_emax_scale": 0.894235983552854,
+      "baseline_aa_gradient_mmHg": 11.678261882764366,
+      "dalla_insulin_sensitivity_scale": 0.9294774120201418,
+      "dalla_gastric_absorption_scale": 1.0078114465661447,
+      "respiratory_acidosis_efficiency": 0.7072271333209136,
+      "pbpk_fraction_unbound": 0.6064541435858222,
+      "pbpk_hepatic_clint_l_min": 0.17266198087703352,
+      "cardiac_output_l_min": 4.891146207923149,
+      "cv_ejection_fraction": 0.6156616108438623,
+      "map_mmHg": 99.77767207415577,
+      "pao2_mmHg": 85.66821498857624,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 111.43258774437099,
+      "arterial_o2_content_ml_dl": 18.47096012284446,
+      "oxygen_delivery_ml_min": 903.4416656155038,
+      "glucose_peak_75g_mg_dl": 172.29169463407706,
+      "glucose_tpeak_75g_min": 65.0,
+      "insulin_peak_75g_uU_ml": 52.22105881080512
+    },
+    {
+      "patient_id": "VP-0002",
+      "body_weight_kg": 92.17992144461488,
+      "blood_volume_ml_per_kg": 66.89706055004645,
+      "tbw_fraction": 0.6183616554544411,
+      "ecf_fraction": 0.20419204993716272,
+      "hemoglobin_g_dl": 13.272236318960903,
+      "baseline_gfr_ml_min": 126.28799123545625,
+      "cv_resting_hr_bpm": 84.37976435657482,
+      "cv_r_systemic_scale": 0.8659942128628035,
+      "cv_lv_emax_scale": 1.0393120512659064,
+      "baseline_aa_gradient_mmHg": 10.73564906608675,
+      "dalla_insulin_sensitivity_scale": 0.997743382872673,
+      "dalla_gastric_absorption_scale": 0.9996602717545163,
+      "respiratory_acidosis_efficiency": 0.5993543832267118,
+      "pbpk_fraction_unbound": 0.6885726584994218,
+      "pbpk_hepatic_clint_l_min": 0.10996047675075024,
+      "cardiac_output_l_min": 5.529260119235936,
+      "cv_ejection_fraction": 0.7399743965932273,
+      "map_mmHg": 97.02324174644441,
+      "pao2_mmHg": 86.61082780525385,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 127.63906774169155,
+      "arterial_o2_content_ml_dl": 17.446722731079387,
+      "oxygen_delivery_ml_min": 964.6746820832432,
+      "glucose_peak_75g_mg_dl": 151.62202726111238,
+      "glucose_tpeak_75g_min": 65.0,
+      "insulin_peak_75g_uU_ml": 34.16968611996163
+    },
+    {
+      "patient_id": "VP-0003",
+      "body_weight_kg": 75.09989784585647,
+      "blood_volume_ml_per_kg": 69.52833992568084,
+      "tbw_fraction": 0.6470696652861957,
+      "ecf_fraction": 0.18775997128381375,
+      "hemoglobin_g_dl": 15.81170444462551,
+      "baseline_gfr_ml_min": 97.65519573800849,
+      "cv_resting_hr_bpm": 78.51529109215775,
+      "cv_r_systemic_scale": 0.9242958138414704,
+      "cv_lv_emax_scale": 0.9190960742572547,
+      "baseline_aa_gradient_mmHg": 5.875197270823766,
+      "dalla_insulin_sensitivity_scale": 1.1500329763682895,
+      "dalla_gastric_absorption_scale": 1.0296150862788616,
+      "respiratory_acidosis_efficiency": 0.6078878153554577,
+      "pbpk_fraction_unbound": 0.5080374373571603,
+      "pbpk_hepatic_clint_l_min": 0.2695473475568477,
+      "cardiac_output_l_min": 5.131716627862865,
+      "cv_ejection_fraction": 0.6477084847627632,
+      "map_mmHg": 95.76729506247268,
+      "pao2_mmHg": 91.47127960051684,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 99.00627224424379,
+      "arterial_o2_content_ml_dl": 20.853405355800085,
+      "oxygen_delivery_ml_min": 1070.1376701192382,
+      "glucose_peak_75g_mg_dl": 161.37965889117467,
+      "glucose_tpeak_75g_min": 60.0,
+      "insulin_peak_75g_uU_ml": 41.654455476132824
+    },
+    {
+      "patient_id": "VP-0004",
+      "body_weight_kg": 85.97617726895709,
+      "blood_volume_ml_per_kg": 68.57917488331917,
+      "tbw_fraction": 0.5257340051508841,
+      "ecf_fraction": 0.18878342902263034,
+      "hemoglobin_g_dl": 16.00236808427176,
+      "baseline_gfr_ml_min": 93.03750880318198,
+      "cv_resting_hr_bpm": 63.883605366405405,
+      "cv_r_systemic_scale": 1.1153693735646766,
+      "cv_lv_emax_scale": 0.9903207052050405,
+      "baseline_aa_gradient_mmHg": 7.331873783004305,
+      "dalla_insulin_sensitivity_scale": 1.1827827499992,
+      "dalla_gastric_absorption_scale": 1.1347941690330883,
+      "respiratory_acidosis_efficiency": 0.6615326022106708,
+      "pbpk_fraction_unbound": 0.5440675089192737,
+      "pbpk_hepatic_clint_l_min": 0.18976418632309872,
+      "cardiac_output_l_min": 4.768167115699363,
+      "cv_ejection_fraction": 0.6618829097310164,
+      "map_mmHg": 106.37249556853902,
+      "pao2_mmHg": 90.01460308833629,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 94.38858530941728,
+      "arterial_o2_content_ml_dl": 21.067385742544886,
+      "oxygen_delivery_ml_min": 1004.5281591135613,
+      "glucose_peak_75g_mg_dl": 154.0072644649306,
+      "glucose_tpeak_75g_min": 60.0,
+      "insulin_peak_75g_uU_ml": 35.62001737849487
+    },
+    {
+      "patient_id": "VP-0005",
+      "body_weight_kg": 61.29082849955551,
+      "blood_volume_ml_per_kg": 70.63830860161782,
+      "tbw_fraction": 0.5464497665744349,
+      "ecf_fraction": 0.18482349892630745,
+      "hemoglobin_g_dl": 15.847781969868892,
+      "baseline_gfr_ml_min": 127.7959912611442,
+      "cv_resting_hr_bpm": 63.73201353079603,
+      "cv_r_systemic_scale": 0.9183611376118053,
+      "cv_lv_emax_scale": 0.900836994792475,
+      "baseline_aa_gradient_mmHg": 13.208638532381253,
+      "dalla_insulin_sensitivity_scale": 0.7801910066658188,
+      "dalla_gastric_absorption_scale": 0.9075255376614184,
+      "respiratory_acidosis_efficiency": 0.6357396061858992,
+      "pbpk_fraction_unbound": 0.3660081069243226,
+      "pbpk_hepatic_clint_l_min": 0.25171599905417635,
+      "cardiac_output_l_min": 4.566627751348932,
+      "cv_ejection_fraction": 0.5988500876271396,
+      "map_mmHg": 85.53170035562222,
+      "pao2_mmHg": 84.13783833895934,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 129.1470677673795,
+      "arterial_o2_content_ml_dl": 20.710145359221567,
+      "oxygen_delivery_ml_min": 945.7552453189151,
+      "glucose_peak_75g_mg_dl": 179.84258181137878,
+      "glucose_tpeak_75g_min": 65.0,
+      "insulin_peak_75g_uU_ml": 60.071612294617374
+    },
+    {
+      "patient_id": "VP-0006",
+      "body_weight_kg": 78.20755439846002,
+      "blood_volume_ml_per_kg": 73.11315004324742,
+      "tbw_fraction": 0.6426521385988744,
+      "ecf_fraction": 0.21386858407728948,
+      "hemoglobin_g_dl": 12.764982451147139,
+      "baseline_gfr_ml_min": 114.45980733005916,
+      "cv_resting_hr_bpm": 66.5105275383924,
+      "cv_r_systemic_scale": 1.0901951423989642,
+      "cv_lv_emax_scale": 0.9640657096975362,
+      "baseline_aa_gradient_mmHg": 13.457001828700777,
+      "dalla_insulin_sensitivity_scale": 1.1123012547067386,
+      "dalla_gastric_absorption_scale": 1.0417137262082015,
+      "respiratory_acidosis_efficiency": 0.6913056635644454,
+      "pbpk_fraction_unbound": 0.37504726598578864,
+      "pbpk_hepatic_clint_l_min": 0.2728543376788143,
+      "cardiac_output_l_min": 4.801083273555535,
+      "cv_ejection_fraction": 0.6502139828205166,
+      "map_mmHg": 104.73693992605969,
+      "pao2_mmHg": 83.88947504263982,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 115.81088383629447,
+      "arterial_o2_content_ml_dl": 16.726101030816714,
+      "oxygen_delivery_ml_min": 803.0340389085411,
+      "glucose_peak_75g_mg_dl": 159.54194656226852,
+      "glucose_tpeak_75g_min": 60.0,
+      "insulin_peak_75g_uU_ml": 40.24454171886816
+    },
+    {
+      "patient_id": "VP-0007",
+      "body_weight_kg": 61.86306525404818,
+      "blood_volume_ml_per_kg": 65.50770848854924,
+      "tbw_fraction": 0.5098472940024646,
+      "ecf_fraction": 0.20182491349720774,
+      "hemoglobin_g_dl": 15.580198972873363,
+      "baseline_gfr_ml_min": 118.23901293412165,
+      "cv_resting_hr_bpm": 55.63752278879051,
+      "cv_r_systemic_scale": 1.1617170172183238,
+      "cv_lv_emax_scale": 1.1139527535417266,
+      "baseline_aa_gradient_mmHg": 12.523374551756547,
+      "dalla_insulin_sensitivity_scale": 0.8409105177887664,
+      "dalla_gastric_absorption_scale": 0.939550673659615,
+      "respiratory_acidosis_efficiency": 0.6165828810850096,
+      "pbpk_fraction_unbound": 0.6001515417169956,
+      "pbpk_hepatic_clint_l_min": 0.17540626863213726,
+      "cardiac_output_l_min": 4.196139143441337,
+      "cv_ejection_fraction": 0.6441036648060067,
+      "map_mmHg": 98.04230784238608,
+      "pao2_mmHg": 84.82310231958405,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 119.59008944035695,
+      "arterial_o2_content_ml_dl": 20.38466954841134,
+      "oxygen_delivery_ml_min": 855.3690981820545,
+      "glucose_peak_75g_mg_dl": 178.28915323191643,
+      "glucose_tpeak_75g_min": 65.0,
+      "insulin_peak_75g_uU_ml": 58.3466725250376
+    },
+    {
+      "patient_id": "VP-0008",
+      "body_weight_kg": 73.58705715030956,
+      "blood_volume_ml_per_kg": 70.11440642043429,
+      "tbw_fraction": 0.5618040095942194,
+      "ecf_fraction": 0.20946007946115464,
+      "hemoglobin_g_dl": 14.329656157068232,
+      "baseline_gfr_ml_min": 106.8329168039159,
+      "cv_resting_hr_bpm": 59.932662884619475,
+      "cv_r_systemic_scale": 1.0361515862710442,
+      "cv_lv_emax_scale": 0.960405000217632,
+      "baseline_aa_gradient_mmHg": 8.083328981424643,
+      "dalla_insulin_sensitivity_scale": 1.2151501361205574,
+      "dalla_gastric_absorption_scale": 1.0210358238742516,
+      "respiratory_acidosis_efficiency": 0.5797328993488513,
+      "pbpk_fraction_unbound": 0.727194010007399,
+      "pbpk_hepatic_clint_l_min": 0.12794457777600277,
+      "cardiac_output_l_min": 4.554678325488364,
+      "cv_ejection_fraction": 0.6164973524204768,
+      "map_mmHg": 95.24523570316022,
+      "pao2_mmHg": 89.26314788991596,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 108.1839933101512,
+      "arterial_o2_content_ml_dl": 18.877783109695827,
+      "oxygen_delivery_ml_min": 859.8222956300191,
+      "glucose_peak_75g_mg_dl": 161.71271149540442,
+      "glucose_tpeak_75g_min": 60.0,
+      "insulin_peak_75g_uU_ml": 41.74272576585938
+    },
+    {
+      "patient_id": "VP-0009",
+      "body_weight_kg": 59.28073611471272,
+      "blood_volume_ml_per_kg": 75.13246311651827,
+      "tbw_fraction": 0.5222330829528012,
+      "ecf_fraction": 0.21831519049817044,
+      "hemoglobin_g_dl": 14.425632267476974,
+      "baseline_gfr_ml_min": 105.1889495895453,
+      "cv_resting_hr_bpm": 72.7620707007284,
+      "cv_r_systemic_scale": 0.8950505879067793,
+      "cv_lv_emax_scale": 0.9290324749094118,
+      "baseline_aa_gradient_mmHg": 5.536229702111858,
+      "dalla_insulin_sensitivity_scale": 0.8936421355635663,
+      "dalla_gastric_absorption_scale": 0.9789798840719743,
+      "respiratory_acidosis_efficiency": 0.6714514397889793,
+      "pbpk_fraction_unbound": 0.3182554966980208,
+      "pbpk_hepatic_clint_l_min": 0.15987798007696455,
+      "cardiac_output_l_min": 4.920936814901536,
+      "cv_ejection_fraction": 0.6122061971403996,
+      "map_mmHg": 89.33211899628436,
+      "pao2_mmHg": 91.81024716922875,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 106.5400260957806,
+      "arterial_o2_content_ml_dl": 19.0572505767993,
+      "oxygen_delivery_ml_min": 937.7952595417522,
+      "glucose_peak_75g_mg_dl": 180.6982831306341,
+      "glucose_tpeak_75g_min": 60.0,
+      "insulin_peak_75g_uU_ml": 60.91575904231399
+    },
+    {
+      "patient_id": "VP-0010",
+      "body_weight_kg": 89.06325019418793,
+      "blood_volume_ml_per_kg": 76.9623183028356,
+      "tbw_fraction": 0.5727266396661822,
+      "ecf_fraction": 0.21738716279491707,
+      "hemoglobin_g_dl": 16.22394233596117,
+      "baseline_gfr_ml_min": 90.06215843689375,
+      "cv_resting_hr_bpm": 57.08267783600589,
+      "cv_r_systemic_scale": 0.85311808735056,
+      "cv_lv_emax_scale": 1.0743347524894118,
+      "baseline_aa_gradient_mmHg": 10.95441318658554,
+      "dalla_insulin_sensitivity_scale": 0.8960395859088872,
+      "dalla_gastric_absorption_scale": 0.8501574350631792,
+      "respiratory_acidosis_efficiency": 0.7145458917928256,
+      "pbpk_fraction_unbound": 0.45560455434498703,
+      "pbpk_hepatic_clint_l_min": 0.23074979113134123,
+      "cardiac_output_l_min": 4.96550942827812,
+      "cv_ejection_fraction": 0.7459283130819194,
+      "map_mmHg": 86.46306785250457,
+      "pao2_mmHg": 86.39206368475506,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 91.41323494312905,
+      "arterial_o2_content_ml_dl": 21.26105056163528,
+      "oxygen_delivery_ml_min": 1055.7194701889778,
+      "glucose_peak_75g_mg_dl": 153.63712807036114,
+      "glucose_tpeak_75g_min": 70.0,
+      "insulin_peak_75g_uU_ml": 35.49532536506644
+    },
+    {
+      "patient_id": "VP-0011",
+      "body_weight_kg": 80.70050229683879,
+      "blood_volume_ml_per_kg": 66.48233443441174,
+      "tbw_fraction": 0.5010398697511913,
+      "ecf_fraction": 0.22672525841575697,
+      "hemoglobin_g_dl": 13.655974888238022,
+      "baseline_gfr_ml_min": 120.15774936274252,
+      "cv_resting_hr_bpm": 80.72423558115477,
+      "cv_r_systemic_scale": 1.061810850921134,
+      "cv_lv_emax_scale": 0.9447090595716531,
+      "baseline_aa_gradient_mmHg": 6.270194323347605,
+      "dalla_insulin_sensitivity_scale": 1.0020123923402298,
+      "dalla_gastric_absorption_scale": 1.0692595843978334,
+      "respiratory_acidosis_efficiency": 0.5549840361378041,
+      "pbpk_fraction_unbound": 0.4158136046131594,
+      "pbpk_hepatic_clint_l_min": 0.20728403785900845,
+      "cardiac_output_l_min": 5.020218226752129,
+      "cv_ejection_fraction": 0.6416264828773736,
+      "map_mmHg": 106.79577234128747,
+      "pao2_mmHg": 91.07628254799299,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 121.50882586897782,
+      "arterial_o2_content_ml_dl": 18.04105132332784,
+      "oxygen_delivery_ml_min": 905.7001468314103,
+      "glucose_peak_75g_mg_dl": 159.2284416601358,
+      "glucose_tpeak_75g_min": 60.0,
+      "insulin_peak_75g_uU_ml": 40.28248526316195
+    },
+    {
+      "patient_id": "VP-0012",
+      "body_weight_kg": 56.58683467703521,
+      "blood_volume_ml_per_kg": 67.50831835821616,
+      "tbw_fraction": 0.5639516726948766,
+      "ecf_fraction": 0.19474868585273436,
+      "hemoglobin_g_dl": 14.726996948154273,
+      "baseline_gfr_ml_min": 101.66976383488249,
+      "cv_resting_hr_bpm": 58.12935658208708,
+      "cv_r_systemic_scale": 1.1396369971983047,
+      "cv_lv_emax_scale": 1.0831315824163634,
+      "baseline_aa_gradient_mmHg": 8.63926350610652,
+      "dalla_insulin_sensitivity_scale": 1.0799604302508135,
+      "dalla_gastric_absorption_scale": 0.9266284975795811,
+      "respiratory_acidosis_efficiency": 0.7007955692309527,
+      "pbpk_fraction_unbound": 0.5637679142003121,
+      "pbpk_hepatic_clint_l_min": 0.1381185097164796,
+      "cardiac_output_l_min": 4.221663042404131,
+      "cv_ejection_fraction": 0.6344002961040923,
+      "map_mmHg": 96.52950885891259,
+      "pao2_mmHg": 88.70721336523408,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 103.02084034111779,
+      "arterial_o2_content_ml_dl": 19.38067461508439,
+      "oxygen_delivery_ml_min": 818.1867775936169,
+      "glucose_peak_75g_mg_dl": 180.27318870823535,
+      "glucose_tpeak_75g_min": 60.0,
+      "insulin_peak_75g_uU_ml": 59.58889122640582
+    },
+    {
+      "patient_id": "VP-0013",
+      "body_weight_kg": 70.48543024518611,
+      "blood_volume_ml_per_kg": 75.91295911105554,
+      "tbw_fraction": 0.5391587497034431,
+      "ecf_fraction": 0.19325570771819217,
+      "hemoglobin_g_dl": 16.358174011920745,
+      "baseline_gfr_ml_min": 123.98275887533558,
+      "cv_resting_hr_bpm": 69.37643274752736,
+      "cv_r_systemic_scale": 0.9548288326447807,
+      "cv_lv_emax_scale": 1.027967983773074,
+      "baseline_aa_gradient_mmHg": 12.406108743797569,
+      "dalla_insulin_sensitivity_scale": 0.857492007786587,
+      "dalla_gastric_absorption_scale": 1.1044542841604388,
+      "respiratory_acidosis_efficiency": 0.6041109577247062,
+      "pbpk_fraction_unbound": 0.6288320314076818,
+      "pbpk_hepatic_clint_l_min": 0.24858853936609543,
+      "cardiac_output_l_min": 4.9925708856238735,
+      "cv_ejection_fraction": 0.6789849068887599,
+      "map_mmHg": 96.48702344761891,
+      "pao2_mmHg": 84.94036812754302,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 125.33383538157088,
+      "arterial_o2_content_ml_dl": 21.392902977705717,
+      "oxygen_delivery_ml_min": 1068.0558456546983,
+      "glucose_peak_75g_mg_dl": 170.03905448845094,
+      "glucose_tpeak_75g_min": 65.0,
+      "insulin_peak_75g_uU_ml": 50.24454656510624
+    },
+    {
+      "patient_id": "VP-0014",
+      "body_weight_kg": 83.43663124072995,
+      "blood_volume_ml_per_kg": 78.1490415156396,
+      "tbw_fraction": 0.6344809580150287,
+      "ecf_fraction": 0.211968456377564,
+      "hemoglobin_g_dl": 12.950247689968204,
+      "baseline_gfr_ml_min": 96.04631814091783,
+      "cv_resting_hr_bpm": 67.96131652270302,
+      "cv_r_systemic_scale": 0.971587873362555,
+      "cv_lv_emax_scale": 1.094554620252744,
+      "baseline_aa_gradient_mmHg": 9.402120917519895,
+      "dalla_insulin_sensitivity_scale": 0.7706978207565749,
+      "dalla_gastric_absorption_scale": 1.1471322627444624,
+      "respiratory_acidosis_efficiency": 0.6523861211433929,
+      "pbpk_fraction_unbound": 0.4645682222909381,
+      "pbpk_hepatic_clint_l_min": 0.14584072885308214,
+      "cardiac_output_l_min": 5.134088957710849,
+      "cv_ejection_fraction": 0.7360496515636492,
+      "map_mmHg": 100.59685169493456,
+      "pao2_mmHg": 87.9443559538207,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 97.39739464715313,
+      "arterial_o2_content_ml_dl": 17.059436009717267,
+      "oxygen_delivery_ml_min": 875.8466204226423,
+      "glucose_peak_75g_mg_dl": 161.00296656426045,
+      "glucose_tpeak_75g_min": 65.0,
+      "insulin_peak_75g_uU_ml": 42.114649890632165
+    },
+    {
+      "patient_id": "VP-0015",
+      "body_weight_kg": 81.73890535430267,
+      "blood_volume_ml_per_kg": 73.73027214179359,
+      "tbw_fraction": 0.5922692461202715,
+      "ecf_fraction": 0.222647373349295,
+      "hemoglobin_g_dl": 15.402651101174035,
+      "baseline_gfr_ml_min": 98.78578297069154,
+      "cv_resting_hr_bpm": 83.33815179164465,
+      "cv_r_systemic_scale": 1.191501523833935,
+      "cv_lv_emax_scale": 0.8861287690222486,
+      "baseline_aa_gradient_mmHg": 5.065393411399763,
+      "dalla_insulin_sensitivity_scale": 0.8181104864201872,
+      "dalla_gastric_absorption_scale": 1.0955774749785998,
+      "respiratory_acidosis_efficiency": 0.5766719227894842,
+      "pbpk_fraction_unbound": 0.6500960233630064,
+      "pbpk_hepatic_clint_l_min": 0.21987011832273862,
+      "cardiac_output_l_min": 4.94874096442117,
+      "cv_ejection_fraction": 0.6189972579036958,
+      "map_mmHg": 117.08472677071113,
+      "pao2_mmHg": 92.28108345994083,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 100.13685947692684,
+      "arterial_o2_content_ml_dl": 20.33885208285932,
+      "oxygen_delivery_ml_min": 1006.5171047174875,
+      "glucose_peak_75g_mg_dl": 161.26777632728155,
+      "glucose_tpeak_75g_min": 65.0,
+      "insulin_peak_75g_uU_ml": 42.24647354663045
+    },
+    {
+      "patient_id": "VP-0016",
+      "body_weight_kg": 71.9554793382326,
+      "blood_volume_ml_per_kg": 78.86484871836598,
+      "tbw_fraction": 0.6099348672681213,
+      "ecf_fraction": 0.2293987443539338,
+      "hemoglobin_g_dl": 15.185548373810015,
+      "baseline_gfr_ml_min": 94.77527755883155,
+      "cv_resting_hr_bpm": 74.01627547627429,
+      "cv_r_systemic_scale": 0.9869251859196555,
+      "cv_lv_emax_scale": 0.9814210807218862,
+      "baseline_aa_gradient_mmHg": 7.849616083687145,
+      "dalla_insulin_sensitivity_scale": 1.04409688572945,
+      "dalla_gastric_absorption_scale": 0.8657734372594618,
+      "respiratory_acidosis_efficiency": 0.5616530549819417,
+      "pbpk_fraction_unbound": 0.41908500199008025,
+      "pbpk_hepatic_clint_l_min": 0.10370975688725967,
+      "cardiac_output_l_min": 5.070524325076917,
+      "cv_ejection_fraction": 0.6764305206687194,
+      "map_mmHg": 100.78964935788085,
+      "pao2_mmHg": 89.49686078765345,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 96.12635406506685,
+      "arterial_o2_content_ml_dl": 19.994286261917388,
+      "oxygen_delivery_ml_min": 1013.8151485360335,
+      "glucose_peak_75g_mg_dl": 163.88009318825505,
+      "glucose_tpeak_75g_min": 65.0,
+      "insulin_peak_75g_uU_ml": 44.093749805191216
+    },
+    {
+      "patient_id": "VP-0017",
+      "body_weight_kg": 78.93607924420053,
+      "blood_volume_ml_per_kg": 73.93203442053141,
+      "tbw_fraction": 0.5845185837884298,
+      "ecf_fraction": 0.18204393718604178,
+      "hemoglobin_g_dl": 15.094232832279944,
+      "baseline_gfr_ml_min": 112.54811081517641,
+      "cv_resting_hr_bpm": 77.28807905809985,
+      "cv_r_systemic_scale": 1.0824994939053805,
+      "cv_lv_emax_scale": 1.009842242082011,
+      "baseline_aa_gradient_mmHg": 10.022958576972256,
+      "dalla_insulin_sensitivity_scale": 1.0936967790047158,
+      "dalla_gastric_absorption_scale": 1.0764274475796143,
+      "respiratory_acidosis_efficiency": 0.6926418596218846,
+      "pbpk_fraction_unbound": 0.5229369532704962,
+      "pbpk_hepatic_clint_l_min": 0.16657302231480003,
+      "cardiac_output_l_min": 5.06702220147307,
+      "cv_ejection_fraction": 0.6827309176105868,
+      "map_mmHg": 109.63031297239692,
+      "pao2_mmHg": 87.32351829436834,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 113.89918732141172,
+      "arterial_o2_content_ml_dl": 19.823125806070255,
+      "oxygen_delivery_ml_min": 1004.4421856195172,
+      "glucose_peak_75g_mg_dl": 159.46681535785055,
+      "glucose_tpeak_75g_min": 60.0,
+      "insulin_peak_75g_uU_ml": 40.19767046480381
+    },
+    {
+      "patient_id": "VP-0018",
+      "body_weight_kg": 94.2239733288216,
+      "blood_volume_ml_per_kg": 66.24037149017562,
+      "tbw_fraction": 0.5507439468669553,
+      "ecf_fraction": 0.22491517286723492,
+      "hemoglobin_g_dl": 13.97215433789059,
+      "baseline_gfr_ml_min": 119.38091041884645,
+      "cv_resting_hr_bpm": 65.16690052714966,
+      "cv_r_systemic_scale": 0.940841373094661,
+      "cv_lv_emax_scale": 1.1020021681478958,
+      "baseline_aa_gradient_mmHg": 14.3062856747544,
+      "dalla_insulin_sensitivity_scale": 0.7989778418919438,
+      "dalla_gastric_absorption_scale": 1.123382801264672,
+      "respiratory_acidosis_efficiency": 0.5889369510163387,
+      "pbpk_fraction_unbound": 0.2586943753943957,
+      "pbpk_hepatic_clint_l_min": 0.22279085289327571,
+      "cardiac_output_l_min": 5.081689421853524,
+      "cv_ejection_fraction": 0.7319140873448704,
+      "map_mmHg": 96.54366996988449,
+      "pao2_mmHg": 83.04019119658619,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 120.73198692508176,
+      "arterial_o2_content_ml_dl": 18.260095716276563,
+      "oxygen_delivery_ml_min": 927.9213524343546,
+      "glucose_peak_75g_mg_dl": 153.53948436417807,
+      "glucose_tpeak_75g_min": 65.0,
+      "insulin_peak_75g_uU_ml": 35.89696510888822
+    },
+    {
+      "patient_id": "VP-0019",
+      "body_weight_kg": 69.61684196323881,
+      "blood_volume_ml_per_kg": 74.70388066611036,
+      "tbw_fraction": 0.532506898717203,
+      "ecf_fraction": 0.19843820678375354,
+      "hemoglobin_g_dl": 13.808201300105454,
+      "baseline_gfr_ml_min": 108.95495978424951,
+      "cv_resting_hr_bpm": 81.73917789312567,
+      "cv_r_systemic_scale": 1.0013456176872204,
+      "cv_lv_emax_scale": 0.8507685800254161,
+      "baseline_aa_gradient_mmHg": 9.107951636260127,
+      "dalla_insulin_sensitivity_scale": 1.1412555475446857,
+      "dalla_gastric_absorption_scale": 0.876483038632574,
+      "respiratory_acidosis_efficiency": 0.6265233285562913,
+      "pbpk_fraction_unbound": 0.27732087198766586,
+      "pbpk_hepatic_clint_l_min": 0.1165931502606051,
+      "cardiac_output_l_min": 5.006145497204562,
+      "cv_ejection_fraction": 0.5912446946915385,
+      "map_mmHg": 100.88747248307091,
+      "pao2_mmHg": 88.23852523508047,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 110.30603629048481,
+      "arterial_o2_content_ml_dl": 18.178226889294613,
+      "oxygen_delivery_ml_min": 910.0284868900513,
+      "glucose_peak_75g_mg_dl": 164.57845987729408,
+      "glucose_tpeak_75g_min": 65.0,
+      "insulin_peak_75g_uU_ml": 44.627385651483905
+    },
+    {
+      "patient_id": "VP-0020",
+      "body_weight_kg": 66.69403902902741,
+      "blood_volume_ml_per_kg": 72.03312576195977,
+      "tbw_fraction": 0.5794179954093055,
+      "ecf_fraction": 0.2079385293441489,
+      "hemoglobin_g_dl": 13.422911340241242,
+      "baseline_gfr_ml_min": 104.05957100576694,
+      "cv_resting_hr_bpm": 61.79534605602644,
+      "cv_r_systemic_scale": 1.178564937793095,
+      "cv_lv_emax_scale": 1.14435049892852,
+      "baseline_aa_gradient_mmHg": 9.757868083961691,
+      "dalla_insulin_sensitivity_scale": 1.2430279281670369,
+      "dalla_gastric_absorption_scale": 0.9657775054419655,
+      "respiratory_acidosis_efficiency": 0.5706804784851756,
+      "pbpk_fraction_unbound": 0.30353023508956467,
+      "pbpk_hepatic_clint_l_min": 0.13594532343178825,
+      "cardiac_output_l_min": 4.536183652582126,
+      "cv_ejection_fraction": 0.6537466643477121,
+      "map_mmHg": 106.68344921839466,
+      "pao2_mmHg": 87.5886087873789,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 105.41064751200224,
+      "arterial_o2_content_ml_dl": 17.664167568095575,
+      "oxygen_delivery_ml_min": 801.2790815886651,
+      "glucose_peak_75g_mg_dl": 166.91642118691672,
+      "glucose_tpeak_75g_min": 60.0,
+      "insulin_peak_75g_uU_ml": 46.15596509491787
+    },
+    {
+      "patient_id": "VP-0021",
+      "body_weight_kg": 63.47591619570673,
+      "blood_volume_ml_per_kg": 71.51110797385726,
+      "tbw_fraction": 0.5143915372287474,
+      "ecf_fraction": 0.20583280558314193,
+      "hemoglobin_g_dl": 14.629240746258606,
+      "baseline_gfr_ml_min": 128.5095396835636,
+      "cv_resting_hr_bpm": 70.11596790716649,
+      "cv_r_systemic_scale": 1.1064314285942822,
+      "cv_lv_emax_scale": 1.1356172930921549,
+      "baseline_aa_gradient_mmHg": 11.442024995672401,
+      "dalla_insulin_sensitivity_scale": 0.9769680717727398,
+      "dalla_gastric_absorption_scale": 0.8982221182416447,
+      "respiratory_acidosis_efficiency": 0.6289669735618212,
+      "pbpk_fraction_unbound": 0.7485291147312649,
+      "pbpk_hepatic_clint_l_min": 0.23807997283333193,
+      "cardiac_output_l_min": 4.780211845577266,
+      "cv_ejection_fraction": 0.6654292290267501,
+      "map_mmHg": 105.72545305692908,
+      "pao2_mmHg": 85.9044518756682,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 129.8606161897989,
+      "arterial_o2_content_ml_dl": 19.185066755306803,
+      "oxygen_delivery_ml_min": 917.0868336190819,
+      "glucose_peak_75g_mg_dl": 173.4525073903277,
+      "glucose_tpeak_75g_min": 65.0,
+      "insulin_peak_75g_uU_ml": 53.15352168432471
+    },
+    {
+      "patient_id": "VP-0022",
+      "body_weight_kg": 90.2077673786137,
+      "blood_volume_ml_per_kg": 76.30435580747805,
+      "tbw_fraction": 0.5954089460198232,
+      "ecf_fraction": 0.18336327064116315,
+      "hemoglobin_g_dl": 14.919253084753581,
+      "baseline_gfr_ml_min": 100.01962102060057,
+      "cv_resting_hr_bpm": 75.41817889872613,
+      "cv_r_systemic_scale": 0.8821734389779484,
+      "cv_lv_emax_scale": 0.8723105222041362,
+      "baseline_aa_gradient_mmHg": 6.8230739650115435,
+      "dalla_insulin_sensitivity_scale": 0.9507664007476163,
+      "dalla_gastric_absorption_scale": 1.06006323689983,
+      "respiratory_acidosis_efficiency": 0.6697661579667719,
+      "pbpk_fraction_unbound": 0.667611033103181,
+      "pbpk_hepatic_clint_l_min": 0.26344933787675506,
+      "cardiac_output_l_min": 5.332757440297651,
+      "cv_ejection_fraction": 0.6987999123859591,
+      "map_mmHg": 95.25599093822105,
+      "pao2_mmHg": 90.52340290632905,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 101.37069752683587,
+      "arterial_o2_content_ml_dl": 19.67172146025176,
+      "oxygen_delivery_ml_min": 1049.0451898062054,
+      "glucose_peak_75g_mg_dl": 153.66714150749013,
+      "glucose_tpeak_75g_min": 65.0,
+      "insulin_peak_75g_uU_ml": 35.82539969889949
+    },
+    {
+      "patient_id": "VP-0023",
+      "body_weight_kg": 87.9742484316986,
+      "blood_volume_ml_per_kg": 68.8877423272235,
+      "tbw_fraction": 0.6041020711359021,
+      "ecf_fraction": 0.2208515018877269,
+      "hemoglobin_g_dl": 12.512307954969367,
+      "baseline_gfr_ml_min": 121.97564789503517,
+      "cv_resting_hr_bpm": 60.90602355062026,
+      "cv_r_systemic_scale": 1.145413352159344,
+      "cv_lv_emax_scale": 1.0126118029415667,
+      "baseline_aa_gradient_mmHg": 14.624383449830788,
+      "dalla_insulin_sensitivity_scale": 1.204346659393201,
+      "dalla_gastric_absorption_scale": 0.9531428493047855,
+      "respiratory_acidosis_efficiency": 0.6484133324529573,
+      "pbpk_fraction_unbound": 0.34770904577521766,
+      "pbpk_hepatic_clint_l_min": 0.19878567113466963,
+      "cardiac_output_l_min": 4.669399333333909,
+      "cv_ejection_fraction": 0.6672889388896494,
+      "map_mmHg": 106.92686645334815,
+      "pao2_mmHg": 82.72209342150981,
+      "paco2_mmHg": 41.90681850292751,
+      "ph_arterial": 7.378507634287164,
+      "gfr_ml_min": 123.32672440127047,
+      "arterial_o2_content_ml_dl": 16.371070684259237,
+      "oxygen_delivery_ml_min": 764.4306653904239,
+      "glucose_peak_75g_mg_dl": 151.3629405813672,
+      "glucose_tpeak_75g_min": 60.0,
+      "insulin_peak_75g_uU_ml": 33.793755642595265
+    }
+  ]
+}

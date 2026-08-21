@@ -1,0 +1,184 @@
+{
+  "version": "0.8.0",
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9
+  },
+  "checks": [
+    {
+      "name": "v0.7 scientific regression suite",
+      "value": {
+        "passed": 10,
+        "failed": 0,
+        "total": 10
+      },
+      "pass": true,
+      "tier": "regression",
+      "note": ""
+    },
+    {
+      "name": "release version",
+      "value": "0.8.0",
+      "pass": true,
+      "tier": "software-verification",
+      "note": ""
+    },
+    {
+      "name": "local CLI preflight",
+      "value": {
+        "core_ready": true,
+        "python": "3.13.5",
+        "machine": "x86_64"
+      },
+      "pass": true,
+      "tier": "local-reproducibility",
+      "note": ""
+    },
+    {
+      "name": "local CLI 10-min simulation",
+      "value": {
+        "return": 0.4955005956955243,
+        "glucose": 94.95294463993925,
+        "MAP": 91.73298647841372,
+        "pH": 7.395987743569098
+      },
+      "pass": true,
+      "tier": "local-reproducibility",
+      "note": ""
+    },
+    {
+      "name": "independent published healthy-CGM reference encoded",
+      "value": {
+        "n": 153,
+        "median_TIR_70_140_pct": 96.0,
+        "mean_CV_pct": 17.0
+      },
+      "pass": true,
+      "tier": "external-data-reference",
+      "note": "The raw public Jaeb archive is optional and not bundled; the paper-level aggregate metrics are external human data."
+    },
+    {
+      "name": "likelihood-weighted posterior virtual patients",
+      "value": {
+        "ESS": 9.398659911638504,
+        "outputs": {
+          "cardiac_output_l_min": {
+            "mean": 5.2484794596540105,
+            "q05": 4.8519089371375825,
+            "q50": 5.328003937318638,
+            "q95": 5.749235088438466
+          },
+          "gfr_ml_min": {
+            "mean": 109.91017652806903,
+            "q05": 95.4224462816453,
+            "q50": 108.98129511324309,
+            "q95": 127.14264806847784
+          },
+          "map_mmHg": {
+            "mean": 98.83295370382125,
+            "q05": 89.88803059442263,
+            "q50": 97.67911184673615,
+            "q95": 108.45881241970612
+          },
+          "pao2_mmHg": {
+            "mean": 88.43801798362992,
+            "q05": 83.92620432559707,
+            "q50": 88.77484104309,
+            "q95": 91.732812192828
+          }
+        }
+      },
+      "pass": true,
+      "tier": "bayesian-uq-smoke",
+      "note": "Uses bounded priors, Gaussian target likelihoods and explicit model-discrepancy variance; not clinical patient inference."
+    },
+    {
+      "name": "OOD PPO remains finite and improves over no-op",
+      "value": {
+        "PPO": 0.8069779728666334,
+        "no_op": 0.42709859243158077,
+        "heuristic": 0.8261859702319914
+      },
+      "pass": true,
+      "tier": "rl-ood-robustness",
+      "note": "PPO underperforms the heuristic OOD; this is retained as a limitation rather than tuned away."
+    },
+    {
+      "name": "VSCode/local bootstrap assets",
+      "value": [
+        ".vscode/settings.json",
+        ".vscode/tasks.json",
+        ".vscode/launch.json",
+        "scripts/bootstrap_macos.sh",
+        "LOCAL_VSCODE.md"
+      ],
+      "pass": true,
+      "tier": "local-reproducibility",
+      "note": ""
+    },
+    {
+      "name": "no individual-level external human data bundled",
+      "value": [],
+      "pass": true,
+      "tier": "data-governance",
+      "note": "External human data are opt-in downloads; only source metadata/reference summaries ship with the release."
+    }
+  ],
+  "research_findings": {
+    "ood_policy": {
+      "ppo_mean_return": 0.8069779728666334,
+      "heuristic_mean_return": 0.8261859702319914,
+      "delta_ppo_vs_heuristic": -0.019207997365357943,
+      "interpretation": "The v0.7 PPO generalizes above no-op but not above the hand-coded heuristic under the expanded OOD parameter box."
+    },
+    "posterior": {
+      "effective_sample_size": 9.398659911638504,
+      "fraction_of_prior": 0.19580541482580216,
+      "interpretation": "The literature-centered likelihood concentrates the bounded engineering prior, but the result is not a measured population posterior."
+    },
+    "external_cgm": {
+      "reference": {
+        "n_participants": 153,
+        "age_range_years": "7-80",
+        "mean_average_glucose_mg_dl_typical_age_groups": [
+          98.0,
+          99.0
+        ],
+        "mean_average_glucose_mg_dl_over_60": 104.0,
+        "median_time_70_140_pct": 96.0,
+        "time_70_140_iqr_pct": [
+          93.0,
+          98.0
+        ],
+        "mean_within_person_cv_pct": 17.0,
+        "within_person_cv_sd_pct": 3.0,
+        "median_time_gt_140_pct": 2.1,
+        "median_time_lt_70_pct": 1.1,
+        "citation": "Shah VN et al. J Clin Endocrinol Metab. 2019;104(10):4356-4364. PMID:31127824"
+      },
+      "interpretation": "Published independent human CGM aggregates are now encoded; raw individual-level comparison is available locally after opt-in download."
+    }
+  },
+  "credibility_classification": {
+    "software_verification": "strong for tested paths",
+    "calculation_verification": "strong reduced-order invariants/timestep regression inherited from v0.6-v0.7",
+    "parameter_uncertainty": "bounded prior + LHS + likelihood-weighted posterior mechanics implemented",
+    "external_human_data": "first independent aggregate CGM reference integrated; raw public dataset adapter added",
+    "model_form_uncertainty": "represented only as target-level discrepancy SD in posterior; not yet a dynamic discrepancy process",
+    "rl_generalization": "in-distribution positive; OOD limited and below heuristic",
+    "patient_specific_validation": "absent",
+    "clinical_decision_use": "not supported"
+  },
+  "known_missing_or_unvalidated": [
+    "protocol-matched individual-level clinical calibration cohort",
+    "raw Jaeb CGM comparison has to be run locally because the release environment cannot fetch the external archive",
+    "dynamic model-form discrepancy process",
+    "full electroneutrality and total inorganic carbon conservation",
+    "distributed V/Q, shunt and diffusion limitation",
+    "real-drug PBPK calibration",
+    "subcutaneous insulin PK",
+    "creatinine kinetics / KDIGO AKI implementation",
+    "large multi-seed PPO/SAC benchmark with confidence intervals and safety constraints"
+  ]
+}

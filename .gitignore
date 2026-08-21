@@ -1,0 +1,31 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+dist/
+build/
+*.egg-info/
+
+# Local environments, caches and coverage output.
+.env
+.env.*
+!.env.example
+.DS_Store
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Participant-level external data and derived Jaeb outputs are local-only.
+data/external/*
+!data/external/README.md
+validation/jaeb_*.json
+
+# Generated training and trace artifacts.
+openhumsim_ppo*.zip
+openhumsim_ppo*.manifest.json
+respiratory_cycle_*.csv
+
+# Historical working-tree backups are retained locally, not published.
+src_v011_backup/
+tests_v011_backup/

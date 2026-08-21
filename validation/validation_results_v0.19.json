@@ -1,0 +1,93 @@
+{
+  "version": "0.19.0",
+  "classification": "verification/credibility checks; not clinical validation",
+  "summary": {
+    "passed": 9,
+    "total": 9,
+    "all_passed": true
+  },
+  "checks": [
+    {
+      "name": "sc_insulin_not_instantaneous",
+      "passed": true,
+      "values": {
+        "immediate_insulin_delta_uU_ml": 0.0
+      }
+    },
+    {
+      "name": "sc_insulin_two_depot_pk_and_mass",
+      "passed": true,
+      "values": {
+        "absorption_peak_min": 90,
+        "mass_balance_error_model_units": -8.881784197001252e-16,
+        "absorbed_model_units_by_180min": 1.1879883005803693
+      }
+    },
+    {
+      "name": "glucagon_counterregulatory_direction",
+      "passed": true,
+      "values": {
+        "glucose_no_counterreg_mg_dl": 70.05041438592335,
+        "glucose_with_counterreg_mg_dl": 72.23686462483506,
+        "glucagon_pg_ml": 105.9484997118511,
+        "counterreg_egp_mg_kg_min": 0.14178726891998752,
+        "glycogen_used_g": 0.5554358983359862
+      }
+    },
+    {
+      "name": "free_water_osmotic_redistribution",
+      "passed": true,
+      "values": {
+        "ecf_gain_l": 0.302514710033261,
+        "icf_gain_l": 0.5974852899667376,
+        "sodium_before": 138.21103447808008,
+        "sodium_after": 135.3223368189666,
+        "tonicity_difference_mOsm_l": 5.684341886080802e-14
+      }
+    },
+    {
+      "name": "isotonic_saline_predominantly_ecf",
+      "passed": true,
+      "values": {
+        "ecf_gain_l": 0.947981984410962,
+        "icf_change_l": -0.04798198441096346,
+        "sodium_mmol_l": 140.28046222245538
+      }
+    },
+    {
+      "name": "transcellular_potassium_physiologic_directions",
+      "passed": true,
+      "values": {
+        "basal_K": 4.196688511705397,
+        "high_insulin_K": 3.864172171836116,
+        "acidemia_K": 4.946688511705397,
+        "exercise_K": 4.738355178372064
+      }
+    },
+    {
+      "name": "transcellular_potassium_mass_conservation",
+      "passed": true,
+      "values": {
+        "max_total_K_error_mmol": 4.547473508864641e-13
+      }
+    },
+    {
+      "name": "scenario_t0_fluid_ledgers_close",
+      "passed": true,
+      "values": {
+        "water_error_l": 0.0,
+        "sodium_error_mmol": 0.0,
+        "chloride_error_mmol": 0.0,
+        "water_partition_residual_l": 0.0
+      }
+    },
+    {
+      "name": "latent_p1_states_hidden_from_default_policy",
+      "passed": true,
+      "values": {
+        "clinical_observation_count": 50,
+        "full_observation_count": 137
+      }
+    }
+  ]
+}

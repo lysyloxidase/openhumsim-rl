@@ -1,0 +1,19 @@
+{
+  "schema": "openhumsim.ci-evidence.v1",
+  "latest_successful_run": {
+    "workflow": ".github/workflows/ci.yml",
+    "run_id": 32410309111,
+    "run_url": "https://github.com/lysyloxidase/openhumsim-rl/actions/runs/32410309111",
+    "commit_sha": "6687c5431ae8640c4291fa400449017f470925b2",
+    "completed_at": "2026-08-20T20:07:24Z",
+    "conclusion": "success",
+    "python_versions": [
+      "3.10",
+      "3.12",
+      "3.14"
+    ],
+    "scientific_validation": "success",
+    "package_smoke_test": "success"
+  },
+  "supersedes_release_manifest_gap": "full_test_suite.supported_interpreter_ci_still_required"
+}

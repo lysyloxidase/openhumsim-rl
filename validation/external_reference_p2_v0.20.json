@@ -1,0 +1,50 @@
+{
+  "version": "0.20.0",
+  "scope": "measurement uncertainty, correlated engineering priors, locked validation infrastructure",
+  "references": [
+    {
+      "topic": "pulse_oximetry_noise",
+      "source": "Louie A et al. Anesthesiology. 2018;128(3):520-530. PMID 29200008.",
+      "anchor": "Stationary-control pulse oximetry RMSE was about 1.8 percentage points; motion and low perfusion increased errors, often above 3 percentage points.",
+      "model_use": "v0.20 uses 1.8 percentage-point Gaussian SD as a baseline engineering SpO2 measurement noise. This is not a commercial-device accuracy claim."
+    },
+    {
+      "topic": "blood_gas_accuracy",
+      "source": "Sediame S et al. Accuracy of the i-STAT bedside blood gas analyser. PMID 10489854.",
+      "anchor": "Bedside pH and PaCO2 measurements were reported close to a laboratory reference analyzer, with non-zero analytical imprecision.",
+      "model_use": "v0.20 adds finite pH/PaCO2/PaO2 measurement noise rather than exposing mechanistic truth."
+    },
+    {
+      "topic": "blood_gas_turnaround_time",
+      "source": "Mitchell K et al. Comparison of time taken to obtain an arterial blood gas result using the Proxima point of care system versus a standard arterial blood gas sampling system. 2022. PMCID PMC9125450.",
+      "anchor": "Mean result time was 6 min 31 s for standard ABG sampling versus 4 min 56 s for the in-line system.",
+      "model_use": "v0.20 default ABG result delay is 7 min with 30-min research sampling cadence."
+    },
+    {
+      "topic": "body_water_population_structure",
+      "source": "Chumlea WC et al. Total body water reference values and prediction equations for adults. Kidney Int. 2001. PMID 11380828.",
+      "anchor": "TBW prediction depends on multiple body-size/demographic variables rather than an independent uniform fraction alone.",
+      "model_use": "Supports replacing independent virtual-patient sampling with an explicitly correlated engineering prior."
+    },
+    {
+      "topic": "blood_volume_and_hemoglobin_structure",
+      "source": "Falz R et al. Normal Values of Hemoglobin Mass and Blood Volume in Young, Active Women and Men. Int J Sports Med. 2019. PMID 30791081.",
+      "anchor": "Hemoglobin mass and blood volume vary with sex/body composition and lean body mass.",
+      "model_use": "Supports avoiding fully independent blood-volume/Hb priors."
+    },
+    {
+      "topic": "gfr_body_size_correlation",
+      "source": "Dooley MJ et al. Poor correlation between body surface area and glomerular filtration rate. Cancer Chemother Pharmacol. 2000. PMID 11138467.",
+      "anchor": "Reported correlation between actual-weight BSA and measured GFR was weak (r about 0.24).",
+      "model_use": "v0.20 therefore uses only a modest body-weight/GFR rank correlation, not deterministic body-size scaling."
+    },
+    {
+      "topic": "credibility_framework",
+      "source": "FDA. Assessing the Credibility of Computational Modeling and Simulation in Medical Device Submissions. Final Guidance, November 2023.",
+      "anchor": "Risk-informed credibility assessment separates verification, validation, applicability and context of use.",
+      "model_use": "v0.20 labels internal gates as credibility/verification checks and keeps locked external validation distinct."
+    }
+  ],
+  "correlated_prior_status": "engineering rank-correlation prior; not a fitted human population covariance model",
+  "clinical_validation_supported": false
+}

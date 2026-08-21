@@ -1,0 +1,37 @@
+{
+  "version": "0.10.0",
+  "paper": "DuBose SN et al. Effect of Exercise and Meals on Continuous Glucose Monitor Data in Healthy Individuals Without Diabetes. J Diabetes Sci Technol. 2021;15(3):593-599. DOI:10.1177/1932296820905904",
+  "jaeb_official_dataset_page": "https://public.jaeb.org/dataset/559",
+  "reference": {
+    "n_participants": 153,
+    "exercise_sessions": 451,
+    "exercise_baseline_mean_mg_dl": 99.0,
+    "exercise_baseline_sd_mg_dl": 12.0,
+    "exercise_nadir_mean_mg_dl": 85.0,
+    "exercise_nadir_sd_mg_dl": 11.0,
+    "exercise_change_mean_mg_dl": -15.0,
+    "exercise_change_sd_mg_dl": 18.0,
+    "exercise_duration_median_min": 45.0,
+    "exercise_duration_iqr_min": [
+      30.0,
+      60.0
+    ],
+    "meal_participants": 56,
+    "meal_events": 306,
+    "meal_premeal_mean_mg_dl": 93.0,
+    "meal_premeal_sd_mg_dl": 10.0,
+    "meal_peak_mean_mg_dl": 130.0,
+    "meal_peak_sd_mg_dl": 13.0,
+    "meal_time_to_peak_mean_min": 97.0,
+    "meal_time_to_peak_sd_min": 31.0,
+    "meal_excursion_mean_mg_dl": 37.0,
+    "meal_excursion_sd_mg_dl": 15.0,
+    "citation": "DuBose SN et al. Effect of Exercise and Meals on Continuous Glucose Monitor Data in Healthy Individuals Without Diabetes. J Diabetes Sci Technol. 2021;15(3):593-599. DOI:10.1177/1932296820905904"
+  },
+  "study_limitations_relevant_to_model": [
+    "Meal/snack start times were logged but carbohydrate/fat quantity was not captured.",
+    "Exercise logs provide time/type and reported duration, not metabolic workload or VO2.",
+    "Diary omissions are possible in a free-living unsupervised study.",
+    "CGM measures interstitial sensor glucose rather than venous plasma glucose."
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "version": "0.7.0",
+  "selected_extreme_patients": [
+    {
+      "patient_id": "VP-0000",
+      "accurate": {
+        "peak_glucose": 180.41886666797032,
+        "t_peak": 60.0,
+        "peak_insulin": 59.960283971417404
+      },
+      "uq_solver": {
+        "peak_glucose": 180.41886666797032,
+        "t_peak": 60.0,
+        "peak_insulin": 59.960283971417404
+      },
+      "abs_peak_glucose_diff": 0.0,
+      "abs_peak_insulin_diff": 0.0
+    },
+    {
+      "patient_id": "VP-0002",
+      "accurate": {
+        "peak_glucose": 151.62202726111238,
+        "t_peak": 65.0,
+        "peak_insulin": 34.16968611996163
+      },
+      "uq_solver": {
+        "peak_glucose": 151.62202726111238,
+        "t_peak": 65.0,
+        "peak_insulin": 34.16968611996163
+      },
+      "abs_peak_glucose_diff": 0.0,
+      "abs_peak_insulin_diff": 0.0
+    },
+    {
+      "patient_id": "VP-0009",
+      "accurate": {
+        "peak_glucose": 180.6982831306341,
+        "t_peak": 60.0,
+        "peak_insulin": 60.91575904231399
+      },
+      "uq_solver": {
+        "peak_glucose": 180.6982831306341,
+        "t_peak": 60.0,
+        "peak_insulin": 60.91575904231399
+      },
+      "abs_peak_glucose_diff": 0.0,
+      "abs_peak_insulin_diff": 0.0
+    },
+    {
+      "patient_id": "VP-0023",
+      "accurate": {
+        "peak_glucose": 151.3629405813672,
+        "t_peak": 60.0,
+        "peak_insulin": 33.793755642595265
+      },
+      "uq_solver": {
+        "peak_glucose": 151.3629405813672,
+        "t_peak": 60.0,
+        "peak_insulin": 33.793755642595265
+      },
+      "abs_peak_glucose_diff": 0.0,
+      "abs_peak_insulin_diff": 0.0
+    }
+  ],
+  "max_abs_peak_glucose_diff": 0.0,
+  "max_abs_peak_insulin_diff": 0.0,
+  "interpretation": "Checks whether the faster UQ cardiovascular solver materially changes the 75-g metabolic challenge at distribution extremes."
+}

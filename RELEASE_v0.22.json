@@ -1,0 +1,42 @@
+{
+  "version": "0.22.0",
+  "title": "Energy, lactate and coupled blood-gas conservation",
+  "author": "lysyloxidase",
+  "license": "Apache-2.0",
+  "state_schema_version": "0.22",
+  "reward_profile": "homeostasis_v0.21",
+  "clinical_observation_count": 54,
+  "clinical_observation_sha256": "56770d5ea4d5ed4f81f98042bb4dcba7d0e40bfc73d109e5bdc3c2c5f5647de8",
+  "full_observation_count": 138,
+  "full_observation_sha256": "cf544ac7d1fdae6cf7b52e4320ec091409094ed43fd7bce90f4d496a854f813a",
+  "action_count": 8,
+  "action_sha256": "9bc31bce6639bed396a5406518695c988e0d4f5d8740e893cec9ecfdfb985dfb",
+  "default_observation_profile": "clinical",
+  "default_measurement_profile": "realistic",
+  "strict_benchmark_info_profile": "benchmark",
+  "focused_integrity_gate": {
+    "passed": 15,
+    "total": 15
+  },
+  "new_regression_tests": {
+    "energy_carbon": 11,
+    "pulmonary_rer": 9,
+    "reset_transaction": 7,
+    "config_manifest": 4,
+    "state_schema": 3,
+    "total": 34
+  },
+  "full_test_suite": {
+    "passed": 180,
+    "total": 180,
+    "gymnasium_checker_included": true,
+    "warnings_as_errors": true,
+    "host_python": "3.9.6",
+    "declared_supported_python": ">=3.10",
+    "supported_interpreter_ci_still_required": true
+  },
+  "historical_rl_checkpoints_compatible": false,
+  "full_observation_claimed_markov": false,
+  "independent_external_validation_bundled": false,
+  "clinical_use_supported": false
+}

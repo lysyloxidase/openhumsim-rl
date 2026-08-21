@@ -1,0 +1,122 @@
+{
+  "version": "0.21.0",
+  "scope": "focused numerical and benchmark integrity verification; not clinical validation",
+  "summary": {
+    "passed": 13,
+    "total": 13,
+    "all_passed": true
+  },
+  "checks": [
+    {
+      "name": "benchmark_info_exact_allowlist",
+      "passed": true,
+      "values": {
+        "keys": [
+          "action_names",
+          "environment_semantics",
+          "gymnasium_installed",
+          "info_profile",
+          "measurement_profile",
+          "observation_names",
+          "observation_profile"
+        ]
+      }
+    },
+    {
+      "name": "episode_horizon_no_overshoot",
+      "passed": true,
+      "values": {
+        "times_min": [
+          5.0,
+          10.0,
+          12.0
+        ],
+        "full_bolus_model_units": 2.0
+      }
+    },
+    {
+      "name": "cardiorespiratory_outer_step_convergence",
+      "passed": true,
+      "values": {
+        "tidal_volume_l": 7.385663323800085e-05,
+        "paco2_mmHg": 0.008796080946922302,
+        "pao2_mmHg": 0.04970367117493879,
+        "map_mmHg": 0.16430695758948843,
+        "cardiac_output_l_min": 0.04275260547302828
+      }
+    },
+    {
+      "name": "incomplete_interval_is_not_a_breath",
+      "passed": true,
+      "values": {
+        "held_tidal_volume_l": 0.4925502759049331,
+        "phase_s": 1.500000000000001
+      }
+    },
+    {
+      "name": "renal_acid_effect_not_duplicated_in_chloride",
+      "passed": true,
+      "values": {
+        "urine_ammonium_mmol_min": 0.06240000000000004,
+        "urine_chloride_mmol_min": 0.07
+      }
+    },
+    {
+      "name": "oxygen_reserve_matches_extraction_limited_supply",
+      "passed": true,
+      "values": {
+        "supply_margin_ml_min": -286.08336363636363,
+        "instantaneous_deficit_ml_min": 286.08336363636363
+      }
+    },
+    {
+      "name": "pbpk_hepatic_elimination_withdrawn_from_liver",
+      "passed": true,
+      "values": {
+        "hepatic_loss_mg": 0.00225,
+        "mass_balance_error_mg": 0.0
+      }
+    },
+    {
+      "name": "measurement_fifo_when_delay_exceeds_interval",
+      "passed": true,
+      "values": {
+        "pending_before_delivery": 3,
+        "first_reported_paco2_mmHg": 50.0
+      }
+    },
+    {
+      "name": "cgm_initial_sample_seeded",
+      "passed": true,
+      "values": {
+        "seeded_first_value": 107.36221041486067,
+        "other_seed_first_value": 115.21312089241177
+      }
+    },
+    {
+      "name": "virtual_population_uses_active_vq_parameter",
+      "passed": true,
+      "values": {
+        "pao2_low_vq_sd": 93.15679806887829,
+        "pao2_high_vq_sd": 73.96755988812629
+      }
+    },
+    {
+      "name": "validation_manifest_full_split_lock",
+      "passed": true,
+      "values": {
+        "lock": "7f0fb1eb84cea44dd4a427785e993588584c0dda08debd5f5d900cb117136454"
+      }
+    },
+    {
+      "name": "invalid_numerical_config_rejected",
+      "passed": true,
+      "values": {}
+    },
+    {
+      "name": "nonfinite_state_rejected",
+      "passed": true,
+      "values": {}
+    }
+  ]
+}

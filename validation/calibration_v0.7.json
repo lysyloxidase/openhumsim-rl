@@ -1,0 +1,63 @@
+{
+  "version": "0.7.0",
+  "reference_profile_fit": {
+    "parameter_names": [
+      "cv_r_systemic_mmHg_s_ml",
+      "cv_lv_emax",
+      "baseline_aa_gradient_mmHg",
+      "baseline_gfr_ml_min"
+    ],
+    "initial": {
+      "cv_r_systemic_mmHg_s_ml": 1.13,
+      "cv_lv_emax": 2.3,
+      "baseline_aa_gradient_mmHg": 8.0,
+      "baseline_gfr_ml_min": 120.0
+    },
+    "fitted": {
+      "cv_r_systemic_mmHg_s_ml": 1.0016217488955308,
+      "cv_lv_emax": 2.7999999999999994,
+      "baseline_aa_gradient_mmHg": 5.3464768713406015,
+      "baseline_gfr_ml_min": 108.6489234937647
+    },
+    "target_values": {
+      "cardiac_output_l_min": 5.0,
+      "map_mmHg": 90.0,
+      "pao2_mmHg": 92.0,
+      "gfr_ml_min": 110.0
+    },
+    "fitted_outputs": {
+      "cardiac_output_l_min": 4.981179412639075,
+      "map_mmHg": 89.94489576359688,
+      "gfr_ml_min": 110.0,
+      "paco2_mmHg": 41.90681850292751,
+      "pao2_mmHg": 92.0
+    },
+    "normalized_rmse": 0.012081234812708213,
+    "success": true,
+    "message": "`xtol` termination condition is satisfied."
+  },
+  "synthetic_parameter_recovery": {
+    "true_parameters": {
+      "cv_r_systemic_mmHg_s_ml": 1.24,
+      "cv_lv_emax": 2.48,
+      "baseline_aa_gradient_mmHg": 11.5,
+      "baseline_gfr_ml_min": 104.0
+    },
+    "recovered_parameters": {
+      "cv_r_systemic_mmHg_s_ml": 1.2400000000612037,
+      "cv_lv_emax": 2.4799999990655026,
+      "baseline_aa_gradient_mmHg": 11.499999999999998,
+      "baseline_gfr_ml_min": 104.0
+    },
+    "relative_errors": {
+      "cv_r_systemic_mmHg_s_ml": 4.9357829651387787e-11,
+      "cv_lv_emax": 3.768134549906035e-10,
+      "baseline_aa_gradient_mmHg": 1.544658121217609e-16,
+      "baseline_gfr_ml_min": 0.0
+    },
+    "max_relative_error": 3.768134549906035e-10,
+    "normalized_rmse": 2.2953392860517606e-10,
+    "success": true
+  },
+  "interpretation": "Reference-profile fitting demonstrates a calibration mechanism only. Synthetic recovery tests algorithmic identifiability under the selected observables. Neither is patient-level clinical validation."
+}

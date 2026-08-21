@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+message: "If you use OpenHumSim-RL in research, please cite the software and the exact release or commit used."
+title: "OpenHumSim-RL"
+type: software
+authors:
+  - family-names: "lysyloxidase"
+version: 0.22.0
+date-released: 2026-08-21
+license: Apache-2.0
+repository-code: "https://github.com/lysyloxidase/openhumsim-rl"
+url: "https://github.com/lysyloxidase/openhumsim-rl"
+abstract: >-
+  A mechanistic multi-organ physiology research simulator with
+  measurement-aware observations, verification tooling and a
+  Gymnasium-compatible reinforcement-learning interface.
+keywords:
+  - physiology
+  - simulation
+  - reinforcement learning
+  - Gymnasium
+  - scientific computing

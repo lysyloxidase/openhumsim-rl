@@ -1,0 +1,408 @@
+{
+  "split_report": {
+    "seed": 2019,
+    "fractions": {
+      "train": 0.6,
+      "validation": 0.2,
+      "test": 0.2
+    },
+    "splits": {
+      "train": {
+        "subject_ids": [
+          "S000",
+          "S006",
+          "S007",
+          "S008",
+          "S009",
+          "S010",
+          "S012",
+          "S013",
+          "S014",
+          "S016",
+          "S017",
+          "S018",
+          "S019",
+          "S020",
+          "S021",
+          "S023",
+          "S026",
+          "S029"
+        ],
+        "metrics": {
+          "n_subjects": 18,
+          "mean_of_subject_mean_glucose_mg_dl": 100.16888888888889,
+          "sd_of_subject_mean_glucose_mg_dl": 2.110435942946634,
+          "mean_within_person_cv_pct": 16.266666666666666,
+          "median_time_70_140_pct": 94.25,
+          "median_time_gt_140_pct": 4.75,
+          "median_time_lt_70_pct": 1.0,
+          "bootstrap_95_ci": {
+            "mean_glucose_mg_dl": [
+              99.17255555555556,
+              100.91711111111111
+            ],
+            "within_person_cv_pct": [
+              15.376666666666667,
+              17.02444444444445
+            ],
+            "time_70_140_pct": [
+              93.125,
+              95.625
+            ],
+            "time_gt_140_pct": [
+              3.746875,
+              5.753125000000001
+            ],
+            "time_lt_70_pct": [
+              1.0,
+              1.0
+            ]
+          }
+        }
+      },
+      "validation": {
+        "subject_ids": [
+          "S002",
+          "S005",
+          "S011",
+          "S015",
+          "S025",
+          "S027"
+        ],
+        "metrics": {
+          "n_subjects": 6,
+          "mean_of_subject_mean_glucose_mg_dl": 99.96666666666665,
+          "sd_of_subject_mean_glucose_mg_dl": 2.8686907582844583,
+          "mean_within_person_cv_pct": 16.933333333333334,
+          "median_time_70_140_pct": 94.75,
+          "median_time_gt_140_pct": 4.25,
+          "median_time_lt_70_pct": 1.0,
+          "bootstrap_95_ci": {
+            "mean_glucose_mg_dl": [
+              98.05216666666668,
+              102.15999999999998
+            ],
+            "within_person_cv_pct": [
+              15.6,
+              17.866666666666667
+            ],
+            "time_70_140_pct": [
+              91.74375,
+              96.759375
+            ],
+            "time_gt_140_pct": [
+              1.875,
+              7.506250000000001
+            ],
+            "time_lt_70_pct": [
+              1.0,
+              1.0
+            ]
+          }
+        }
+      },
+      "test": {
+        "subject_ids": [
+          "S001",
+          "S003",
+          "S004",
+          "S022",
+          "S024",
+          "S028"
+        ],
+        "metrics": {
+          "n_subjects": 6,
+          "mean_of_subject_mean_glucose_mg_dl": 99.82666666666667,
+          "sd_of_subject_mean_glucose_mg_dl": 3.42776117409989,
+          "mean_within_person_cv_pct": 15.6,
+          "median_time_70_140_pct": 94.75,
+          "median_time_gt_140_pct": 4.25,
+          "median_time_lt_70_pct": 1.0,
+          "bootstrap_95_ci": {
+            "mean_glucose_mg_dl": [
+              97.68,
+              102.39683333333333
+            ],
+            "within_person_cv_pct": [
+              14.666666666666666,
+              16.53333333333333
+            ],
+            "time_70_140_pct": [
+              91.5,
+              97.5
+            ],
+            "time_gt_140_pct": [
+              1.5,
+              7.25
+            ],
+            "time_lt_70_pct": [
+              1.0,
+              1.0
+            ]
+          }
+        }
+      }
+    },
+    "leakage_check": {
+      "overlaps": {
+        "train_validation": [],
+        "train_test": [],
+        "validation_test": []
+      },
+      "passed": true,
+      "all_subjects_accounted_for": true
+    },
+    "published_reference": {
+      "n_participants": 153,
+      "age_range_years": "7-80",
+      "mean_average_glucose_mg_dl_typical_age_groups": [
+        98.0,
+        99.0
+      ],
+      "mean_average_glucose_mg_dl_over_60": 104.0,
+      "median_time_70_140_pct": 96.0,
+      "time_70_140_iqr_pct": [
+        93.0,
+        98.0
+      ],
+      "mean_within_person_cv_pct": 17.0,
+      "within_person_cv_sd_pct": 3.0,
+      "median_time_gt_140_pct": 2.1,
+      "median_time_lt_70_pct": 1.1,
+      "citation": "Shah VN et al. J Clin Endocrinol Metab. 2019;104(10):4356-4364. PMID:31127824"
+    }
+  },
+  "fitted_on_train": {
+    "mean_mg_dl": {
+      "metric": "mean_mg_dl",
+      "family": "normal",
+      "location": 100.16888888888889,
+      "scale": 2.110435942946634,
+      "train_n": 18,
+      "interval_95": [
+        96.03243444071349,
+        104.30534333706429
+      ]
+    },
+    "cv_pct": {
+      "metric": "cv_pct",
+      "family": "normal",
+      "location": 16.266666666666666,
+      "scale": 1.8045693636530835,
+      "train_n": 18,
+      "interval_95": [
+        12.729710713906622,
+        19.803622619426708
+      ]
+    },
+    "time_70_140_pct": {
+      "metric": "time_70_140_pct",
+      "family": "logit_normal",
+      "location": 2.8614817422206706,
+      "scale": 0.3945385695005871,
+      "train_n": 18,
+      "interval_95": [
+        88.97496209543297,
+        97.42887064161285
+      ]
+    },
+    "time_gt_140_pct": {
+      "metric": "time_gt_140_pct",
+      "family": "logit_normal",
+      "location": -3.1023992442874233,
+      "scale": 0.5201980546523813,
+      "train_n": 18,
+      "interval_95": [
+        1.5953617424634374,
+        11.07787552804957
+      ]
+    },
+    "time_lt_70_pct": {
+      "metric": "time_lt_70_pct",
+      "family": "logit_normal",
+      "location": -4.595119850134591,
+      "scale": 1e-06,
+      "train_n": 18,
+      "interval_95": [
+        0.9999980596018632,
+        1.0000019404018625
+      ]
+    }
+  },
+  "evaluation": {
+    "train": {
+      "mean_mg_dl": {
+        "n": 18,
+        "mean": 100.16888888888889,
+        "median": 100.2,
+        "mean_log_likelihood": -2.1380552896059495,
+        "coverage_95_pct": 94.44444444444444,
+        "interval_95": [
+          96.03243444071349,
+          104.30534333706429
+        ]
+      },
+      "cv_pct": {
+        "n": 18,
+        "mean": 16.266666666666666,
+        "median": 16.0,
+        "mean_log_likelihood": -1.9814827390534937,
+        "coverage_95_pct": 100.0,
+        "interval_95": [
+          12.729710713906622,
+          19.803622619426708
+        ]
+      },
+      "time_70_140_pct": {
+        "n": 18,
+        "mean": 94.27777777777777,
+        "median": 94.25,
+        "mean_log_likelihood": -0.46112238001402595,
+        "coverage_95_pct": 94.44444444444444,
+        "interval_95": [
+          88.97496209543297,
+          97.42887064161285
+        ]
+      },
+      "time_gt_140_pct": {
+        "n": 18,
+        "mean": 4.722222222222222,
+        "median": 4.75,
+        "mean_log_likelihood": -0.7376150898375173,
+        "coverage_95_pct": 94.44444444444444,
+        "interval_95": [
+          1.5953617424634374,
+          11.07787552804957
+        ]
+      },
+      "time_lt_70_pct": {
+        "n": 18,
+        "mean": 1.0,
+        "median": 1.0,
+        "mean_log_likelihood": 12.8965720247596,
+        "coverage_95_pct": 100.0,
+        "interval_95": [
+          0.9999980596018632,
+          1.0000019404018625
+        ]
+      }
+    },
+    "validation": {
+      "mean_mg_dl": {
+        "n": 6,
+        "mean": 99.96666666666665,
+        "median": 99.64,
+        "mean_log_likelihood": -2.4402840312329883,
+        "coverage_95_pct": 100.0,
+        "interval_95": [
+          96.03243444071349,
+          104.30534333706429
+        ]
+      },
+      "cv_pct": {
+        "n": 6,
+        "mean": 16.933333333333334,
+        "median": 17.2,
+        "mean_log_likelihood": -1.8613799773322353,
+        "coverage_95_pct": 100.0,
+        "interval_95": [
+          12.729710713906622,
+          19.803622619426708
+        ]
+      },
+      "time_70_140_pct": {
+        "n": 6,
+        "mean": 94.45833333333333,
+        "median": 94.75,
+        "mean_log_likelihood": -0.7498319593379201,
+        "coverage_95_pct": 83.33333333333334,
+        "interval_95": [
+          88.97496209543297,
+          97.42887064161285
+        ]
+      },
+      "time_gt_140_pct": {
+        "n": 6,
+        "mean": 4.541666666666667,
+        "median": 4.25,
+        "mean_log_likelihood": -0.988382550216076,
+        "coverage_95_pct": 83.33333333333334,
+        "interval_95": [
+          1.5953617424634374,
+          11.07787552804957
+        ]
+      },
+      "time_lt_70_pct": {
+        "n": 6,
+        "mean": 1.0,
+        "median": 1.0,
+        "mean_log_likelihood": 12.896572024759601,
+        "coverage_95_pct": 100.0,
+        "interval_95": [
+          0.9999980596018632,
+          1.0000019404018625
+        ]
+      }
+    },
+    "test": {
+      "mean_mg_dl": {
+        "n": 6,
+        "mean": 99.82666666666667,
+        "median": 99.64,
+        "mean_log_likelihood": -2.77815218585793,
+        "coverage_95_pct": 100.0,
+        "interval_95": [
+          96.03243444071349,
+          104.30534333706429
+        ]
+      },
+      "cv_pct": {
+        "n": 6,
+        "mean": 15.6,
+        "median": 15.6,
+        "mean_log_likelihood": -1.7740325142622282,
+        "coverage_95_pct": 100.0,
+        "interval_95": [
+          12.729710713906622,
+          19.803622619426708
+        ]
+      },
+      "time_70_140_pct": {
+        "n": 6,
+        "mean": 94.58333333333333,
+        "median": 94.75,
+        "mean_log_likelihood": -1.2199384662287533,
+        "coverage_95_pct": 83.33333333333334,
+        "interval_95": [
+          88.97496209543297,
+          97.42887064161285
+        ]
+      },
+      "time_gt_140_pct": {
+        "n": 6,
+        "mean": 4.416666666666667,
+        "median": 4.25,
+        "mean_log_likelihood": -1.490137557367299,
+        "coverage_95_pct": 83.33333333333334,
+        "interval_95": [
+          1.5953617424634374,
+          11.07787552804957
+        ]
+      },
+      "time_lt_70_pct": {
+        "n": 6,
+        "mean": 1.0,
+        "median": 1.0,
+        "mean_log_likelihood": 12.896572024759601,
+        "coverage_95_pct": 100.0,
+        "interval_95": [
+          0.9999980596018632,
+          1.0000019404018625
+        ]
+      }
+    }
+  },
+  "interpretation": "This is a train/validation/test calibration of the external CGM observation distribution. It is not a calibration of the mechanistic OpenHumSim physiology because the free-living meal/exercise inputs are not yet protocol-matched to each participant.",
+  "synthetic_fixture": true,
+  "warning": "This file validates train/validation/test mechanics only; it is not human-data output."
+}

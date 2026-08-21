@@ -1,0 +1,52 @@
+name: Bug report
+description: Report a reproducible software or numerical defect using synthetic data.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        OpenHumSim-RL is research software. Do not include patient-identifiable information, credentials or restricted clinical data.
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Give the package version and, when available, the exact commit SHA.
+      placeholder: "0.22.0 / full commit SHA"
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python and platform
+      placeholder: "Python 3.12.13, macOS arm64"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include a minimal command or script, scenario, seed and actions.
+      render: python
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: Observed behavior
+      description: Include the complete error and relevant numerical values with units.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: Explain the invariant, API contract or documented behavior that should hold.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add logs or synthetic outputs that help isolate the defect.

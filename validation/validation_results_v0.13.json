@@ -1,0 +1,135 @@
+{
+  "version": "0.13.0",
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9
+  },
+  "checks": [
+    {
+      "name": "v0.12 frozen scientific regression",
+      "value": {
+        "passed": 10,
+        "failed": 0,
+        "total": 10
+      },
+      "pass": true,
+      "tier": "regression",
+      "note": ""
+    },
+    {
+      "name": "release version",
+      "value": "0.13.0",
+      "pass": true,
+      "tier": "software-verification",
+      "note": ""
+    },
+    {
+      "name": "resting pulmonary gas-exchange scale",
+      "value": {
+        "pao2_mmHg": 89.12686690455303,
+        "paco2_mmHg": 44.312675563331446,
+        "spo2_pct": 96.85803585985002,
+        "pulmonary_aa_gradient_mmHg": 5.212288641282669,
+        "pulmonary_enghoff_dead_space_fraction": 0.30073531253918767
+      },
+      "pass": true,
+      "tier": "external-physiology-scale",
+      "note": "Broad healthy-rest scale, not a patient-specific arterial blood-gas reference interval."
+    },
+    {
+      "name": "exercise capillary-transit scale and A-a widening",
+      "value": {
+        "model_rest_transit_s": 0.9070934135729704,
+        "Warren_rest_transit_s": 1.05,
+        "model_exercise_transit_s": 0.42988361113311113,
+        "Warren_exercise_range_s": [
+          0.42,
+          0.46
+        ],
+        "model_rest_Aa_mmHg": 5.212288641282669,
+        "model_exercise_Aa_mmHg": 10.938647990133603,
+        "Warren_heavy_exercise_Aa_mmHg": 22.3
+      },
+      "pass": true,
+      "tier": "external-exercise-physiology",
+      "note": "Warren's PaO2=85 mmHg cohort were endurance athletes; v0.13 validates transit-time scale and A-a direction rather than forcing that exact PaO2."
+    },
+    {
+      "name": "V/Q mismatch produces hypoxemia and wasted ventilation",
+      "value": {
+        "baseline_PaO2": 89.12686690455303,
+        "vq_PaO2": 58.159046701621264,
+        "baseline_Aa": 5.212288641282669,
+        "vq_Aa": 36.18010884421443,
+        "baseline_VDVT": 0.30073531253918767,
+        "vq_VDVT": 0.317103993311577
+      },
+      "pass": true,
+      "tier": "mechanistic-pulmonary-physiology",
+      "note": ""
+    },
+    {
+      "name": "true shunt and diffusion limitation are separable mechanisms",
+      "value": {
+        "shunt_PaO2": 65.67699377192184,
+        "diffusion_PaO2": 76.65538598084822,
+        "baseline_equilibration": 0.9892781017972734,
+        "diffusion_equilibration": 0.7435034642625644
+      },
+      "pass": true,
+      "tier": "mechanistic-pulmonary-physiology",
+      "note": ""
+    },
+    {
+      "name": "supplemental-O2 response distinguishes shunt from V/Q mismatch",
+      "value": {
+        "vq_mismatch": 289.53292123042047,
+        "pulmonary_shunt": 42.802631692029536
+      },
+      "pass": true,
+      "tier": "medical-mechanism-check",
+      "note": "Relative responsiveness is tested; no treatment recommendation or clinical FiO2 target is inferred."
+    },
+    {
+      "name": "pulmonary timestep convergence",
+      "value": {
+        "PaO2_mmHg": 0.11103095021098852,
+        "PaCO2_mmHg": 0.0027935579419136047
+      },
+      "pass": true,
+      "tier": "numerical-verification",
+      "note": ""
+    },
+    {
+      "name": "multi-scenario pulmonary/chemical stress",
+      "value": {
+        "finite": true,
+        "max_CO2_mass_residual_mmol": 5.684341886080801e-13,
+        "max_charge_residual_mEq_l": 9.850005255884753e-09,
+        "unexpected_nonpulmonary_terminations": 0
+      },
+      "pass": true,
+      "tier": "physical-algorithmic-verification",
+      "note": ""
+    }
+  ],
+  "external_reference_file": "validation/external_reference_pulmonary_v0.13.json",
+  "credibility_classification": {
+    "VQ_distribution": "six-compartment reduced forward model inspired by MIGET physiology; not a MIGET inversion",
+    "true_shunt": "explicit venous admixture by O2 content",
+    "oxygen_diffusion": "finite equilibration driven by capillary transit time and a reduced diffusion-capacity parameter",
+    "dead_space": "anatomical dead space plus reduced high-V/Q wasted-ventilation diagnostic; Enghoff-like rather than direct Bohr PACO2 measurement",
+    "CO2": "v0.12 conserved whole-blood carbon pool retained; regional CO2 exchange remains reduced",
+    "clinical_decision_use": "not supported"
+  },
+  "remaining_limitations": [
+    "no spatial gravity-dependent lung geometry",
+    "no dynamic alveolar recruitment/derecruitment or compliance distribution",
+    "no full regional CO2 content mixing per V/Q compartment",
+    "no explicit DLCO/DLNO membrane and capillary conductance decomposition",
+    "no hypoxic pulmonary vasoconstriction redistribution",
+    "no aerosol/airway mechanics or disease-specific COPD/ARDS parameter estimation"
+  ],
+  "next_high_value_step": "v0.14 should add hypoxic pulmonary vasoconstriction and dynamic regional perfusion/recruitment, then validate V/Q distributions against a published MIGET dataset before introducing ARDS/COPD disease models."
+}

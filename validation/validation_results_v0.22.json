@@ -1,0 +1,153 @@
+{
+  "version": "0.22.0",
+  "scope": "internal energy, lactate and coupled O2/CO2 conservation invariants; not external clinical validation",
+  "summary": {
+    "passed": 15,
+    "total": 15
+  },
+  "checks": [
+    {
+      "name": "exact_release_version",
+      "passed": true,
+      "values": {
+        "version": "0.22.0"
+      }
+    },
+    {
+      "name": "lactate_pool_initialized_after_scenario_and_volume",
+      "passed": true,
+      "values": {
+        "baseline_amount_mmol": 42.37548322963922,
+        "transient_initial_concentration_mmol_l": 4.0
+      }
+    },
+    {
+      "name": "fluid_dilutes_without_creating_lactate",
+      "passed": true,
+      "values": {
+        "amount_mmol": 42.37548322963922,
+        "concentration_before_mmol_l": 1.007436741713945,
+        "concentration_after_mmol_l": 0.9840420788091567
+      }
+    },
+    {
+      "name": "lactate_amount_ledger_closes_once",
+      "passed": true,
+      "values": {
+        "amount_mmol": 69.55974204869864,
+        "generated_mmol": 34.482,
+        "cleared_mmol": 6.922257951301379,
+        "mass_error_mmol": 1.4210854715202004e-14
+      }
+    },
+    {
+      "name": "oxidative_vco2_uses_achieved_vo2",
+      "passed": true,
+      "values": {
+        "vo2_demand_ml_min": 1200.0,
+        "vo2_achieved_ml_min": 133.6756009262496,
+        "oxidative_vco2_ml_min": 124.76389419783295,
+        "metabolic_rq": 0.9333333333333333
+      }
+    },
+    {
+      "name": "oxygen_deficit_integral_has_correct_units_and_semantics",
+      "passed": true,
+      "values": {
+        "after_rise_ml": 12.5,
+        "after_fall_ml": 25.0
+      }
+    },
+    {
+      "name": "final_haldane_carbon_pool_closure",
+      "passed": true,
+      "values": {
+        "0.15": -5.240637790393521e-08,
+        "0.21": -4.2413670797714076e-08,
+        "0.6": -1.9501413817124558e-09
+      }
+    },
+    {
+      "name": "reset_joint_carbon_oxygen_rer_fixed_point",
+      "passed": true,
+      "values": {
+        "carbon_residual_mmol_l": 1.9134478890237006e-08,
+        "pulmonary_o2_residual_mmHg": -1.559783413540572e-08,
+        "elimination_endpoint_residual_ml_min": 0.0,
+        "effective_pulmonary_rer": 1.20349526469809
+      }
+    },
+    {
+      "name": "supply_limited_final_vco2_and_elimination_endpoints",
+      "passed": true,
+      "values": {
+        "oxygen_deficit_ml_min": 12.234349340800804,
+        "generation_residual_mmol": 3.1404622191644194e-06,
+        "elimination_endpoint_residual_ml_min": 0.00018031152785624727
+      }
+    },
+    {
+      "name": "pulmonary_rer_uses_lung_flux_not_cellular_rq",
+      "passed": true,
+      "values": {
+        "metabolic_rq": 0.9333333333333333,
+        "steady_pulmonary_rer": 0.9333333333333333,
+        "transient_pulmonary_rer": 1.2
+      }
+    },
+    {
+      "name": "carbon_fluxes_use_interval_consistent_quadrature",
+      "passed": true,
+      "values": {
+        "generated_mmol": 3.5803515659855445,
+        "eliminated_mmol": 2.1591418025692577
+      }
+    },
+    {
+      "name": "energy_carbon_outer_step_convergence",
+      "passed": true,
+      "values": {
+        "co2_generated_relative": 0.0012848335281113094,
+        "co2_eliminated_relative": 0.0005231862618635949,
+        "lactate_amount_relative": 0.0006125303967506212,
+        "oxygen_deficit_relative": 0.004690110682173432,
+        "paco2_absolute_mmHg": 0.29072873294353485,
+        "ph_absolute": 0.0031877477886155248
+      }
+    },
+    {
+      "name": "observation_and_benchmark_contract_unchanged",
+      "passed": true,
+      "values": {
+        "clinical_dim": 54,
+        "full_dim": 138,
+        "clinical_observation_sha256": "56770d5ea4d5ed4f81f98042bb4dcba7d0e40bfc73d109e5bdc3c2c5f5647de8",
+        "full_observation_sha256": "cf544ac7d1fdae6cf7b52e4320ec091409094ed43fd7bce90f4d496a854f813a",
+        "action_sha256": "9bc31bce6639bed396a5406518695c988e0d4f5d8740e893cec9ecfdfb985dfb",
+        "strict_info_keys": [
+          "action_names",
+          "environment_semantics",
+          "gymnasium_installed",
+          "info_profile",
+          "measurement_profile",
+          "observation_names",
+          "observation_profile"
+        ]
+      }
+    },
+    {
+      "name": "invalid_metabolic_rq_config_rejected",
+      "passed": true,
+      "values": {}
+    },
+    {
+      "name": "versioned_state_and_finite_action_config_contract",
+      "passed": true,
+      "values": {
+        "state_schema_version": "0.22",
+        "legacy_state_rejected": true,
+        "invalid_action_scale_rejected": true
+      }
+    }
+  ]
+}

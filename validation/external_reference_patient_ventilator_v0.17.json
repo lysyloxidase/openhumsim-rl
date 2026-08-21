@@ -1,0 +1,52 @@
+{
+  "version": "0.17.0",
+  "purpose": "External mechanistic anchors for patient-ventilator interaction. Published frequencies are not used as calibration targets for challenge scenarios.",
+  "references": [
+    {
+      "study": "Chiumello et al., Critical Care Medicine 2007",
+      "pmid": 17893630,
+      "population": "13 mechanically ventilated patients with acute COPD exacerbation",
+      "mechanism": "Flow-cycling criterion in pressure support ventilation",
+      "published_result": "Changing cycling-off from 5% to 40% of peak inspiratory flow reduced cycling delay from 0.40±0.20 to 0.29±0.16 s at PS 5 cmH2O and from 0.93±0.50 to 0.52±0.25 s at PS 15 cmH2O; dynamic PEEPi also decreased.",
+      "use_in_v017": "Directional and scale anchor for delayed-cycling ablation; model challenge is not fit to individual patient data."
+    },
+    {
+      "study": "Chao et al., Chest 1997",
+      "pmid": 9404759,
+      "population": "Patients requiring prolonged mechanical ventilation",
+      "mechanism": "Trigger asynchrony and intrinsic PEEP",
+      "published_result": "External PEEP improved trigger asynchrony but rarely eliminated it completely.",
+      "use_in_v017": "Mechanistic anchor for auto-PEEP threshold loading and external-PEEP unloading."
+    },
+    {
+      "study": "de Wit et al., Journal of Critical Care 2009",
+      "pmid": 19272542,
+      "population": "20 medical ICU patients, 35 observation periods",
+      "mechanism": "Observed patient-ventilator asynchrony",
+      "published_result": "Ineffective triggering occurred in 17/20 patients, accounted for 88% of asynchronous breaths, and averaged 9±12% of breaths.",
+      "use_in_v017": "Clinical plausibility/context only; the deliberately severe ineffective-trigger challenge is not prevalence-calibrated."
+    },
+    {
+      "study": "Chatmongkolchart et al., Respiratory Care 2001",
+      "pmid": 11403698,
+      "mechanism": "Inspiratory rise-time and inspiration-termination settings",
+      "published_result": "Ventilator rise-time and inspiratory termination settings affect patient-ventilator synchrony.",
+      "use_in_v017": "Supports explicit rise-time and cycling parameters; quantitative fitting deferred."
+    },
+    {
+      "study": "Liao et al., Respiratory Care 2011",
+      "pmid": 21255492,
+      "mechanism": "Double triggering",
+      "published_result": "Double triggering is a recognized asynchrony with potential for breath stacking, overdistension and intrinsic PEEP.",
+      "use_in_v017": "Mechanistic taxonomy and double-trigger event detection."
+    },
+    {
+      "study": "Vignaux et al., Intensive Care Medicine 2009",
+      "pmid": 19183949,
+      "population": "60 patients receiving noninvasive ventilation",
+      "mechanism": "Asynchrony taxonomy",
+      "published_result": "Observed autotriggering, double triggering, ineffective efforts, premature cycling and late cycling; severe asynchrony index >10% was common.",
+      "use_in_v017": "Taxonomy/context only because NIV leak mechanics differ from the current invasive-like forward model."
+    }
+  ]
+}

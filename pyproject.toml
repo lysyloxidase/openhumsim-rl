@@ -1,0 +1,66 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "openhumsim-rl"
+version = "0.22.0"
+description = "Mechanistic multi-organ physiology research simulator with measurement-aware observations, verification tooling and a Gymnasium-compatible RL API."
+authors = [
+  { name = "lysyloxidase", email = "230636274+lysyloxidase@users.noreply.github.com" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+keywords = [
+  "physiology",
+  "simulation",
+  "reinforcement-learning",
+  "gymnasium",
+  "scientific-computing"
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Medical Science Apps.",
+  "Topic :: Software Development :: Libraries :: Python Modules"
+]
+dependencies = [
+  "numpy>=1.24"
+]
+
+[project.urls]
+Homepage = "https://github.com/lysyloxidase/openhumsim-rl"
+Repository = "https://github.com/lysyloxidase/openhumsim-rl"
+Issues = "https://github.com/lysyloxidase/openhumsim-rl/issues"
+CI = "https://github.com/lysyloxidase/openhumsim-rl/actions/workflows/ci.yml"
+Changelog = "https://github.com/lysyloxidase/openhumsim-rl/releases"
+"Validation reports" = "https://github.com/lysyloxidase/openhumsim-rl/blob/main/VALIDATION_AUDIT_v0.22.md"
+
+[project.optional-dependencies]
+gym = ["gymnasium>=1.0,<2"]
+dev = ["pytest>=8", "gymnasium>=1.0,<2"]
+local = ["scipy>=1.10", "torch>=2.0", "gymnasium>=1.0,<2", "pytest>=8"]
+rl = ["gymnasium>=1.0,<2", "stable-baselines3>=2.4"]
+uq = ["scipy>=1.10"]
+torch-rl = ["torch>=2.0"]
+
+[project.scripts]
+openhumsim = "openhumsim_rl.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q -W error"

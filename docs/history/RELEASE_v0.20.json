@@ -1,0 +1,32 @@
+{
+  "version": "0.20.0",
+  "title": "P2 credibility: realistic measurements, correlated priors, locked validation",
+  "clinical_observation_count": 55,
+  "full_observation_count": 137,
+  "action_count": 8,
+  "default_observation_profile": "clinical",
+  "default_measurement_profile": "realistic",
+  "strict_benchmark_info_profile": "benchmark",
+  "scientific_validation": {
+    "passed": 10,
+    "total": 10
+  },
+  "focused_tests": {
+    "credibility_v020": 9
+  },
+  "regression_modules": {
+    "credibility_v019": 7,
+    "credibility_v018": 9,
+    "patient_ventilator_v017": 9,
+    "respiratory_cycle_v016": 10,
+    "respiratory_mechanics_v015": 9,
+    "pulmonary_v014": 8,
+    "pulmonary_v013": 8,
+    "blood_gas_v012": 8,
+    "event_replay": 6,
+    "selected_env_external": 12
+  },
+  "correlated_prior": "engineering rank correlation; not empirical population distribution",
+  "independent_external_validation_bundled": false,
+  "clinical_use_supported": false
+}

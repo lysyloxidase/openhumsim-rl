@@ -1,0 +1,20 @@
+{
+  "version": "0.11.0",
+  "release_focus": "physicochemical acid-base closure and external saline physiology benchmark",
+  "verification": {
+    "scientific_v0.11": "9/9 PASS",
+    "test_env": "37/37 PASS",
+    "test_event_replay": "6/6 PASS",
+    "gymnasium_checker": "SKIPPED: gymnasium unavailable in the release environment",
+    "combined_full_suite": "not used as release gate because the available runtime is exceeded by heavy legacy tests; modules pass separately"
+  },
+  "clinical_use": false,
+  "key_limitations": [
+    "no conserved whole-body inorganic carbon pool",
+    "no RBC/hemoglobin proton buffering or chloride shift",
+    "no dynamic calcium/magnesium strong-ion pools",
+    "no nephron-resolved renal acid transport",
+    "no V/Q distribution or shunt",
+    "generic PBPK probe is not a real validated drug"
+  ]
+}

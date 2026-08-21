@@ -1,0 +1,18 @@
+{
+  "version": "0.13.0",
+  "focus": "multi-compartment pulmonary V/Q, true shunt and finite O2 diffusion",
+  "observation_count": 74,
+  "action_count": 8,
+  "new_scenarios": ["vq_mismatch", "pulmonary_shunt", "diffusion_limitation"],
+  "validation": {
+    "pulmonary_tests_passed": 8,
+    "blood_gas_v012_tests_passed": 8,
+    "core_env_short_tests_passed": 35,
+    "long_renal_acidbase_tests_passed": 2,
+    "event_replay_tests_passed": 6,
+    "scientific_checks_passed": 9,
+    "scientific_checks_failed": 0
+  },
+  "clinical_use": false,
+  "next_step": "hypoxic pulmonary vasoconstriction, dynamic regional perfusion/recruitment, and external MIGET distribution validation"
+}

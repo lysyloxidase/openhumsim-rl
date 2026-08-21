@@ -1,0 +1,26 @@
+{
+  "version": "0.18.0",
+  "purpose": "Primary-source anchors for the v0.18 credibility refactor; not a patient-specific validation dataset.",
+  "references": [
+    {
+      "domain": "Hb-O2 binding / Bohr effect",
+      "citation": "Severinghaus JW. J Appl Physiol Respir Environ Exerc Physiol. 1979;46(3):599-602. PMID 35496.",
+      "use": "Standard adult-human O2 dissociation equation and PO2-dependent pH shift."
+    },
+    {
+      "domain": "coupled Hb-O2/Hb-CO2 chemistry",
+      "citation": "Dash RK, Korman B, Bassingthwaighte JB. Ann Biomed Eng. 2016;44:2179-2197. PMID 26298270.",
+      "use": "Mechanistic precedent for simultaneous dependence of HbO2/HbCO2 binding on PO2, PCO2 and pH; OpenHumSim remains reduced-order relative to this model."
+    },
+    {
+      "domain": "oxygen supply dependence",
+      "citation": "Schumacker PT, Cain SM. Crit Care Med. 1987;15:1159-1161. PMID 3301969.",
+      "use": "Conceptual anchor that VO2 becomes delivery-dependent below critical oxygen delivery. The OpenHumSim 0.70 extraction ceiling is an engineering parameter, not a validated human clinical threshold."
+    },
+    {
+      "domain": "model credibility terminology",
+      "citation": "U.S. FDA. Assessing the Credibility of Computational Modeling and Simulation in Medical Device Submissions. Final Guidance, 2023.",
+      "use": "Distinguishes code/model verification evidence from validation and context-of-use credibility."
+    }
+  ]
+}

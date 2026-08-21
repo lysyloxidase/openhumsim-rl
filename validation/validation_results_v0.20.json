@@ -1,0 +1,107 @@
+{
+  "version": "0.20.0",
+  "summary": {
+    "passed": 10,
+    "total": 10,
+    "all_passed": true
+  },
+  "checks": [
+    {
+      "name": "measurement_seed_reproducibility",
+      "passed": true,
+      "values": {
+        "clinical_dim": 55
+      }
+    },
+    {
+      "name": "abg_sampling_and_result_delay",
+      "passed": true,
+      "values": {
+        "initial": 38.6173281445751,
+        "held_t35": 38.6173281445751,
+        "reported_t40": 81.7894366621563,
+        "age_t35": 35.0,
+        "age_t40": 10.0
+      }
+    },
+    {
+      "name": "monitor_dropout_hold_last",
+      "passed": true,
+      "values": {
+        "held_hr": 61.444610814517034,
+        "age_min": 5.0,
+        "dropped": 26
+      }
+    },
+    {
+      "name": "cgm_interstitial_lag",
+      "passed": true,
+      "values": {
+        "before": 95.0,
+        "after_5min": 154.3671881067568,
+        "blood": 200.0
+      }
+    },
+    {
+      "name": "correlated_virtual_patient_prior",
+      "passed": true,
+      "values": {
+        "rho_weight_tbw_fraction": -0.3958907328252137,
+        "rho_tbw_ecf": 0.48600900796511826,
+        "rho_weight_bv_perkg": -0.23487210463373046
+      }
+    },
+    {
+      "name": "correlated_prior_preserves_lhs_marginals",
+      "passed": true,
+      "values": {
+        "n": 512,
+        "dimensions": 15
+      }
+    },
+    {
+      "name": "locked_validation_no_leakage",
+      "passed": true,
+      "values": {
+        "n_calibration": 28,
+        "n_validation": 12,
+        "lock": "7b38dab14c2f76958eabf1e28850c28ec68a4a8d70af4be7465c8f528e96bb03"
+      }
+    },
+    {
+      "name": "correlated_cohort_reproducibility_and_geometry",
+      "passed": true,
+      "values": {
+        "n": 24
+      }
+    },
+    {
+      "name": "full_profile_remains_ideal_debug_state",
+      "passed": true,
+      "values": {
+        "full_dim": 137,
+        "clinical_dim": 55
+      }
+    },
+    {
+      "name": "benchmark_info_hides_mechanistic_truth",
+      "passed": true,
+      "values": {
+        "info_keys": [
+          "action_names",
+          "blood_gas_carbon",
+          "environment_semantics",
+          "gymnasium_installed",
+          "info_profile",
+          "measurement",
+          "measurement_profile",
+          "observation_names",
+          "observation_profile",
+          "reward_terms",
+          "scenario",
+          "time_min"
+        ]
+      }
+    }
+  ]
+}

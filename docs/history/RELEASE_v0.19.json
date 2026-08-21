@@ -1,0 +1,45 @@
+{
+  "version": "0.19.0",
+  "title": "P1 endocrine-electrolyte-osmotic credibility refactor",
+  "clinical_use_supported": false,
+  "validation_classification": "verification/credibility, not clinical validation",
+  "observation_profiles": {
+    "clinical": 50,
+    "full": 137
+  },
+  "action_count": 8,
+  "breaking_changes": [
+    "Exogenous insulin action now enters two serial SC depots instead of plasma directly.",
+    "Older RL checkpoints using insulin must be retrained."
+  ],
+  "focused_tests": {
+    "pytest": 7,
+    "credibility_gate_passed": 9,
+    "credibility_gate_total": 9
+  },
+  "regression": {
+    "v018_credibility": 9,
+    "v017_patient_ventilator": 9,
+    "v016_respiratory_cycle": 10,
+    "v015_mechanics": 9,
+    "v014_pulmonary": 8,
+    "v013_vq": 8,
+    "v012_blood_gas": 8,
+    "event_replay": 6,
+    "test_env_direct_pytest": 36,
+    "test_env_long_horizon_checkpointed_assertions": 2,
+    "test_env_long_horizon_effective_endpoint_min": 725.0
+  },
+  "known_limitations": [
+    "SC insulin uses model-units, not clinical insulin units.",
+    "Glucagon extension is reduced-order and lacks epinephrine/cortisol/growth hormone.",
+    "Transcellular K model does not yet distinguish all acid species or beta2 kinetics.",
+    "Oral water absorption is instantaneous before osmotic redistribution.",
+    "No patient-specific or prospective validation.",
+    "Historical long-horizon renal/acid-base tests truncate at the 725-min episode boundary; they do not establish 24-h behavior."
+  ],
+  "algorithmic_changes": [
+    "Event-replay meal fitting skips the independent exercise simulation branch.",
+    "Event-replay exercise fitting skips the independent meal simulation branch."
+  ]
+}

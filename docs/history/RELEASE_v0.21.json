@@ -1,0 +1,31 @@
+{
+  "version": "0.21.0",
+  "title": "Numerical, physiological and benchmark integrity corrections",
+  "clinical_observation_count": 54,
+  "full_observation_count": 138,
+  "action_count": 8,
+  "default_observation_profile": "clinical",
+  "default_measurement_profile": "realistic",
+  "strict_benchmark_info_profile": "benchmark",
+  "focused_integrity_gate": {
+    "passed": 13,
+    "total": 13
+  },
+  "new_regression_tests": {
+    "physics": 5,
+    "biomedical": 9,
+    "algorithmic": 10,
+    "total": 24
+  },
+  "full_test_suite": {
+    "passed": 145,
+    "total": 145,
+    "python": "3.12",
+    "gymnasium_checker_included": true,
+    "warnings_as_errors": true
+  },
+  "historical_rl_checkpoints_compatible": false,
+  "full_observation_claimed_markov": false,
+  "independent_external_validation_bundled": false,
+  "clinical_use_supported": false
+}

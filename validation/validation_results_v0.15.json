@@ -1,0 +1,98 @@
+{
+  "version": "0.15.0",
+  "summary": {
+    "passed": 9,
+    "total": 9,
+    "all_passed": true
+  },
+  "checks": [
+    {
+      "name": "transpulmonary_pressure_identity",
+      "passed": true,
+      "values": {
+        "residual_cmH2O": 0.0
+      }
+    },
+    {
+      "name": "healthy_baseline_mechanics",
+      "passed": true,
+      "values": {
+        "recruitment": 0.9682793384755577,
+        "overdistension": 0.019041770912289074,
+        "Crs_L_cmH2O": 0.06513758298528129,
+        "PL_endexp": 5.0,
+        "PL_endinsp": 10.19971941729737
+      }
+    },
+    {
+      "name": "lung_vs_chest_wall_separation",
+      "passed": true,
+      "values": {
+        "baseline_dPaw": 7.711146711436857,
+        "stiff_chest_dPaw": 10.222574005576343,
+        "baseline_dPL": 5.199719417297371,
+        "stiff_chest_dPL": 5.199719417297371,
+        "stiff_lung_dPL": 10.810888121649088
+      }
+    },
+    {
+      "name": "peep_recruitment_tradeoff",
+      "passed": true,
+      "values": {
+        "collapsed_recruitment": 0.258461198526607,
+        "peep_recruitment": 0.9711762301202705,
+        "collapsed_PaO2": 72.38971648039296,
+        "peep_PaO2": 95.59298026142642
+      }
+    },
+    {
+      "name": "high_peep_overdistension",
+      "passed": true,
+      "values": {
+        "PEEP5_overdistension": 0.06366752802065791,
+        "PEEP18_overdistension": 0.6658393556145621,
+        "PEEP5_mech_PVR": 1.0459240218712684,
+        "PEEP18_mech_PVR": 1.4660882871542398
+      }
+    },
+    {
+      "name": "positive_pressure_hemodynamic_direction",
+      "passed": true,
+      "values": {
+        "baseline_CO": 4.43082081868475,
+        "PEEP12_CO": 3.000640192087174,
+        "baseline_MAP": 92.2588327766529,
+        "PEEP12_MAP": 72.11988195537411,
+        "intrathoracic_delta_cmH2O": 5.079056304183448
+      }
+    },
+    {
+      "name": "hypovolemia_positive_pressure_interaction",
+      "passed": true,
+      "values": {
+        "normal_CO": 2.9011349368873383,
+        "dehydrated_CO": 2.243239217774619,
+        "normal_MAP": 69.61303353184886,
+        "dehydrated_MAP": 60.503804416212134
+      }
+    },
+    {
+      "name": "timestep_convergence",
+      "passed": true,
+      "values": {
+        "d_PL_endinsp": 3.5596880412214205e-05,
+        "d_overdistension": 1.946938284314026e-06,
+        "d_CO": 0.12376474731990683
+      }
+    },
+    {
+      "name": "legacy_conservation_under_mechanics",
+      "passed": true,
+      "values": {
+        "CO2_residual_mmol": 1.4210854715202004e-13,
+        "charge_residual_mEq_l": 3.2825226981003652e-09,
+        "blood_volume_residual_ml": 9.094947017729282e-13
+      }
+    }
+  ]
+}

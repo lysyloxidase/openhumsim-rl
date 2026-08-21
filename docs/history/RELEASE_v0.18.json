@@ -1,0 +1,34 @@
+{
+  "version": "0.18.0",
+  "release_type": "credibility_refactor",
+  "clinical_use_supported": false,
+  "default_observation_profile": "clinical",
+  "clinical_observation_count": 50,
+  "full_observation_count": 126,
+  "action_count": 8,
+  "breaking_changes": [
+    "action 6 is pressure assist (cmH2O), not virtual ventilation L/min",
+    "default observation profile is clinical",
+    "reward changed",
+    "pre-v0.18 RL checkpoints require retraining"
+  ],
+  "credibility_validation": {
+    "passed": 9,
+    "total": 9,
+    "all_passed": true
+  },
+  "regression_modules": {
+    "patient_ventilator_v017": 9,
+    "respiratory_cycle_v016": 10,
+    "respiratory_mechanics_v015": 9,
+    "pulmonary_v014": 8,
+    "pulmonary_v013": 8,
+    "blood_gas_v012": 8,
+    "event_replay": 6
+  },
+  "long_test_status": {
+    "respiratory_acidosis_24h": "printed PASS; wrapper timed out during/after process completion",
+    "reduced_renal_function_24h": "not completed within process limit; not claimed PASS"
+  },
+  "legacy_ppo_compatible": false
+}

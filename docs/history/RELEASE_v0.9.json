@@ -1,0 +1,28 @@
+{
+  "version": "0.9.0",
+  "release_focus": "external-human CGM calibration infrastructure",
+  "major_changes": [
+    "blood-to-interstitial CGM observation model with configurable first-order lag",
+    "exact Shah-2019 aggregate and age-stratified external human CGM reference",
+    "participant-level train/validation/test splits with explicit leakage checks",
+    "bootstrap confidence intervals for held-out subject metrics",
+    "TRAIN-only normative CGM reference calibration with validation/test scoring",
+    "local Jaeb download/summarize/split/fit CLI workflow"
+  ],
+  "verification": {
+    "pytest_passed": 32,
+    "pytest_skipped": 1,
+    "v0_9_targeted_checks_passed": 8,
+    "v0_9_targeted_checks_failed": 0
+  },
+  "external_data_status": {
+    "published_human_reference_integrated": true,
+    "raw_jaeb_archive_bundled": false,
+    "participant_level_loader_implemented": true,
+    "participant_level_split_implemented": true,
+    "participant_level_reference_fit_implemented": true,
+    "participant_level_real_data_execution_in_release_environment": false,
+    "reason": "the release environment could not resolve or fetch the optional Jaeb S3 archive; a local opt-in workflow is provided"
+  },
+  "clinical_status": "research-only; not clinically validated"
+}

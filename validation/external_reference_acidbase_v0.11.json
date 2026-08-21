@@ -1,0 +1,54 @@
+{
+  "version": "0.11.0",
+  "primary_sources": [
+    {
+      "citation": "Stewart PA. Modern quantitative acid-base chemistry. Can J Physiol Pharmacol. 1983;61:1444-1461.",
+      "pmid": 6423247,
+      "use": "mass action, mass conservation and electroneutrality framework; SID/PCO2/weak-acid control variables"
+    },
+    {
+      "citation": "Figge J, Rossing TH, Fencl V. The role of serum proteins in acid-base equilibria. J Lab Clin Med. 1991;117:453-467.",
+      "pmid": 2045713,
+      "use": "human albumin weak-acid charge model"
+    },
+    {
+      "citation": "Figge J, Mydosh T, Fencl V. Serum proteins and acid-base equilibria: a follow-up. J Lab Clin Med. 1992;120:713-719.",
+      "pmid": 1431499,
+      "use": "albumin/protein acid-base refinement"
+    },
+    {
+      "citation": "Dell'Anna AM et al. Stewart's theory and acid-base changes induced by crystalloid infusion in humans: a randomized physiological trial. Ann Intensive Care. 2025;15:54.",
+      "pmid": 40263186,
+      "use": "external human crystalloid benchmark",
+      "saline": {
+        "chloride_mEq_l": 154,
+        "SID_mEq_l": 0,
+        "total_dose_ml_kg": 30,
+        "pH_after_second_bolus_median": 7.34,
+        "pH_IQR": [
+          7.32,
+          7.36
+        ]
+      }
+    }
+  ],
+  "model_scope": {
+    "implemented": [
+      "Na/K/Cl/lactate simplified SID",
+      "PaCO2-HCO3 mass action",
+      "albumin and phosphate weak-acid charge",
+      "charge closure",
+      "renal NH4/titratable-acid/bicarbonate diagnostics",
+      "nonvolatile acid ledger"
+    ],
+    "not_implemented": [
+      "dynamic ionized Ca/Mg pools",
+      "full carbonate species",
+      "erythrocyte buffering/chloride shift",
+      "hemoglobin proton buffering",
+      "urine electroneutrality",
+      "full nephron acid transport",
+      "dynamic albumin synthesis/loss"
+    ]
+  }
+}

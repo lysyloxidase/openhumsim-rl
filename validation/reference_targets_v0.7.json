@@ -1,0 +1,47 @@
+{
+  "version": "0.7.0",
+  "context": "Adult resting reference envelopes used for external-scale checks; these are not a single matched clinical cohort and are not patient-specific calibration data.",
+  "targets": {
+    "cardiac_output_l_min": {
+      "low": 3.3,
+      "high": 8.2,
+      "source": "Rusinaru et al., Am J Cardiol 2021, DOI 10.1016/j.amjcard.2020.10.046",
+      "note": "Sex-specific non-obese adult normal limits span 3.3-8.2 L/min across female/male limits."
+    },
+    "cv_ejection_fraction": {
+      "low": 0.55,
+      "high": 0.80,
+      "source": "Harkness et al., Echo Res Pract 2020; normal LVEF defined >=55%",
+      "note": "Upper bound is an engineering envelope, not a diagnostic cutoff."
+    },
+    "ph_arterial": {
+      "low": 7.35,
+      "high": 7.45,
+      "source": "Yee et al., Fundamentals of Arterial Blood Gas Interpretation, 2022"
+    },
+    "paco2_mmHg": {
+      "low": 35.0,
+      "high": 45.0,
+      "source": "Yee et al., Fundamentals of Arterial Blood Gas Interpretation, 2022"
+    },
+    "pao2_mmHg": {
+      "low": 80.0,
+      "high": 100.0,
+      "source": "adult reference envelope used in ABG reviews; PaO2 is age-dependent",
+      "note": "Used only as a broad adult external-scale check."
+    },
+    "gfr_ml_min": {
+      "low": 90.0,
+      "high": 140.0,
+      "source": "KDIGO 2024 CKD framework plus engineering upper envelope",
+      "note": "KDIGO is indexed to 1.73 m2 and does not define 90-140 as a universal healthy range; this is a robustness envelope for the nominal 70-kg scaffold."
+    }
+  },
+  "sources": [
+    {"title": "Normative Reference Values of Cardiac Output by Pulsed-Wave Doppler Echocardiography in Adults", "doi": "10.1016/j.amjcard.2020.10.046"},
+    {"title": "Fundamentals of Arterial Blood Gas Interpretation", "year": 2022},
+    {"title": "Normal reference intervals for cardiac dimensions and function for use in echocardiographic practice", "year": 2020},
+    {"title": "KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease", "year": 2024},
+    {"title": "Assessing the Credibility of Computational Modeling and Simulation in Medical Device Submissions", "publisher": "FDA", "year": 2023}
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "sources": {
+    "dalla_man_2007": {
+      "title": "Meal Simulation Model of the Glucose-Insulin System",
+      "authors": "Dalla Man C, Rizza RA, Cobelli C",
+      "journal": "IEEE Transactions on Biomedical Engineering 54(10):1740-1749",
+      "doi": "10.1109/TBME.2007.893506",
+      "role": "normal-subject glucose-insulin model structure and Table-I parameters"
+    },
+    "broome_2013": {
+      "title": "Closed-loop real-time simulation model of hemodynamics and oxygen transport in the cardiovascular system",
+      "authors": "Broomé M et al.",
+      "journal": "Biomedical Engineering Online 12:69",
+      "doi": "10.1186/1475-925X-12-69",
+      "role": "external quantitative scale for normal and exercise closed-loop hemodynamics"
+    },
+    "severinghaus_1979": {
+      "title": "Simple, accurate equations for human blood O2 dissociation computations",
+      "author": "Severinghaus JW",
+      "journal": "Journal of Applied Physiology 46(3):599-602",
+      "doi": "10.1152/jappl.1979.46.3.599",
+      "role": "standard-condition O2 saturation approximation"
+    },
+    "kdigo_2012": {
+      "title": "KDIGO Clinical Practice Guideline for Acute Kidney Injury",
+      "role": "AKI definition/staging semantics; creatinine and urine-output criteria"
+    },
+    "ats_abg": {
+      "title": "American Thoracic Society: Interpretation of Arterial Blood Gases",
+      "role": "expected acute/chronic respiratory acid-base compensation rules"
+    },
+    "fda_pbpk": {
+      "title": "Physiologically Based Pharmacokinetic Analyses — Format and Content",
+      "agency": "U.S. FDA",
+      "role": "PBPK credibility/context-of-use standard"
+    }
+  },
+  "broome_normal_reference": {
+    "cardiac_output_l_min": 5.09,
+    "systemic_systolic_mmHg": 112.0,
+    "systemic_diastolic_mmHg": 61.0,
+    "mean_right_atrial_mmHg": 4.0,
+    "mean_pulmonary_artery_mmHg": 11.0
+  },
+  "broome_exercise_reference": {
+    "heart_rate_bpm": 144.0,
+    "cardiac_output_min_l_min": 10.0
+  },
+  "ats_respiratory_compensation": {
+    "acute_hco3_change_per_10mmHg_paco2": 1.0,
+    "chronic_hco3_change_per_10mmHg_paco2": 3.5,
+    "chronic_time_days": [3, 5]
+  }
+}

@@ -1,0 +1,54 @@
+name: Scientific validity concern
+description: Challenge a biological, physical, medical or algorithmic model assumption.
+title: "[Scientific validity]: "
+labels:
+  - scientific-validity
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for model-validity concerns, not patient-specific advice. Do not submit identifiable health information.
+  - type: dropdown
+    id: domain
+    attributes:
+      label: Primary domain
+      options:
+        - Biological
+        - Physical or numerical
+        - Medical interpretation
+        - Algorithmic or RL
+        - Cross-system
+    validations:
+      required: true
+  - type: input
+    id: location
+    attributes:
+      label: Model location
+      description: Name the module, state, equation, parameter or validation check.
+      placeholder: "src/openhumsim_rl/physiology.py — oxygen deficit update"
+    validations:
+      required: true
+  - type: textarea
+    id: concern
+    attributes:
+      label: Concern
+      description: State the claim or invariant that appears unsupported or inconsistent.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Provide equations, units, synthetic reproductions and primary references where available.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_test
+    attributes:
+      label: Proposed falsification or regression test
+      description: Describe an executable check that would distinguish the competing explanations.
+  - type: textarea
+    id: impact
+    attributes:
+      label: Expected impact
+      description: Identify affected outputs, scenarios, validation claims or learned policies.

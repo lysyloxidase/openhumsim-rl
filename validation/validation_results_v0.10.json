@@ -1,0 +1,272 @@
+{
+  "version": "0.10.0",
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9
+  },
+  "checks": [
+    {
+      "name": "v0.9 frozen scientific regression",
+      "value": {
+        "passed": 8,
+        "failed": 0,
+        "total": 8
+      },
+      "pass": true,
+      "tier": "regression",
+      "note": ""
+    },
+    {
+      "name": "release version",
+      "value": "0.10.0",
+      "pass": true,
+      "tier": "software-verification",
+      "note": ""
+    },
+    {
+      "name": "DuBose event-reference transcription",
+      "value": {
+        "n_participants": 153,
+        "exercise_sessions": 451,
+        "exercise_baseline_mean_mg_dl": 99.0,
+        "exercise_baseline_sd_mg_dl": 12.0,
+        "exercise_nadir_mean_mg_dl": 85.0,
+        "exercise_nadir_sd_mg_dl": 11.0,
+        "exercise_change_mean_mg_dl": -15.0,
+        "exercise_change_sd_mg_dl": 18.0,
+        "exercise_duration_median_min": 45.0,
+        "exercise_duration_iqr_min": [
+          30.0,
+          60.0
+        ],
+        "meal_participants": 56,
+        "meal_events": 306,
+        "meal_premeal_mean_mg_dl": 93.0,
+        "meal_premeal_sd_mg_dl": 10.0,
+        "meal_peak_mean_mg_dl": 130.0,
+        "meal_peak_sd_mg_dl": 13.0,
+        "meal_time_to_peak_mean_min": 97.0,
+        "meal_time_to_peak_sd_min": 31.0,
+        "meal_excursion_mean_mg_dl": 37.0,
+        "meal_excursion_sd_mg_dl": 15.0,
+        "citation": "DuBose SN et al. Effect of Exercise and Meals on Continuous Glucose Monitor Data in Healthy Individuals Without Diabetes. J Diabetes Sci Technol. 2021;15(3):593-599. DOI:10.1177/1932296820905904"
+      },
+      "pass": true,
+      "tier": "external-human-reference",
+      "note": ""
+    },
+    {
+      "name": "published event-level replay calibration",
+      "value": {
+        "meal": {
+          "baseline_mg_dl": 93.0,
+          "peak_mg_dl": 129.38619641919945,
+          "time_to_peak_min": 95.0,
+          "excursion_mg_dl": 36.38619641919945,
+          "effective_meal_carbs_g": 36.0,
+          "gastric_absorption_scale": 0.44999999999999996,
+          "blood_peak_mg_dl": 129.58114192472016
+        },
+        "exercise": {
+          "baseline_mg_dl": 99.0,
+          "nadir_mg_dl": 84.67985625008193,
+          "change_mg_dl": -14.320143749918074,
+          "time_to_nadir_min": 45.0,
+          "representative_exercise_intensity": 0.5,
+          "exercise_vmax_gain": 3.6499999999999986,
+          "blood_nadir_mg_dl": 82.493173657491
+        }
+      },
+      "pass": true,
+      "tier": "mechanistic-calibration",
+      "note": "Latent replay inputs fit aggregate data; not unique physiological estimates because meal quantity/intensity were not recorded."
+    },
+    {
+      "name": "Jaeb terms-respecting manual download workflow",
+      "value": {
+        "dataset_page": "https://public.jaeb.org/dataset/559",
+        "expected_filename": "CGMND.zip",
+        "steps": [
+          "Open the official Jaeb dataset page.",
+          "Provide the requested contact/institution/planned-use fields.",
+          "Read and accept the Jaeb dataset terms.",
+          "Download CGMND.zip and place it under data/external/CGMND.zip."
+        ]
+      },
+      "pass": true,
+      "tier": "data-governance",
+      "note": ""
+    },
+    {
+      "name": "schema-adaptive diary/CGM parser",
+      "value": {
+        "counts": {
+          "exercise": 5,
+          "meal": 15,
+          "sleep": 5,
+          "wake": 5
+        },
+        "tables": [
+          {
+            "file": "CGM.csv",
+            "n_rows": 1440,
+            "fields": [
+              "Participant ID",
+              "DateTime",
+              "Sensor Glucose (mg/dL)"
+            ],
+            "sample": [
+              {
+                "Participant ID": "1",
+                "DateTime": "2020-01-02 00:00:00",
+                "Sensor Glucose (mg/dL)": "93.000"
+              },
+              {
+                "Participant ID": "1",
+                "DateTime": "2020-01-02 00:05:00",
+                "Sensor Glucose (mg/dL)": "93.033"
+              }
+            ],
+            "event_score": 4,
+            "cgm_score": 20
+          },
+          {
+            "file": "DailyLog.csv",
+            "n_rows": 5,
+            "fields": [
+              "Participant ID",
+              "Date",
+              "Breakfast Time",
+              "Lunch Time",
+              "Dinner Time",
+              "Exercise Start",
+              "Exercise Duration",
+              "Exercise Type",
+              "Sleep Time",
+              "Wake Time"
+            ],
+            "sample": [
+              {
+                "Participant ID": "1",
+                "Date": "2020-01-02",
+                "Breakfast Time": "08:00",
+                "Lunch Time": "12:00",
+                "Dinner Time": "17:00",
+                "Exercise Start": "15:00",
+                "Exercise Duration": "45",
+                "Exercise Type": "Aerobic",
+                "Sleep Time": "23:00",
+                "Wake Time": "06:30"
+              },
+              {
+                "Participant ID": "2",
+                "Date": "2020-01-02",
+                "Breakfast Time": "08:00",
+                "Lunch Time": "12:00",
+                "Dinner Time": "17:00",
+                "Exercise Start": "15:00",
+                "Exercise Duration": "45",
+                "Exercise Type": "Aerobic",
+                "Sleep Time": "23:00",
+                "Wake Time": "06:30"
+              }
+            ],
+            "event_score": 30,
+            "cgm_score": 6
+          }
+        ]
+      },
+      "pass": true,
+      "tier": "data-engineering-verification",
+      "note": ""
+    },
+    {
+      "name": "DuBose inclusion-rule event alignment",
+      "value": {
+        "meals": 15,
+        "exercise": 5,
+        "exclusions": {
+          "meal": {},
+          "exercise": {}
+        }
+      },
+      "pass": true,
+      "tier": "analysis-verification",
+      "note": ""
+    },
+    {
+      "name": "participant-level held-out mechanistic event fit",
+      "value": {
+        "profile": {
+          "effective_meal_carbs_g": 34.0,
+          "gastric_absorption_scale": 0.44999999999999996,
+          "insulin_sensitivity_scale": 1.0,
+          "representative_exercise_intensity": 0.5,
+          "exercise_vmax_gain": 5.899999999999999,
+          "cgm_lag_tau_min": 6.0
+        },
+        "leakage": {
+          "overlaps": {
+            "train_validation": [],
+            "train_test": [],
+            "validation_test": []
+          },
+          "passed": true
+        },
+        "errors": {
+          "train": {
+            "mean_squared_z": 5.831659139887228e-05,
+            "terms": {
+              "meal_peak_z": 0.012109682393978223,
+              "meal_excursion_z": 0.010495058074783022,
+              "meal_tpeak_z": 0.0,
+              "exercise_nadir_z": 0.005033083117724727,
+              "exercise_change_z": 0.003075773016388123
+            }
+          },
+          "validation": {
+            "mean_squared_z": 5.831659139888349e-05,
+            "terms": {
+              "meal_peak_z": 0.012109682393980411,
+              "meal_excursion_z": 0.010495058074782548,
+              "meal_tpeak_z": 0.0,
+              "exercise_nadir_z": 0.00503308311772602,
+              "exercise_change_z": 0.003075773016388123
+            }
+          },
+          "test": {
+            "mean_squared_z": 5.831659139888349e-05,
+            "terms": {
+              "meal_peak_z": 0.012109682393980411,
+              "meal_excursion_z": 0.010495058074782548,
+              "meal_tpeak_z": 0.0,
+              "exercise_nadir_z": 0.00503308311772602,
+              "exercise_change_z": 0.003075773016388123
+            }
+          }
+        }
+      },
+      "pass": true,
+      "tier": "algorithm-verification",
+      "note": ""
+    },
+    {
+      "name": "human raw dataset not bundled",
+      "value": [],
+      "pass": true,
+      "tier": "data-governance",
+      "note": ""
+    }
+  ],
+  "credibility_classification": {
+    "event_parser": "verified on long/wide synthetic schemas; real Jaeb schema must still be inspected from a local archive obtained under the dataset terms",
+    "event_inclusion_rules": "implements the published DuBose meal/exercise analysis rules used for event-level comparison",
+    "aggregate_meal_replay": "matches published mean peak/excursion/time-to-peak after fitting latent effective meal input; not independent validation",
+    "aggregate_exercise_replay": "matches published mean glucose drop after fitting the reduced-order exercise extension; not a workload-calibrated exercise model",
+    "participant_holdout_pipeline": "implemented and leakage-tested on synthetic event fixture; real-data run pending local Jaeb download",
+    "sleep": "timestamps ingested but no causal circadian/sleep physiology is fitted yet",
+    "clinical_decision_use": "not supported"
+  },
+  "remaining_requirement": "A local Jaeb CGMND.zip obtained under the dataset terms is required to inspect the real schema and execute participant-level held-out event fitting. Meal quantity is absent by study design, so v0.11 should add hierarchical latent-input inference and a protocol with known nutrient composition rather than pretending carbs are observed."
+}

@@ -1,0 +1,25 @@
+{
+  "version": "0.16.0",
+  "title": "Within-breath airflow, auto-PEEP and work-of-breathing dynamics",
+  "observation_count": 107,
+  "action_count": 8,
+  "scientific_validation": {
+    "passed": 10,
+    "total": 10
+  },
+  "module_tests": {
+    "respiratory_cycle_v016": 10,
+    "respiratory_mechanics_v015": 9,
+    "pulmonary_v014": 8,
+    "pulmonary_v013": 8,
+    "blood_gas_v012": 8,
+    "event_replay": 6,
+    "selected_environment_regression": 7
+  },
+  "known_limitations": [
+    "No patient-specific airway tree or expiratory muscle model",
+    "No ventilator trigger/cycling synchrony",
+    "Obstruction scenarios are mechanism challenges, not COPD/asthma diagnoses",
+    "No clinical ventilator-setting validation"
+  ]
+}

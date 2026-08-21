@@ -1,0 +1,90 @@
+{
+  "version": "0.17.0",
+  "summary": {
+    "passed": 9,
+    "total": 9,
+    "all_passed": true
+  },
+  "checks": [
+    {
+      "name": "synchronous_psv",
+      "passed": true,
+      "values": {
+        "AI_pct": 0.0,
+        "trigger_delay_s": 0.02,
+        "PaCO2": 38.04891988635063
+      }
+    },
+    {
+      "name": "ineffective_trigger_and_external_peep_unloading",
+      "passed": true,
+      "values": {
+        "no_PEEP_ineffective": 0.6666666666666666,
+        "PEEP_ineffective": 0.0,
+        "no_PEEP_AI": 100.0,
+        "PEEP_AI": 0.0
+      }
+    },
+    {
+      "name": "cycling_40pct_reduces_delay_and_peepi",
+      "passed": true,
+      "values": {
+        "cycle_10_delay_s": 1.0299999999999858,
+        "cycle_40_delay_s": -0.10779103986479655,
+        "cycle_10_PEEPi": 1.5482285362509236,
+        "cycle_40_PEEPi": 0.5367867869009587
+      }
+    },
+    {
+      "name": "premature_cycling",
+      "passed": true,
+      "values": {
+        "premature_fraction": 1.0,
+        "cycling_delay_s": -1.972600305226783
+      }
+    },
+    {
+      "name": "double_triggering",
+      "passed": true,
+      "values": {
+        "double_fraction": 0.9999481050198318,
+        "efforts_min": 12.000622772080764,
+        "vent_breaths_min": 24.0
+      }
+    },
+    {
+      "name": "leak_autotrigger",
+      "passed": true,
+      "values": {
+        "autotrigger_fraction": 0.6666666666666666,
+        "efforts_min": 12.000622772080764,
+        "vent_breaths_min": 24.0
+      }
+    },
+    {
+      "name": "waveform_phase_observability",
+      "passed": true,
+      "values": {
+        "trace_samples": 499
+      }
+    },
+    {
+      "name": "cycle_timestep_convergence",
+      "passed": true,
+      "values": {
+        "d_cycle_delay_s": 0.005000000000057625,
+        "d_VT_l": 0.0009316179704510485,
+        "d_PEEPi": 0.011836178740887382
+      }
+    },
+    {
+      "name": "legacy_conservation",
+      "passed": true,
+      "values": {
+        "CO2_residual": -2.842170943040401e-14,
+        "charge_residual": 5.200888608669629e-10,
+        "blood_volume_residual": 4.547473508864641e-12
+      }
+    }
+  ]
+}

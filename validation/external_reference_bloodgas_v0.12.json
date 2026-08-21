@@ -1,0 +1,38 @@
+{
+  "version": "0.12.0",
+  "references": [
+    {
+      "name": "O'Neill-Robbins whole-blood CO2 benchmark",
+      "citation": "O'Neill DP, Robbins PA. A mechanistic physicochemical model of carbon dioxide transport in blood. J Appl Physiol. 2017;122(2):283-295. PMID: 27881667.",
+      "conditions": {"PCO2_mmHg": 40.0, "PO2_mmHg": 100.0},
+      "reported_total_CO2_ml_per_100ml_blood": 44.6
+    },
+    {
+      "name": "Funder-Wieth RBC/plasma Donnan distribution",
+      "citation": "Funder J, Wieth JO. Chloride and hydrogen ion distribution between human red cells and plasma. Acta Physiol Scand. 1966;68:234-245.",
+      "relations": {
+        "rCl": "3.319 - 0.359*pH_plasma",
+        "rH": "3.094 - 0.335*pH_plasma"
+      }
+    },
+    {
+      "name": "Dash-Bassingthwaighte standard Hb gas-binding state",
+      "citation": "Dash RK, Korman B, Bassingthwaighte JB. Eur J Appl Physiol. 2016;116(1):97-113. PMID: 26298270.",
+      "standard_HbO2_saturation_fraction": 0.972,
+      "standard_amino_group_CO2_saturation_fraction": 0.131
+    },
+    {
+      "name": "Human erythrocyte intracellular pH",
+      "citation": "Kummerow D et al. Variations of intracellular pH in human erythrocytes via K(+)(Na(+))/H(+) exchange under low K(+) conditions. PMID: 10931972.",
+      "external_pH": 7.4,
+      "reported_intracellular_pH_mean": 7.19,
+      "reported_intracellular_pH_sd": 0.04
+    },
+    {
+      "name": "Oxygen-dependent chloride binding",
+      "citation": "Prange HD et al. Physiological consequences of oxygen-dependent chloride binding to hemoglobin. J Appl Physiol. 2001;91(1):33-38. PMID: 11408410.",
+      "reported_arterial_to_venous_RBC_free_chloride_change_mmol_l": [-3.0, -1.0]
+    }
+  ],
+  "scope_note": "These are external scale/direction targets. OpenHumSim v0.12 is a reduced whole-blood model, not a reproduction of the full O'Neill-Robbins or Dash equations."
+}

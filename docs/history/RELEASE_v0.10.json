@@ -1,0 +1,23 @@
+{
+  "version": "0.10.0",
+  "name": "OpenHumSim-RL v0.10",
+  "focus": "event-aligned external validation and held-out mechanistic replay calibration",
+  "tests": {
+    "core": 32,
+    "event_replay": 6,
+    "scientific": {
+      "passed": 9,
+      "failed": 0
+    },
+    "gymnasium_checker": "optional skip in release container"
+  },
+  "human_data_bundled": false,
+  "jaeb_download_policy": "manual official form/terms acceptance required",
+  "key_outputs": [
+    "validation/validation_results_v0.10.json",
+    "validation/published_event_calibration_v0.10.json",
+    "validation/external_reference_dubose2020_v0.10.json",
+    "VALIDATION_AUDIT_v0.10.md",
+    "LOCAL_VSCODE.md"
+  ]
+}

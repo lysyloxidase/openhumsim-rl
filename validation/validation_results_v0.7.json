@@ -1,0 +1,192 @@
+{
+  "version": "0.7.0",
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "total": 10
+  },
+  "checks": [
+    {
+      "name": "v0.6 scientific regression suite",
+      "value": {
+        "passed": 15,
+        "failed": 0,
+        "total": 15
+      },
+      "pass": true,
+      "tier": "regression",
+      "note": "All previously established scientific/numerical checks must remain passing."
+    },
+    {
+      "name": "GFR configuration propagates into initial state",
+      "value": {
+        "low": 96.3510765062353,
+        "high": 126.3510765062353
+      },
+      "pass": true,
+      "tier": "implementation-verification",
+      "note": ""
+    },
+    {
+      "name": "A-a gradient configuration changes PaO2",
+      "value": {
+        "Aa5": 92.3464768713406,
+        "Aa15": 82.3464768713406
+      },
+      "pass": true,
+      "tier": "implementation-verification",
+      "note": ""
+    },
+    {
+      "name": "Virtual-patient cardiovascular geometry conserves target blood volume",
+      "value": 3.637978807091713e-12,
+      "pass": true,
+      "tier": "physical-invariant",
+      "note": ""
+    },
+    {
+      "name": "Synthetic inverse parameter recovery",
+      "value": {
+        "max_relative_error": 3.768134549906035e-10,
+        "normalized_rmse": 2.2953392860517606e-10
+      },
+      "pass": true,
+      "tier": "algorithmic-identifiability",
+      "note": "Synthetic identifiability only; not clinical parameter estimation."
+    },
+    {
+      "name": "Literature-centered nominal profile fit",
+      "value": {
+        "normalized_rmse": 0.012081234812708213,
+        "fitted": {
+          "cv_r_systemic_mmHg_s_ml": 1.0016217488955308,
+          "cv_lv_emax": 2.7999999999999994,
+          "baseline_aa_gradient_mmHg": 5.3464768713406015,
+          "baseline_gfr_ml_min": 108.6489234937647
+        }
+      },
+      "pass": true,
+      "tier": "calibration-smoke",
+      "note": "The fitted LV Emax reaching its bound is retained as evidence of structural/target tension, not hidden."
+    },
+    {
+      "name": "24-patient LHS external-envelope robustness",
+      "value": {
+        "minimum_coverage": 1.0,
+        "coverage": {
+          "cardiac_output_l_min": {
+            "fraction_within_external_envelope": 1.0,
+            "count": 24,
+            "n": 24,
+            "range": [
+              3.3,
+              8.2
+            ]
+          },
+          "cv_ejection_fraction": {
+            "fraction_within_external_envelope": 1.0,
+            "count": 24,
+            "n": 24,
+            "range": [
+              0.55,
+              0.8
+            ]
+          },
+          "ph_arterial": {
+            "fraction_within_external_envelope": 1.0,
+            "count": 24,
+            "n": 24,
+            "range": [
+              7.35,
+              7.45
+            ]
+          },
+          "paco2_mmHg": {
+            "fraction_within_external_envelope": 1.0,
+            "count": 24,
+            "n": 24,
+            "range": [
+              35.0,
+              45.0
+            ]
+          },
+          "pao2_mmHg": {
+            "fraction_within_external_envelope": 1.0,
+            "count": 24,
+            "n": 24,
+            "range": [
+              80.0,
+              100.0
+            ]
+          },
+          "gfr_ml_min": {
+            "fraction_within_external_envelope": 1.0,
+            "count": 24,
+            "n": 24,
+            "range": [
+              90.0,
+              140.0
+            ]
+          }
+        }
+      },
+      "pass": true,
+      "tier": "uncertainty-quantification",
+      "note": "Ranges were selected as plausible engineering uncertainty intervals; this is not cohort validation."
+    },
+    {
+      "name": "UQ coarse-solver high-fidelity recheck",
+      "value": {
+        "max_peak_glucose_diff": 0.0,
+        "max_peak_insulin_diff": 0.0
+      },
+      "pass": true,
+      "tier": "numerical-uq",
+      "note": ""
+    },
+    {
+      "name": "Held-out virtual-patient PPO benchmark",
+      "value": {
+        "ppo": 1.4685402646512709,
+        "no_op": 1.3703966844151338,
+        "heuristic": 1.4625472837022062,
+        "delta_vs_noop": 0.098143580236137,
+        "delta_vs_heuristic": 0.005992980949064641
+      },
+      "pass": true,
+      "tier": "rl-generalization",
+      "note": "Small advantage over heuristic; learnability/robustness smoke test only."
+    },
+    {
+      "name": "Published Dalla core preserved by default UQ multipliers",
+      "value": {
+        "insulin_sensitivity_scale": 1.0,
+        "gastric_absorption_scale": 1.0
+      },
+      "pass": true,
+      "tier": "source-fidelity",
+      "note": ""
+    }
+  ],
+  "credibility_classification": {
+    "software_verification": "strong for tested paths",
+    "calculation_verification": "strong reduced-order conservation + timestep checks",
+    "parameter_uncertainty": "implemented as bounded LHS robustness study",
+    "model_form_uncertainty": "not quantified",
+    "external_validation": "partial reference-envelope comparison only",
+    "patient_specific_validation": "absent",
+    "clinical_decision_use": "not supported"
+  },
+  "known_missing_or_unvalidated": [
+    "matched independent human validation cohort",
+    "measurement-error model and likelihood-based/Bayesian calibration",
+    "model-form discrepancy term",
+    "full electroneutrality and total inorganic carbon conservation",
+    "distributed V/Q and shunt",
+    "real-drug PBPK calibration",
+    "subcutaneous insulin PK",
+    "creatinine kinetics / KDIGO AKI implementation",
+    "SAC benchmark and large multi-seed neural-RL confidence intervals"
+  ],
+  "interpretation": "v0.7 adds parameter variability, calibration mechanics, UQ and held-out neural-RL testing. It improves model credibility evidence but does not convert OpenHumSim into a clinically validated virtual human."
+}

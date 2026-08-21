@@ -1,0 +1,40 @@
+{
+  "version": "0.14.0",
+  "scope": "Primary-source anchors for hypoxic pulmonary vasoconstriction and pressure-dependent recruitment/derecruitment. Quantitative model gates use broad mechanism-level targets unless an exact external scale is explicitly stated.",
+  "sources": [
+    {
+      "name": "Asadi et al. 2015",
+      "title": "Inhaled nitric oxide alters the distribution of blood flow in the healthy human lung, suggesting active hypoxic pulmonary vasoconstriction in normoxia",
+      "pmid": "25429099",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/25429099/",
+      "use": "Human evidence that HPV actively redistributes regional pulmonary perfusion and contributes to V/Q matching."
+    },
+    {
+      "name": "Robin et al. 1987",
+      "title": "Hypoxic pulmonary vasoconstriction persists in the human transplanted lung",
+      "pmid": "3545645",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/3545645/",
+      "use": "Human evidence that global hypoxia increases pulmonary artery pressure and pulmonary vascular resistance even in denervated transplanted lungs."
+    },
+    {
+      "name": "Crotti et al. 2001",
+      "title": "Recruitment and derecruitment during acute respiratory failure: a clinical study",
+      "pmid": "11435251",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/11435251/",
+      "use": "Human acute-respiratory-failure evidence that recruitment/derecruitment depends on PEEP, tidal inflation and regional superimposed pressure."
+    },
+    {
+      "name": "Hammond et al. 1986",
+      "title": "Pulmonary gas exchange in humans during exercise at sea level",
+      "pmid": "3710978",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/3710978/",
+      "use": "MIGET anchor retained from v0.13: V/Q inequality increases during heavy exercise and diffusion limitation can emerge at high VO2."
+    }
+  ],
+  "nonclaims": [
+    "The six-unit model is not a MIGET inversion.",
+    "The recruitment thresholds are not fitted to patient CT opening-pressure distributions.",
+    "PEEP in v0.14 is a reduced regional recruitment control state, not a complete mechanical-ventilator model.",
+    "HPV molecular signaling is not simulated; only its vascular control effect is represented."
+  ]
+}

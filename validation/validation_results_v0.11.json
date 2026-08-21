@@ -1,0 +1,157 @@
+{
+  "version": "0.11.0",
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9
+  },
+  "checks": [
+    {
+      "name": "v0.10 frozen scientific regression",
+      "value": {
+        "passed": 9,
+        "failed": 0,
+        "total": 9
+      },
+      "pass": true,
+      "tier": "regression",
+      "note": ""
+    },
+    {
+      "name": "release version",
+      "value": "0.11.0",
+      "pass": true,
+      "tier": "software-verification",
+      "note": ""
+    },
+    {
+      "name": "physicochemical charge + HH closure",
+      "value": {
+        "model": "reduced Stewart-Figge electroneutrality + Henderson-Hasselbalch",
+        "pH": 7.400000000139698,
+        "paco2_mmHg": 41.981630327332894,
+        "bicarbonate_mmol_l": 25.21307384694791,
+        "total_co2_mmol_l": 26.47672091980063,
+        "albumin_g_dl": 4.2,
+        "phosphate_mmol_l": 1.0,
+        "sida_mEq_l": 41.59649480134754,
+        "side_mEq_l": 38.75707384771275,
+        "strong_ion_gap_mEq_l": 2.839420953634786,
+        "charge_balance_residual_mEq_l": -8.875048251866247e-09,
+        "henderson_hasselbalch_residual": 0.0,
+        "urine_ammonium_mmol_min": 0.024,
+        "urine_titratable_acid_mmol_min": 0.016,
+        "urine_bicarbonate_mmol_min": 0.0
+      },
+      "pass": true,
+      "tier": "chemical-physical-verification",
+      "note": ""
+    },
+    {
+      "name": "0.9% saline chloride/SID/pH human benchmark",
+      "value": {
+        "baseline_pH": 7.400000000139698,
+        "saline_pH_immediate_reduced_order": 7.342344918521121,
+        "published_pH_1h_after_second_bolus_median": 7.34,
+        "published_iqr": [
+          7.32,
+          7.36
+        ],
+        "baseline_chloride_mmol_l": 102.21810566103738,
+        "saline_chloride_mmol_l": 108.96010963570305,
+        "baseline_SIDa_mEq_l": 41.59649480134754,
+        "saline_SIDa_mEq_l": 36.052126953064,
+        "albumin_after_dilution_g_dl": 3.6523630721122653
+      },
+      "pass": true,
+      "tier": "external-human-physiology",
+      "note": "Timing is collapsed: this is a dose/composition response benchmark, not a reproduction of the trial time course."
+    },
+    {
+      "name": "lactate strong-anion acidosis direction",
+      "value": {
+        "baseline": {
+          "lactate": 0.9869672041605557,
+          "pH": 7.400000000139698,
+          "SIDa": 41.59649480134754
+        },
+        "challenge": {
+          "lactate": 4.0,
+          "pH": 7.350045706843957,
+          "SIDa": 38.583462005508096
+        }
+      },
+      "pass": true,
+      "tier": "biochemical-verification",
+      "note": ""
+    },
+    {
+      "name": "respiratory acidosis renal-compensation direction",
+      "value": {
+        "initial": {
+          "paco2_mmHg": 60.0,
+          "ph_arterial": 7.2580891323741525,
+          "bicarbonate_mmol_l": 25.99003583775337,
+          "urine_ammonium_mmol_min": 0.024,
+          "chloride_mmol_l": 102.21810566103738
+        },
+        "24h": {
+          "paco2_mmHg": 50.19585041418388,
+          "ph_arterial": 7.360609748749994,
+          "bicarbonate_mmol_l": 27.532399382097395,
+          "urine_ammonium_mmol_min": 0.03155240396594149,
+          "chloride_mmol_l": 101.13555113734387
+        }
+      },
+      "pass": true,
+      "tier": "multi-organ-physiology",
+      "note": ""
+    },
+    {
+      "name": "reduced renal function nonvolatile-acid retention",
+      "value": {
+        "initial_SIG_mEq_l": 2.839420953634786,
+        "24h_SIG_mEq_l": 4.465417477216647,
+        "24h_pH": 7.396054917015135,
+        "24h_NAE_mmol_min": 0.010312857810728802,
+        "acid_mass_residual_mEq": -7.545963853772264e-12
+      },
+      "pass": true,
+      "tier": "renal-biochemical-verification",
+      "note": ""
+    },
+    {
+      "name": "acid-base timestep convergence",
+      "value": {
+        "pH_dt_0.25": 7.413061165018007,
+        "pH_dt_0.125": 7.413044299581088,
+        "abs_delta_pH": 1.6865436919033527e-05,
+        "delta_HCO3_mmol_l": 0.0009743197943947735
+      },
+      "pass": true,
+      "tier": "numerical-verification",
+      "note": ""
+    },
+    {
+      "name": "10-seed acid-base stress residuals",
+      "value": {
+        "max_charge_balance_residual_mEq_l": 9.969049585834e-09,
+        "max_hh_residual": 0.0,
+        "max_nonvolatile_acid_mass_residual_mEq": 2.3305801732931286e-12,
+        "unexpected_terminations": 0
+      },
+      "pass": true,
+      "tier": "physical-algorithmic-verification",
+      "note": ""
+    }
+  ],
+  "credibility_classification": {
+    "acid_base_chemistry": "materially improved: charge-constrained and mass-action-constrained, but still reduced Stewart-Figge plasma chemistry",
+    "saline_response": "externally direction/magnitude benchmarked to a randomized human physiology trial; timing is not reproduced",
+    "renal_acid_handling": "mechanistically decomposed into NH4+, titratable acid and bicarbonaturia, but not a nephron transport model",
+    "electroneutrality": "enforced for the represented plasma species plus an explicit unmeasured strong-anion pool",
+    "whole_body_carbon_conservation": "not implemented; lungs control PaCO2 through gas exchange rather than a conserved total-body CO2 pool",
+    "clinical_decision_use": "not supported"
+  },
+  "next_high_value_step": "v0.12 should add full CO2/HCO3/carbonate and hemoglobin/RBC buffering plus V/Q/shunt or, alternatively, a clinically grounded creatinine/urine-output kidney module. Do not claim patient-level acid-base prediction before those are externally validated."
+}

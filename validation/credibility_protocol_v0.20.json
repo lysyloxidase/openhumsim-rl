@@ -1,0 +1,34 @@
+{
+  "version": "0.20.0",
+  "roles": {
+    "population_prior": {
+      "purpose": ["domain_randomization", "uncertainty_quantification", "prior_sampling"],
+      "may_fit_model_parameters": false,
+      "may_report_validation_performance": false,
+      "status": "correlated engineering prior, not an empirical population distribution"
+    },
+    "calibration_cohort": {
+      "purpose": ["parameter_estimation", "model_selection", "measurement_model_tuning"],
+      "may_fit_model_parameters": true,
+      "may_report_validation_performance": false
+    },
+    "locked_validation_cohort": {
+      "purpose": ["final_predeclared_evaluation"],
+      "may_fit_model_parameters": false,
+      "may_change_reward_after_inspection": false,
+      "may_change_model_after_inspection": false,
+      "required_lock_fields": ["dataset_name", "dataset_fingerprint", "validation_subject_ids", "validation_lock_sha256"]
+    },
+    "independent_external_validation": {
+      "purpose": ["out_of_development_source_evaluation"],
+      "status": "infrastructure supported; no second independent participant-level cohort is bundled in v0.20"
+    }
+  },
+  "benchmark_policy": {
+    "observation_profile": "clinical",
+    "measurement_profile": "realistic",
+    "info_profile": "benchmark",
+    "policy_must_not_read_hidden_state": true
+  },
+  "clinical_use_supported": false
+}

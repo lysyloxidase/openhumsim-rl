@@ -1,0 +1,157 @@
+{
+  "version": "0.12.0",
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "total": 10
+  },
+  "checks": [
+    {
+      "name": "v0.11 frozen scientific regression",
+      "value": {
+        "passed": 9,
+        "failed": 0,
+        "total": 9
+      },
+      "pass": true,
+      "tier": "regression",
+      "note": ""
+    },
+    {
+      "name": "release version",
+      "value": "0.12.0",
+      "pass": true,
+      "tier": "software-verification",
+      "note": ""
+    },
+    {
+      "name": "O'Neill-Robbins arterial whole-blood CO2 content scale",
+      "value": {
+        "model_ml_CO2_per_100ml": 44.37189343344222,
+        "external_target_ml_CO2_per_100ml": 44.6,
+        "model_mmol_l": 19.796508179460254,
+        "pH": 7.400000000139698
+      },
+      "pass": true,
+      "tier": "external-blood-chemistry",
+      "note": "Scale benchmark at PCO2=40 mmHg and standard arterial oxygenation; not a reproduction of the full O'Neill-Robbins model."
+    },
+    {
+      "name": "Funder-Wieth Donnan + human RBC pH",
+      "value": {
+        "plasma_pH": 7.400000000139698,
+        "rCl": 0.6623999999498484,
+        "rH": 0.6149999999532008,
+        "RBC_pH": 7.188875115882067,
+        "Kummerow_RBC_pH_mean": 7.19,
+        "Kummerow_SD": 0.04
+      },
+      "pass": true,
+      "tier": "external-cellular-physiology",
+      "note": ""
+    },
+    {
+      "name": "Dash carbamino anchor + Haldane direction",
+      "value": {
+        "standard_carbamino_fraction": 0.131,
+        "published_standard_fraction": 0.131,
+        "oxygenated_content_mmol_l": 22.745869458535378,
+        "deoxygenated_content_mmol_l": 23.267811187193153
+      },
+      "pass": true,
+      "tier": "external-hemoglobin-biochemistry",
+      "note": "Haldane term is reduced-order; it does not reproduce the complete Dash binding equations."
+    },
+    {
+      "name": "arteriovenous Fick CO2 + local chloride redistribution",
+      "value": {
+        "paco2_mmHg": 44.312675563331446,
+        "mixed_venous_pco2_mmHg": 49.76043164730072,
+        "ph_arterial": 7.380433802958578,
+        "mixed_venous_ph": 7.3506658031838015,
+        "arterial_total_co2_mmol_l_blood": 21.11941096358722,
+        "mixed_venous_total_co2_mmol_l_blood": 23.03436244313935,
+        "chloride_shift_plasma_mmol_l": 1.0721038424366243,
+        "rbc_chloride_mmol_l": 69.3284813742258,
+        "mixed_venous_rbc_chloride_mmol_l": 67.98835157118002,
+        "mixed_venous_hb_bound_chloride_gain_mmol_l_rbc": 2.820654156886833,
+        "chloride_shift_balance_residual_mmol_l_blood": 1.887379141862766e-15,
+        "co2_fick_content_residual_mmol_l": -2.210467497931745e-08
+      },
+      "pass": true,
+      "tier": "physical-biochemical-verification",
+      "note": ""
+    },
+    {
+      "name": "exchangeable CO2 ledger conservation",
+      "value": {
+        "carbon_mass_residual_mmol": 1.1169731806148775e-11,
+        "content_solver_residual_mmol_l": -3.819236837898643e-08,
+        "generated_mmol": 1070.938727836907,
+        "eliminated_mmol": 1076.1821061041837
+      },
+      "pass": true,
+      "tier": "mass-conservation-verification",
+      "note": "The conserved pool is a lumped rapidly exchangeable CO2 capacitance, not total anatomical body-carbon inventory."
+    },
+    {
+      "name": "ventilation support changes conserved carbon in correct direction",
+      "value": {
+        "no_support": {
+          "paco2_mmHg": 49.79297511279583,
+          "ph_arterial": 7.343220715993084,
+          "exchangeable_co2_pool_mmol": 231.07655629120066
+        },
+        "support": {
+          "paco2_mmHg": 37.45609663426876,
+          "ph_arterial": 7.456076935457531,
+          "exchangeable_co2_pool_mmol": 216.1231353827629
+        }
+      },
+      "pass": true,
+      "tier": "multi-organ-physiology",
+      "note": ""
+    },
+    {
+      "name": "whole-blood carbon timestep convergence",
+      "value": {
+        "delta_PaCO2_mmHg": 0.00012703239917755127,
+        "delta_pH": 5.067908205091953e-06
+      },
+      "pass": true,
+      "tier": "numerical-verification",
+      "note": ""
+    },
+    {
+      "name": "10-seed blood-gas/chemical stress residuals",
+      "value": {
+        "max_carbon_mass_residual_mmol": 2.3305801732931286e-12,
+        "max_fick_CO2_residual_mmol_l": 9.956246405096181e-08,
+        "max_chloride_redistribution_residual_mmol_l_blood": 6.439293542825908e-15,
+        "max_plasma_charge_residual_mEq_l": 9.988482929657039e-09,
+        "unexpected_terminations": 0
+      },
+      "pass": true,
+      "tier": "physical-algorithmic-verification",
+      "note": ""
+    }
+  ],
+  "external_reference_file": "validation/external_reference_bloodgas_v0.12.json",
+  "credibility_classification": {
+    "plasma_acid_base": "charge-constrained Stewart-Figge closure with explicit carbonate species",
+    "whole_blood_CO2": "external-scale benchmarked and carbon-mass-conserving in a reduced rapidly exchangeable pool",
+    "RBC_Donnan": "empirical human Funder-Wieth equilibrium relationships",
+    "hemoglobin_CO2": "standard-state carbamino anchor plus reduced Haldane dependence; not full Dash/O'Neill equations",
+    "chloride_shift": "local arteriovenous redistribution is charge/mass balanced; Band-3 kinetics are not modeled",
+    "clinical_decision_use": "not supported"
+  },
+  "remaining_limitations": [
+    "effective exchangeable CO2 pool is not a full anatomical total-body carbon inventory",
+    "no explicit carbonic anhydrase/Band-3 kinetic transit model",
+    "no complete multi-site Hb proton/CO2/2,3-DPG/temperature binding model",
+    "fixed hematocrit and simplified plasma/RBC water fractions",
+    "no V/Q distribution or shunt",
+    "no explicit tissue/interstitial CO2 compartments"
+  ],
+  "next_high_value_step": "v0.13 should add multi-compartment lung V/Q + shunt and capillary gas exchange, or first reproduce a published whole-blood CO2 dissociation dataset before further organ expansion."
+}

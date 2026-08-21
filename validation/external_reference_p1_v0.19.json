@@ -1,0 +1,36 @@
+{
+  "version": "0.19.0",
+  "classification": "mechanism/verification anchors, not clinical validation",
+  "sources": [
+    {
+      "topic": "subcutaneous insulin pharmacokinetics",
+      "citation": "Ruan Y et al. Comput Methods Programs Biomed. 2014;117:298-307. PMID 25092225.",
+      "anchor": "Human lispro kinetics during subcutaneous closed-loop delivery were represented with a linear two-compartment model; median modeled tmax 109.6 min in the reported T2D cohort."
+    },
+    {
+      "topic": "subcutaneous insulin pharmacokinetics",
+      "citation": "Herzig D et al. Diabetes Technol Ther. 2020;22:691-696. PMID 31999478.",
+      "anchor": "Two-compartment modeling in adults with T2D gave tmax 89.7 +/- 31.8 min for standard insulin aspart and 68.7 +/- 21.6 min for faster aspart."
+    },
+    {
+      "topic": "glucose counterregulation",
+      "citation": "Rizza RA et al. J Clin Invest. 1979. PMID 36413.",
+      "anchor": "Human insulin-induced hypoglycemia experiments support a primary short-term counterregulatory role for glucagon."
+    },
+    {
+      "topic": "glucose counterregulation",
+      "citation": "Cryer PE et al. Am J Physiol. 1983. PMID 6341018.",
+      "anchor": "Human studies support glucagon as a primary contributor to recovery from insulin-induced hypoglycemia, with epinephrine compensating when glucagon is deficient."
+    },
+    {
+      "topic": "insulin-driven potassium uptake",
+      "citation": "Cohen P et al. J Clin Endocrinol Metab. 1991;73:564-568. PMID 1874934.",
+      "anchor": "In healthy human clamp studies plasma K fell by about 0.7 mmol/L at lower-dose and 1.4 mmol/L at higher-dose insulin infusion."
+    },
+    {
+      "topic": "fluid compartment distribution",
+      "citation": "Hahn RG. Acta Anaesthesiol Scand. 2023. PMID 37564831.",
+      "anchor": "Human fluid-kinetic work examined isotonic/hypertonic infusion distribution in relation to extracellular and intracellular fluid volumes. v0.19 uses only conservation and osmotic-equilibrium constraints, not a fitted reproduction."
+    }
+  ]
+}

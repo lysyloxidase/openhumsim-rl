@@ -1,0 +1,112 @@
+{
+  "version": "0.18.0",
+  "release_type": "credibility_refactor",
+  "summary": {
+    "passed": 9,
+    "total": 9,
+    "all_passed": true
+  },
+  "checks": [
+    {
+      "name": "pressure_mediated_ventilation_action",
+      "passed": true,
+      "values": {
+        "control_VA": 3.863030606713486,
+        "assist_VA": 8.814918830955904,
+        "assist_VT": 1.2284443903436209,
+        "peak_Paw": 12.0,
+        "ventilator_work_J_breath": 1.2364519815959145
+      }
+    },
+    {
+      "name": "bohr_shift_coupled_hbo2",
+      "passed": true,
+      "values": {
+        "sat_pH7.2": 0.6153705574147827,
+        "sat_pH7.4": 0.7494646680942184,
+        "sat_pH7.6": 0.850369191567609,
+        "P50_pH7.4": 26.6
+      }
+    },
+    {
+      "name": "supply_dependent_vo2",
+      "passed": true,
+      "values": {
+        "DO2": 183.71135794992674,
+        "VO2_demand": 600.0,
+        "VO2_achieved": 128.59795056494872,
+        "oxygen_debt": 471.40204943505125,
+        "aerobic_fraction": 0.21432991760824785
+      }
+    },
+    {
+      "name": "oxygen_debt_to_lactate_source",
+      "passed": true,
+      "values": {
+        "lactate_before": 0.9958895924970453,
+        "lactate_after": 1.0120895924970454,
+        "hypoxic_source_mmol_L_min": 0.0648
+      }
+    },
+    {
+      "name": "regional_deadspace_couples_to_co2",
+      "passed": true,
+      "values": {
+        "baseline_deadspace": 0.002687560370748161,
+        "vq_deadspace": 0.02279046246464146,
+        "baseline_PaCO2": 40.2822857350111,
+        "vq_PaCO2": 40.61398811638355
+      }
+    },
+    {
+      "name": "dynamic_hct_hb_with_fluid_shift",
+      "passed": true,
+      "values": {
+        "baseline_Hb": 13.99666413801635,
+        "saline_Hb": 12.790233862980951,
+        "dehydrated_Hb": 14.408321885985915,
+        "baseline_Hct": 0.39990468965761,
+        "saline_Hct": 0.3654352532280272,
+        "Hb_mass_g": 700.0
+      }
+    },
+    {
+      "name": "divalent_carbonate_charge_closure",
+      "passed": true,
+      "values": {
+        "SIDE": 38.8385878665259,
+        "SIDE_reconstructed": 38.8385878665259,
+        "reduced_charge_residual": -9.342286944047373e-09
+      }
+    },
+    {
+      "name": "clinical_observation_profile_no_selected_latents",
+      "passed": true,
+      "values": {
+        "clinical_dim": 50,
+        "full_dim": 137,
+        "hidden_excluded": [
+          "dalla_egp_mg_kg_min",
+          "oxygen_debt_ml_min",
+          "probe_effect_site_mg_l",
+          "pulmonary_hpv_resistance_multiplier",
+          "pulmonary_vq_log_sd"
+        ]
+      }
+    },
+    {
+      "name": "reward_penalizes_mechanistic_harms",
+      "passed": true,
+      "values": {
+        "clean_reward": 0.2477777777777778,
+        "challenged_reward": -2.5935416666666664,
+        "challenged_terms": {
+          "ventilator_asynchrony": -0.703125,
+          "auto_peep": -0.35,
+          "overdistension": -0.5881944444444445,
+          "oxygen_debt": -1.2
+        }
+      }
+    }
+  ]
+}

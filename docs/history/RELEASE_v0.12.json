@@ -1,0 +1,23 @@
+{
+  "version": "0.12.0",
+  "release_name": "whole-blood CO2 and erythrocyte chemistry credibility release",
+  "observation_count": 63,
+  "action_count": 8,
+  "scientific_checks": {"passed": 10, "failed": 0, "total": 10},
+  "test_modules": {
+    "legacy_core_short": 35,
+    "legacy_long_renal_acid_base": 2,
+    "event_replay": 6,
+    "blood_gas_v012": 8
+  },
+  "clinical_validation": false,
+  "major_additions": [
+    "conserved rapidly exchangeable CO2 pool",
+    "whole-blood CO2 content solver",
+    "plasma and RBC carbonate speciation",
+    "Funder-Wieth RBC Donnan relationships",
+    "reduced hemoglobin buffering and carbamino/Haldane coupling",
+    "Fick-consistent mixed-venous CO2",
+    "balanced local chloride-shift diagnostic"
+  ]
+}
