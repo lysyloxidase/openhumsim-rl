@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import log10
+from math import isfinite, log10
 
 from .config import HumanConfig
 
@@ -35,6 +35,12 @@ class PhysicochemicalAcidBaseModel:
     term is diagnostic and is not fed back into this plasma pH root. Consequently
     this is not a closed whole-blood proton/charge-balance model.
     """
+
+    # Carbon-pool solvers evaluate deliberately wide PCO2 endpoints before
+    # converging to the physiological solution. The charge root must therefore
+    # cover those numerical candidates while still rejecting truly unbracketed
+    # states instead of returning a boundary value.
+    PH_BRACKET = (4.0, 10.0)
 
     def __init__(self, config: HumanConfig):
         self.cfg = config
@@ -71,6 +77,13 @@ class PhysicochemicalAcidBaseModel:
         self, state, paco2_mmHg: float, *, chloride_override: float | None = None
     ) -> AcidBaseDiagnostics:
         c = self.cfg
+        try:
+            pco2 = float(paco2_mmHg)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("paco2_mmHg must be a real number") from exc
+        if not isfinite(pco2) or pco2 <= 0.0:
+            raise ValueError("paco2_mmHg must be finite and positive")
+        paco2_mmHg = pco2
         albumin, phosphate, uma = self._weak_acid_concentrations(state)
         sida = self.apparent_sid(state, chloride_override=chloride_override)
         effective_strong = sida - uma
@@ -83,27 +96,50 @@ class PhysicochemicalAcidBaseModel:
             # Carbonate is divalent and contributes 2 equivalents per mmol.
             return float(effective_strong - (hco3 + 2.0 * co3 + alb + pi))
 
-        lo, hi = 6.50, 8.00
+        lo, hi = self.PH_BRACKET
         flo, fhi = residual(lo), residual(hi)
+        if not isfinite(flo) or not isfinite(fhi):
+            raise FloatingPointError(
+                "acid-base charge residual is non-finite at the pH bracket"
+            )
+        tolerance = c.acid_base_charge_tolerance_mEq_l
         iterations = 0
-        if flo == 0.0:
+        if abs(flo) <= tolerance:
             ph = lo
-        elif fhi == 0.0:
+        elif abs(fhi) <= tolerance:
             ph = hi
         elif flo * fhi > 0.0:
-            ph = lo if abs(flo) < abs(fhi) else hi
+            raise FloatingPointError(
+                f"acid-base pH root is not bracketed on [{lo:.2f}, {hi:.2f}]: "
+                f"residuals=({flo:.12g}, {fhi:.12g}) mEq/L"
+            )
         else:
+            ph = None
             for iterations in range(1, c.acid_base_max_iterations + 1):
                 mid = 0.5 * (lo + hi)
                 fm = residual(mid)
-                if abs(fm) <= c.acid_base_charge_tolerance_mEq_l:
-                    lo = hi = mid
+                if not isfinite(fm):
+                    raise FloatingPointError(
+                        "acid-base charge residual became non-finite during solve"
+                    )
+                if abs(fm) <= tolerance:
+                    ph = mid
                     break
                 if flo * fm <= 0.0:
                     hi, fhi = mid, fm
                 else:
                     lo, flo = mid, fm
-            ph = 0.5 * (lo + hi)
+            if ph is None:
+                candidate = 0.5 * (lo + hi)
+                candidate_residual = residual(candidate)
+                if not isfinite(candidate_residual) or abs(candidate_residual) > tolerance:
+                    raise FloatingPointError(
+                        "acid-base pH solve did not reach charge tolerance "
+                        f"{tolerance:.12g} mEq/L after "
+                        f"{c.acid_base_max_iterations} iterations; "
+                        f"residual={candidate_residual:.12g} mEq/L"
+                    )
+                ph = candidate
 
         hco3 = self.bicarbonate_from_ph_pco2(ph, paco2_mmHg)
         dissolved = c.co2_solubility_mmol_l_mmHg * paco2_mmHg
@@ -114,6 +150,12 @@ class PhysicochemicalAcidBaseModel:
         sig = sida - side
         charge_residual = sida - uma - side
         hh_ph = c.carbonic_acid_pka + log10(max(1e-12, hco3) / max(1e-12, dissolved))
+        if not isfinite(charge_residual) or abs(charge_residual) > tolerance:
+            raise FloatingPointError(
+                "acid-base pH solution violates charge tolerance: "
+                f"residual={charge_residual:.12g} mEq/L, "
+                f"tolerance={tolerance:.12g} mEq/L"
+            )
 
         return AcidBaseDiagnostics(
             ph=float(ph), bicarbonate_mmol_l=float(hco3),

@@ -4,14 +4,16 @@ This directory preserves release manifests and validation records for versions
 0.9 through 0.21. They describe the exact behavior, evidence and limitations of
 their respective versions and are retained for scientific reproducibility.
 
-For the current release, use:
+For the current v0.23 release candidate, use:
 
-- [`RELEASE_v0.22.json`](../../RELEASE_v0.22.json)
-- [`VALIDATION_AUDIT_v0.22.md`](../../VALIDATION_AUDIT_v0.22.md)
-- [`RELEASE_NOTES_v0.22.md`](../../RELEASE_NOTES_v0.22.md)
+- [`RELEASE_v0.23.json`](../../RELEASE_v0.23.json)
+- [`VALIDATION_AUDIT_v0.23.md`](../../VALIDATION_AUDIT_v0.23.md)
+- [`RELEASE_NOTES_v0.23.md`](../../RELEASE_NOTES_v0.23.md)
 
-Historical records must not be interpreted as evidence for version 0.22. Their
-reported interfaces, model behavior and test counts may no longer apply.
+The frozen v0.22 files remain at repository root and are not rewritten as
+v0.23 evidence. Records for any other version must not be interpreted as
+evidence for this candidate; their interfaces, behavior and test counts may no
+longer apply.
 
 | Version | Release manifest | Validation record |
 | --- | --- | --- |

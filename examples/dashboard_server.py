@@ -15,6 +15,7 @@ from collections import OrderedDict
 from copy import deepcopy
 from dataclasses import asdict
 from hashlib import sha256
+from hmac import compare_digest
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from ipaddress import ip_address
@@ -38,14 +39,17 @@ from openhumsim_rl.units import OBSERVATION_UNITS
 
 ROOT = Path(__file__).resolve().parents[1]
 DASHBOARD_HTML = ROOT / "dashboard" / "index.html"
-RELEASE_MANIFEST = ROOT / "RELEASE_v0.22.json"
-VALIDATION_RESULTS = ROOT / "validation" / "validation_results_v0.22.json"
+RELEASE_MANIFEST = ROOT / "RELEASE_v0.23.json"
+VALIDATION_RESULTS = ROOT / "validation" / "validation_results_v0.23.json"
 CI_EVIDENCE = ROOT / "CI_EVIDENCE.json"
 MAX_REQUEST_BYTES = 64 * 1024
 SESSION_HEADER = "X-OpenHumSim-Session"
 DEFAULT_MAX_SESSIONS = 32
 DEFAULT_SESSION_TTL_SECONDS = 6 * 60 * 60
 EXPERIMENT_MANIFEST_SCHEMA = "openhumsim.experiment-manifest.v1"
+RELEASE_MANIFEST_SCHEMA = "openhumsim.release-candidate.v1"
+VALIDATION_RESULTS_SCHEMA = "openhumsim.validation-results.v1"
+CI_EVIDENCE_SCHEMA = "openhumsim.ci-evidence.v1"
 ORDERED_NAMES_HASH_FORMAT = "sha256:canonical-json-array:utf-8"
 SOURCE_FINGERPRINT_HASH_FORMAT = (
     "sha256:canonical-json-array-of-source-id-and-content-sha256:utf-8"
@@ -155,6 +159,158 @@ def _read_json(path: Path) -> dict[str, Any] | None:
     return value if isinstance(value, dict) else None
 
 
+def _decode_json_object(payload: bytes) -> dict[str, Any] | None:
+    try:
+        value = json.loads(
+            payload.decode("utf-8"),
+            parse_constant=_reject_json_constant,
+            parse_float=_parse_json_float,
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError):
+        return None
+    return value if isinstance(value, dict) else None
+
+
+def _verified_dashboard_artifacts(
+    release_path: Path,
+    validation_path: Path,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    """Load release metadata and validation evidence without trusting either early."""
+
+    release = _read_json(release_path)
+    if (
+        release is None
+        or release.get("schema") != RELEASE_MANIFEST_SCHEMA
+        or release.get("version") != __version__
+    ):
+        return None, None
+
+    gate = release.get("focused_integrity_gate")
+    if not isinstance(gate, dict):
+        return release, None
+
+    declared_path = gate.get("results_path")
+    if not isinstance(declared_path, str) or not declared_path:
+        return release, None
+    relative_path = Path(declared_path)
+    if relative_path.is_absolute() or ".." in relative_path.parts:
+        return release, None
+    try:
+        expected_path = (release_path.parent / relative_path).resolve()
+        actual_path = validation_path.resolve()
+    except OSError:
+        return release, None
+    if expected_path != actual_path:
+        return release, None
+
+    declared_sha256 = gate.get("results_sha256")
+    if not (
+        isinstance(declared_sha256, str)
+        and len(declared_sha256) == 64
+        and all(character in "0123456789abcdef" for character in declared_sha256)
+    ):
+        return release, None
+    try:
+        validation_bytes = validation_path.read_bytes()
+    except OSError:
+        return release, None
+    actual_sha256 = sha256(validation_bytes).hexdigest()
+    if not compare_digest(actual_sha256, declared_sha256):
+        return release, None
+
+    validation = _decode_json_object(validation_bytes)
+    if (
+        validation is None
+        or validation.get("schema") != VALIDATION_RESULTS_SCHEMA
+        or validation.get("version") != release["version"]
+        or validation.get("state_schema_version")
+        != release.get("state_schema_version")
+    ):
+        return release, None
+
+    summary = validation.get("summary")
+    checks = validation.get("checks")
+    if not isinstance(summary, dict) or not isinstance(checks, list):
+        return release, None
+    passed = summary.get("passed")
+    total = summary.get("total")
+    if (
+        type(passed) is not int
+        or type(total) is not int
+        or total <= 0
+        or passed < 0
+        or passed > total
+        or len(checks) != total
+    ):
+        return release, None
+    if any(
+        not isinstance(check, dict)
+        or type(check.get("passed")) is not bool
+        for check in checks
+    ):
+        return release, None
+    if sum(check["passed"] for check in checks) != passed:
+        return release, None
+    expected_status = "passed" if passed == total else "failed"
+    if (
+        gate.get("passed") != passed
+        or gate.get("total") != total
+        or gate.get("status") != expected_status
+        or gate.get("executed_at_utc") != validation.get("executed_at_utc")
+    ):
+        return release, None
+    return release, validation
+
+
+def _verified_ci_evidence(
+    path: Path,
+    release: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Accept CI evidence only when it identifies this exact clean candidate."""
+
+    evidence = _read_json(path)
+    if evidence is None or evidence.get("schema") != CI_EVIDENCE_SCHEMA:
+        return None
+    run = evidence.get("latest_successful_run")
+    gate = release.get("focused_integrity_gate") if release is not None else None
+    supported_ci = (
+        release.get("supported_interpreter_ci")
+        if release is not None
+        else None
+    )
+    if (
+        not isinstance(run, dict)
+        or not isinstance(gate, dict)
+        or not isinstance(supported_ci, dict)
+    ):
+        return None
+    versions = run.get("python_versions")
+    expected_versions = supported_ci.get("python_versions")
+    if (
+        run.get("conclusion") != "success"
+        or not isinstance(versions, list)
+        or not isinstance(expected_versions, list)
+        or versions != expected_versions
+        or not expected_versions
+        or any(not isinstance(item, str) or not item for item in versions)
+        or run.get("scientific_validation") != "success"
+        or run.get("package_smoke_test") != "success"
+        or gate.get("git_worktree_dirty") is not False
+        or run.get("commit_sha") != gate.get("git_commit")
+    ):
+        return None
+    return {
+        "status": "passed",
+        "conclusion": "success",
+        "python_versions": list(versions),
+        "scientific_validation": "success",
+        "package_smoke_test": "success",
+        "commit_sha": str(run["commit_sha"]),
+        "run_url": run.get("run_url"),
+        "completed_at": run.get("completed_at"),
+    }
+
+
 def _canonical_json_bytes(value: Any) -> bytes:
     """Encode values exactly once for deterministic contract fingerprints."""
 
@@ -221,7 +377,7 @@ def _source_fingerprint() -> dict[str, Any]:
         "sha256": _canonical_sha256(files),
         "hash_format": SOURCE_FINGERPRINT_HASH_FORMAT,
         "release_manifest": {
-            "source_id": "RELEASE_v0.22.json",
+            "source_id": "RELEASE_v0.23.json",
             "available": release_available,
             "content_sha256": release_sha256,
         },
@@ -387,9 +543,10 @@ def build_experiment_manifest(
         "randomness": {
             "reset_seed": seed,
             "physiology_and_measurement": {
-                "seed": seed,
-                "stream": "shared numpy Generator owned by the environment",
-                "independent_streams": False,
+                "root_seed": seed,
+                "derivation": "numpy SeedSequence.spawn(2)",
+                "streams": ["physiology", "measurement"],
+                "independent_streams": True,
             },
             "action_space": {
                 "seed": seed + 1,
@@ -397,7 +554,8 @@ def build_experiment_manifest(
             },
             "semantics": (
                 "reset physiology jitter and realistic measurement noise/dropout "
-                "consume one shared seeded stream; action-space sampling uses seed+1"
+                "use separate child streams spawned from the reset seed; "
+                "action-space sampling uses seed+1"
             ),
         },
         "timebase": {
@@ -661,15 +819,16 @@ def dashboard_payload(
 
 
 def dashboard_meta() -> dict[str, Any]:
-    release = _read_json(RELEASE_MANIFEST)
-    validation = _read_json(VALIDATION_RESULTS)
-    ci_evidence = _read_json(CI_EVIDENCE)
+    release, validation = _verified_dashboard_artifacts(
+        RELEASE_MANIFEST,
+        VALIDATION_RESULTS,
+    )
+    ci_evidence = _verified_ci_evidence(CI_EVIDENCE, release)
     release_available = release is not None
     validation_available = validation is not None
     ci_evidence_available = ci_evidence is not None
     release = release or {}
     validation = validation or {}
-    ci_evidence = ci_evidence or {}
     controls = []
     default_env = HumanHomeostasisEnv()
     for index, spec in enumerate(ACTION_CONTROLS):
@@ -687,9 +846,12 @@ def dashboard_meta() -> dict[str, Any]:
     full_test_suite = release.get("full_test_suite")
     if not isinstance(full_test_suite, dict):
         full_test_suite = None
-    supported_python_ci = ci_evidence.get("latest_successful_run")
-    if not isinstance(supported_python_ci, dict):
-        supported_python_ci = None
+    supported_python_ci = release.get("supported_interpreter_ci")
+    if (
+        not isinstance(supported_python_ci, dict)
+        or supported_python_ci.get("status") != "passed"
+    ):
+        supported_python_ci = ci_evidence
 
     return {
         "schema": "openhumsim.dashboard.meta.v2",
@@ -711,6 +873,9 @@ def dashboard_meta() -> dict[str, Any]:
             "full_count": release.get("full_observation_count"),
             "state_schema_version": release.get("state_schema_version"),
             "reward_profile": release.get("reward_profile"),
+            "benchmark_reward_profile": release.get(
+                "benchmark_reward_profile"
+            ),
         },
     }
 

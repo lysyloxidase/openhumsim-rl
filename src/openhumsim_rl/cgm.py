@@ -71,6 +71,23 @@ class CGMObservationModel:
         dt_min: float,
         rng: np.random.Generator | None = None,
     ) -> float:
+        """Advance interstitial glucose and take one sensor reading.
+
+        ``ClinicalMeasurementModel`` uses the two operations separately so the
+        physiological lag can evolve at the integration cadence while sensor
+        noise and dropout are realized only at the configured CGM cadence.
+        Keeping ``step`` as their composition preserves the standalone API.
+        """
+        self.advance_interstitial(state, blood_glucose_mg_dl, dt_min)
+        return self.sample(state, rng=rng)
+
+    def advance_interstitial(
+        self,
+        state: CGMObservationState,
+        blood_glucose_mg_dl: float,
+        dt_min: float,
+    ) -> float:
+        """Advance only the blood-to-interstitial lag compartment."""
         if not isfinite(dt_min) or dt_min < 0.0:
             raise ValueError("dt_min must be finite and nonnegative")
         g_blood = float(blood_glucose_mg_dl)
@@ -81,10 +98,20 @@ class CGMObservationModel:
             state.interstitial_glucose_mg_dl += alpha * (
                 g_blood - state.interstitial_glucose_mg_dl
             )
+        return float(state.interstitial_glucose_mg_dl)
+
+    def sample(
+        self,
+        state: CGMObservationState,
+        rng: np.random.Generator | None = None,
+    ) -> float:
+        """Realize one noisy, range-limited sensor reading."""
+        if not isfinite(state.interstitial_glucose_mg_dl):
+            raise ValueError("interstitial_glucose_mg_dl must be finite")
         state.sensor_glucose_mg_dl = self._report(
             state.interstitial_glucose_mg_dl, rng
         )
-        return state.sensor_glucose_mg_dl
+        return float(state.sensor_glucose_mg_dl)
 
     def _report(
         self,

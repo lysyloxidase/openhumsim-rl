@@ -14,7 +14,7 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install -e ".[dev]"
 python -m pytest -q -ra -W error
-python validation/run_validation_v22.py
+python validation/run_validation_v23.py
 ```
 
 Submit changes from a focused branch. Keep unrelated edits out of the same pull

@@ -112,18 +112,17 @@ The source fingerprint contains repository-relative identifiers and content
 hashes, not local filesystem paths. Preserve the full JSON export rather than a
 screenshot of the abbreviated manifest panel when reproducibility matters.
 
-## Randomness caveat
+## Randomness semantics
 
-A reset seed identifies a reproducible combined experiment, but not fully
-factorized uncertainty. Reset physiology jitter and realistic measurement noise
-and dropout currently consume one shared seeded generator. Changing measurement
-sampling can therefore change subsequent draws used by the same environment
-stream.
+For an explicit reset seed, NumPy `SeedSequence.spawn(2)` derives separate
+child generators for physiology jitter and realistic measurement noise,
+sampling and dropout. Measurement draw counts therefore do not perturb future
+physiology draws. Both streams remain reproducibly bound to the declared root
+seed.
 
-The action space is seeded independently with `seed + 1`. Do not interpret a
-single seed as independently controlling physiology, measurement uncertainty
-and policy exploration. Comparative studies should preserve the complete
-manifest and use multiple declared seeds.
+The action space is seeded separately with `seed + 1`. A single seed still does
+not establish robustness or calibrated uncertainty. Comparative studies should
+preserve the complete manifest and use multiple declared seeds.
 
 ## Offline preview
 

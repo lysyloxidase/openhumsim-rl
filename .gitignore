@@ -20,6 +20,7 @@ htmlcov/
 data/external/*
 !data/external/README.md
 validation/jaeb_*.json
+validation/rl_benchmark_*.json
 
 # Generated training and trace artifacts.
 openhumsim_ppo*.zip

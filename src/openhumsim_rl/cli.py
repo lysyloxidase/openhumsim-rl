@@ -134,7 +134,7 @@ def _source_checkout_root() -> Path | None:
         if (
             (root / "pyproject.toml").is_file()
             and (root / "tests").is_dir()
-            and (root / "validation" / "run_validation_v22.py").is_file()
+            and (root / "validation" / "run_validation_v23.py").is_file()
         ):
             return root
     return None
@@ -167,7 +167,7 @@ def main(argv: list[str] | None = None) -> int:
     p_demo.add_argument("--seed", type=int, default=42)
     p_demo.add_argument("--full-state", action="store_true", help="Print all mechanistic state variables")
 
-    p_val = sub.add_parser("validate", help="Run repository tests and v0.22 integrity checks")
+    p_val = sub.add_parser("validate", help="Run repository tests and v0.23 integrity checks")
     p_val.add_argument("--scientific-only", action="store_true")
 
     p_data = sub.add_parser("data", help="External-data utilities")
@@ -245,7 +245,7 @@ def main(argv: list[str] | None = None) -> int:
             )
             if rc:
                 return rc
-        return _run_repo_command([sys.executable, "validation/run_validation_v22.py"])
+        return _run_repo_command([sys.executable, "validation/run_validation_v23.py"])
     if args.command == "measurement-demo":
         env = HumanHomeostasisEnv(scenario=args.scenario, measurement_profile="realistic")
         _, info = env.reset(seed=args.seed)

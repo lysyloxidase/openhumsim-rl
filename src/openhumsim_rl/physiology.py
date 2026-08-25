@@ -437,7 +437,13 @@ class HumanState:
             )
         values: dict[str, float] = {}
         for name in expected:
-            value = float(raw_state[name])
+            raw_value = raw_state[name]
+            if isinstance(raw_value, (bool, np.bool_)) or not isinstance(
+                raw_value,
+                (int, float, np.integer, np.floating),
+            ):
+                raise TypeError(f"state field {name!r} must be a real number")
+            value = float(raw_value)
             if not np.isfinite(value):
                 raise ValueError(f"state field {name!r} must be finite")
             values[name] = value
@@ -601,12 +607,36 @@ class HumanPhysiology:
         # First-pass static mechanics estimates current elastance from recruitment.
         self.respiratory_mechanics.step(s, dt_min=dt)
         # Resolve actual within-breath flow/volume from the full equation of motion.
-        base_positive_pressure = float(s.pulmonary_positive_pressure_fraction)
-        if intervention.ventilation_pressure_assist_cmH2O > 0.0:
-            s.pulmonary_positive_pressure_fraction = 1.0
+        base_positive_pressure = float(np.clip(
+            s.pulmonary_positive_pressure_fraction, 0.0, 1.0
+        ))
+        pressure_assist = max(
+            0.0, float(intervention.ventilation_pressure_assist_cmH2O)
+        )
+        passive_pressure_need = max(
+            1e-6, float(s.pulmonary_airway_driving_pressure_cmH2O)
+        )
+        action_positive_pressure_fraction = float(np.clip(
+            pressure_assist / passive_pressure_need, 0.0, 1.0
+        ))
+        # Pressure assistance shares the inspiratory load continuously with the
+        # patient's muscles.  The contribution is normalized by the current
+        # passive-equivalent pressure requirement, so an infinitesimal assist
+        # cannot switch the whole breath to positive-pressure hemodynamics.
+        s.pulmonary_positive_pressure_fraction = float(
+            base_positive_pressure
+            + (1.0 - base_positive_pressure) * action_positive_pressure_fraction
+        )
+        # The within-breath solver weights its pressure-source amplitude by this
+        # fraction.  Normalize the request so the intervention remains an actual
+        # airway-pressure amplitude while the source share independently governs
+        # pleural transmission and heart-lung interaction.
+        cycle_pressure_assist = pressure_assist / max(
+            np.finfo(float).tiny, s.pulmonary_positive_pressure_fraction
+        )
         self.respiratory_cycle.step(
             s, dt_min=dt,
-            ventilation_pressure_assist_cmH2O=intervention.ventilation_pressure_assist_cmH2O,
+            ventilation_pressure_assist_cmH2O=cycle_pressure_assist,
         )
         # Recompute transpulmonary/static diagnostics from the dynamically achieved VT
         # and any intrinsic PEEP/dynamic hyperinflation.

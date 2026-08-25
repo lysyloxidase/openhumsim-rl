@@ -534,4 +534,5 @@ def test_meta_missing_artifacts_are_explicitly_unavailable(
         "full_count": None,
         "state_schema_version": None,
         "reward_profile": None,
+        "benchmark_reward_profile": None,
     }

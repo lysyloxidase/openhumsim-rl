@@ -315,8 +315,22 @@ class DynamicRespiratoryCycleModel:
                 # Trigger load includes residual intrinsic PEEP that is not
                 # counterbalanced by external PEEP. This creates ineffective efforts
                 # mechanistically in obstructive states.
-                current_auto = max(0.0, float(state.respiratory_cycle_auto_peep_cmH2O))
-                threshold_load_psv = max(0.0, current_auto - c.respiratory_external_peep_threshold_unloading_fraction * peep)
+                # Triggering must use the pressure still trapped at the current
+                # end-expiratory volume, not the diagnostic from the last completed
+                # breath of the previous outer step.  Holding that old value for an
+                # entire 15 s physiology substep creates a non-physical period-two
+                # response: one fully supported window generates high auto-PEEP, the
+                # next suppresses every trigger and empties the lung, and so on.
+                # ``volume`` is continuous across calls, while expiratory recoil
+                # above applied PEEP is the instantaneous inspiratory threshold load.
+                current_auto = max(
+                    0.0, exp_elastance_fraction * elastance * volume - peep
+                )
+                threshold_load_psv = max(
+                    0.0,
+                    current_auto
+                    - c.respiratory_external_peep_threshold_unloading_fraction * peep,
+                )
                 patient_trigger_signal = pmus - threshold_load_psv
                 flow_trigger_signal = flow + leak_flow
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import deque
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 import numpy as np
 
@@ -25,18 +26,21 @@ class ClinicalMeasurementConfig:
 
     The defaults represent a plausible research/ICU-like observation process,
     not a specification for any one commercial device or hospital workflow.
-    Continuous monitors are exposed at each 5-min agent step, while ABG and
-    chemistry channels are sampled intermittently and become available only
-    after a result delay. Dropout holds the last available value, so the policy
-    sees a partially observed process rather than ground-truth state.
+    Bedside monitors and CGM are sampled on their own physical clocks, while
+    ABG and chemistry panels are sampled intermittently and become available
+    only after a result delay. Dropout holds the last available value, so the
+    policy sees a partially observed process rather than ground-truth state.
     """
 
     monitor_dropout_probability: float = 0.01
     cgm_dropout_probability: float = 0.02
+    cgm_sample_interval_min: float = 5.0
     abg_interval_min: float = 30.0
     abg_result_delay_min: float = 7.0
+    abg_dropout_probability: float = 0.0
     chemistry_interval_min: float = 60.0
     chemistry_result_delay_min: float = 12.0
+    chemistry_dropout_probability: float = 0.0
     hemodynamic_interval_min: float = 15.0
     hemodynamic_result_delay_min: float = 2.0
     cgm_relative_noise_sd: float = 0.05
@@ -147,6 +151,7 @@ class ClinicalMeasurementModel:
     def __init__(self, config: ClinicalMeasurementConfig | None = None):
         self.config = config or ClinicalMeasurementConfig()
         positive = (
+            "cgm_sample_interval_min",
             "abg_interval_min",
             "chemistry_interval_min",
             "hemodynamic_interval_min",
@@ -167,7 +172,12 @@ class ClinicalMeasurementModel:
             value = float(getattr(self.config, name))
             if not np.isfinite(value) or value < 0.0:
                 raise ValueError(f"{name} must be finite and nonnegative")
-        for name in ("monitor_dropout_probability", "cgm_dropout_probability"):
+        for name in (
+            "monitor_dropout_probability",
+            "cgm_dropout_probability",
+            "abg_dropout_probability",
+            "chemistry_dropout_probability",
+        ):
             value = float(getattr(self.config, name))
             if not np.isfinite(value) or not 0.0 <= value <= 1.0:
                 raise ValueError(f"{name} must be between 0 and 1")
@@ -180,7 +190,9 @@ class ClinicalMeasurementModel:
         )
         self.cgm_state: CGMObservationState | None = None
         self.cgm_last_sample_time_min = 0.0
+        self.cgm_next_sample_time_min = 0.0
         self.cgm_dropped_count = 0
+        self.cgm_skipped_count = 0
         self.cgm_delivered_count = 0
         self.current_time_min = 0.0
 
@@ -191,6 +203,13 @@ class ClinicalMeasurementModel:
     def _dropout_probability(self, spec: MeasurementChannelSpec) -> float:
         if spec.group == "monitor":
             return max(spec.dropout_probability, self.config.monitor_dropout_probability)
+        if spec.group == "abg":
+            return max(spec.dropout_probability, self.config.abg_dropout_probability)
+        if spec.group == "chemistry":
+            return max(
+                spec.dropout_probability,
+                self.config.chemistry_dropout_probability,
+            )
         return spec.dropout_probability
 
     def _effective_spec(self, name: str, spec: MeasurementChannelSpec) -> MeasurementChannelSpec:
@@ -257,8 +276,349 @@ class ClinicalMeasurementModel:
             )
         self.cgm_state = self.cgm_model.initialize(float(state.glucose_mg_dl), rng=rng)
         self.cgm_last_sample_time_min = 0.0
+        self.cgm_next_sample_time_min = self.config.cgm_sample_interval_min
         self.cgm_dropped_count = 0
+        self.cgm_skipped_count = 0
         self.cgm_delivered_count = 1
+
+    def runtime_snapshot(self) -> dict:
+        """Return a JSON-serializable copy of all mutable measurement state."""
+        cgm_state = None
+        if self.cgm_state is not None:
+            cgm_state = {
+                "interstitial_glucose_mg_dl": float(
+                    self.cgm_state.interstitial_glucose_mg_dl
+                ),
+                "sensor_glucose_mg_dl": float(
+                    self.cgm_state.sensor_glucose_mg_dl
+                ),
+            }
+        return {
+            "current_time_min": float(self.current_time_min),
+            "channels": {
+                name: {
+                    "value": float(ch.value),
+                    "sample_time_min": float(ch.sample_time_min),
+                    "next_sample_time_min": float(ch.next_sample_time_min),
+                    "pending_results": [
+                        {
+                            "value": float(result.value),
+                            "sample_time_min": float(result.sample_time_min),
+                            "available_time_min": float(result.available_time_min),
+                        }
+                        for result in ch.pending_results
+                    ],
+                    "dropped_count": int(ch.dropped_count),
+                    "skipped_count": int(ch.skipped_count),
+                    "delivered_count": int(ch.delivered_count),
+                }
+                for name, ch in self.channels.items()
+            },
+            "cgm_state": cgm_state,
+            "cgm_last_sample_time_min": float(self.cgm_last_sample_time_min),
+            "cgm_next_sample_time_min": float(self.cgm_next_sample_time_min),
+            "cgm_dropped_count": int(self.cgm_dropped_count),
+            "cgm_skipped_count": int(self.cgm_skipped_count),
+            "cgm_delivered_count": int(self.cgm_delivered_count),
+        }
+
+    def restore_runtime_snapshot(self, snapshot: dict) -> None:
+        """Restore a snapshot produced by :meth:`runtime_snapshot`."""
+        if not isinstance(snapshot, Mapping):
+            raise TypeError("measurement runtime snapshot must be a mapping")
+        expected_top = {
+            "current_time_min",
+            "channels",
+            "cgm_state",
+            "cgm_last_sample_time_min",
+            "cgm_next_sample_time_min",
+            "cgm_dropped_count",
+            "cgm_skipped_count",
+            "cgm_delivered_count",
+        }
+        supplied_top = set(snapshot)
+        if supplied_top != expected_top:
+            raise ValueError(
+                "measurement runtime fields do not match schema: "
+                f"missing={sorted(expected_top - supplied_top)}, "
+                f"extra={sorted(supplied_top - expected_top)}"
+            )
+
+        def finite_number(value, label: str) -> float:
+            if isinstance(value, (bool, np.bool_)):
+                raise TypeError(f"{label} must be a finite number")
+            try:
+                number = float(value)
+            except (TypeError, ValueError) as exc:
+                raise TypeError(f"{label} must be a finite number") from exc
+            if not np.isfinite(number):
+                raise ValueError(f"{label} must be finite")
+            return number
+
+        def nonnegative_integer(value, label: str) -> int:
+            if (
+                isinstance(value, (bool, np.bool_))
+                or not isinstance(value, (int, np.integer))
+            ):
+                raise TypeError(f"{label} must be an integer")
+            number = int(value)
+            if number < 0:
+                raise ValueError(f"{label} must be nonnegative")
+            return number
+
+        def bounded_channel_value(
+            value,
+            spec: MeasurementChannelSpec,
+            label: str,
+        ) -> float:
+            number = finite_number(value, label)
+            if spec.lower is not None and number < float(spec.lower):
+                raise ValueError(
+                    f"{label} must be at least {float(spec.lower):g}"
+                )
+            if spec.upper is not None and number > float(spec.upper):
+                raise ValueError(
+                    f"{label} must be at most {float(spec.upper):g}"
+                )
+            return number
+
+        current_time = finite_number(
+            snapshot["current_time_min"], "current_time_min"
+        )
+        if current_time < 0.0:
+            raise ValueError("current_time_min must be nonnegative")
+        channels_payload = snapshot["channels"]
+        if not isinstance(channels_payload, Mapping):
+            raise TypeError("measurement channels must be a mapping")
+        expected_channels = set(_BASE_CHANNELS)
+        supplied_channels = set(channels_payload)
+        if supplied_channels != expected_channels:
+            raise ValueError(
+                "measurement channel set does not match schema: "
+                f"missing={sorted(expected_channels - supplied_channels)}, "
+                f"extra={sorted(supplied_channels - expected_channels)}"
+            )
+
+        expected_channel_fields = {
+            "value",
+            "sample_time_min",
+            "next_sample_time_min",
+            "pending_results",
+            "dropped_count",
+            "skipped_count",
+            "delivered_count",
+        }
+        expected_pending_fields = {
+            "value",
+            "sample_time_min",
+            "available_time_min",
+        }
+        restored_channels: dict[str, _ChannelState] = {}
+        for name in _BASE_CHANNELS:
+            spec = self._effective_spec(name, _BASE_CHANNELS[name])
+            item = channels_payload[name]
+            if not isinstance(item, Mapping):
+                raise TypeError(f"measurement channel {name!r} must be a mapping")
+            supplied_fields = set(item)
+            if supplied_fields != expected_channel_fields:
+                raise ValueError(
+                    f"measurement channel {name!r} fields do not match schema: "
+                    f"missing={sorted(expected_channel_fields - supplied_fields)}, "
+                    f"extra={sorted(supplied_fields - expected_channel_fields)}"
+                )
+            value = bounded_channel_value(item["value"], spec, f"{name}.value")
+            sample_time = finite_number(
+                item["sample_time_min"], f"{name}.sample_time_min"
+            )
+            next_sample_time = finite_number(
+                item["next_sample_time_min"], f"{name}.next_sample_time_min"
+            )
+            if sample_time < 0.0 or sample_time > current_time + 1e-12:
+                raise ValueError(
+                    f"{name}.sample_time_min must be within elapsed time"
+                )
+            if next_sample_time <= current_time + 1e-12:
+                raise ValueError(
+                    f"{name}.next_sample_time_min must be in the future"
+                )
+            interval = float(spec.sample_interval_min)
+            schedule_tolerance = 1e-9 * max(
+                1.0, current_time, next_sample_time, interval
+            )
+            if next_sample_time > current_time + interval + schedule_tolerance:
+                raise ValueError(
+                    f"{name}.next_sample_time_min skips a sampling interval"
+                )
+            grid_index = next_sample_time / interval
+            if abs(grid_index - round(grid_index)) > 1e-9 * max(
+                1.0, abs(grid_index)
+            ):
+                raise ValueError(
+                    f"{name}.next_sample_time_min is off the sampling grid"
+                )
+            pending_payload = item["pending_results"]
+            if not isinstance(pending_payload, list):
+                raise TypeError(f"{name}.pending_results must be a list")
+            pending_results: deque[_PendingResult] = deque()
+            previous_sample_time = -1.0
+            previous_available_time = -1.0
+            for index, result in enumerate(pending_payload):
+                if not isinstance(result, Mapping):
+                    raise TypeError(
+                        f"{name}.pending_results[{index}] must be a mapping"
+                    )
+                supplied_pending = set(result)
+                if supplied_pending != expected_pending_fields:
+                    raise ValueError(
+                        f"{name}.pending_results[{index}] fields do not match schema"
+                    )
+                pending_value = bounded_channel_value(
+                    result["value"],
+                    spec,
+                    f"{name}.pending_results[{index}].value",
+                )
+                pending_sample_time = finite_number(
+                    result["sample_time_min"],
+                    f"{name}.pending_results[{index}].sample_time_min",
+                )
+                available_time = finite_number(
+                    result["available_time_min"],
+                    f"{name}.pending_results[{index}].available_time_min",
+                )
+                expected_available_time = (
+                    pending_sample_time + float(spec.result_delay_min)
+                )
+                delay_tolerance = 1e-9 * max(
+                    1.0,
+                    abs(available_time),
+                    abs(expected_available_time),
+                )
+                if (
+                    pending_sample_time < 0.0
+                    or pending_sample_time > current_time + 1e-12
+                    or pending_sample_time + 1e-12 < sample_time
+                    or available_time < pending_sample_time
+                    or available_time <= current_time + 1e-12
+                    or abs(available_time - expected_available_time)
+                    > delay_tolerance
+                    or pending_sample_time + 1e-12 < previous_sample_time
+                    or available_time + 1e-12 < previous_available_time
+                ):
+                    raise ValueError(
+                        f"{name}.pending_results must be chronological, "
+                        "sampled after the delivered result, available in the "
+                        "future, and match the configured result delay"
+                    )
+                pending_results.append(
+                    _PendingResult(
+                        value=pending_value,
+                        sample_time_min=pending_sample_time,
+                        available_time_min=available_time,
+                    )
+                )
+                previous_sample_time = pending_sample_time
+                previous_available_time = available_time
+            dropped_count = nonnegative_integer(
+                item["dropped_count"], f"{name}.dropped_count"
+            )
+            skipped_count = nonnegative_integer(
+                item["skipped_count"], f"{name}.skipped_count"
+            )
+            delivered_count = nonnegative_integer(
+                item["delivered_count"], f"{name}.delivered_count"
+            )
+            if delivered_count < 1:
+                raise ValueError(
+                    f"{name}.delivered_count must include the initial sample"
+                )
+            restored_channels[str(name)] = _ChannelState(
+                value=value,
+                sample_time_min=sample_time,
+                next_sample_time_min=next_sample_time,
+                pending_results=pending_results,
+                dropped_count=dropped_count,
+                skipped_count=skipped_count,
+                delivered_count=delivered_count,
+            )
+        restored_cgm = snapshot["cgm_state"]
+        if not isinstance(restored_cgm, Mapping):
+            raise TypeError("cgm_state must be an initialized mapping")
+        expected_cgm_fields = {
+            "interstitial_glucose_mg_dl",
+            "sensor_glucose_mg_dl",
+        }
+        if set(restored_cgm) != expected_cgm_fields:
+            raise ValueError("cgm_state fields do not match schema")
+        interstitial_glucose = finite_number(
+            restored_cgm["interstitial_glucose_mg_dl"],
+            "cgm_state.interstitial_glucose_mg_dl",
+        )
+        sensor_glucose = finite_number(
+            restored_cgm["sensor_glucose_mg_dl"],
+            "cgm_state.sensor_glucose_mg_dl",
+        )
+        if interstitial_glucose < 0.0:
+            raise ValueError(
+                "cgm_state.interstitial_glucose_mg_dl must be nonnegative"
+            )
+        cgm_lower = float(self.cgm_model.config.lower_reportable_mg_dl)
+        cgm_upper = float(self.cgm_model.config.upper_reportable_mg_dl)
+        if not cgm_lower <= sensor_glucose <= cgm_upper:
+            raise ValueError(
+                "cgm_state.sensor_glucose_mg_dl must be within the configured "
+                "reportable range"
+            )
+        cgm_last_sample_time = finite_number(
+            snapshot["cgm_last_sample_time_min"], "cgm_last_sample_time_min"
+        )
+        cgm_next_sample_time = finite_number(
+            snapshot["cgm_next_sample_time_min"], "cgm_next_sample_time_min"
+        )
+        if (
+            cgm_last_sample_time < 0.0
+            or cgm_last_sample_time > current_time + 1e-12
+        ):
+            raise ValueError("cgm_last_sample_time_min must be within elapsed time")
+        if cgm_next_sample_time <= current_time + 1e-12:
+            raise ValueError("cgm_next_sample_time_min must be in the future")
+        cgm_interval = float(self.config.cgm_sample_interval_min)
+        cgm_schedule_tolerance = 1e-9 * max(
+            1.0, current_time, cgm_next_sample_time, cgm_interval
+        )
+        if (
+            cgm_next_sample_time
+            > current_time + cgm_interval + cgm_schedule_tolerance
+        ):
+            raise ValueError("cgm_next_sample_time_min skips a sampling interval")
+        cgm_grid_index = cgm_next_sample_time / cgm_interval
+        if abs(cgm_grid_index - round(cgm_grid_index)) > 1e-9 * max(
+            1.0, abs(cgm_grid_index)
+        ):
+            raise ValueError("cgm_next_sample_time_min is off the sampling grid")
+        cgm_dropped_count = nonnegative_integer(
+            snapshot["cgm_dropped_count"], "cgm_dropped_count"
+        )
+        cgm_skipped_count = nonnegative_integer(
+            snapshot["cgm_skipped_count"], "cgm_skipped_count"
+        )
+        cgm_delivered_count = nonnegative_integer(
+            snapshot["cgm_delivered_count"], "cgm_delivered_count"
+        )
+        if cgm_delivered_count < 1:
+            raise ValueError("cgm_delivered_count must include the initial sample")
+
+        # Commit only after the complete snapshot has passed validation.
+        self.channels = restored_channels
+        self.cgm_state = CGMObservationState(
+            interstitial_glucose_mg_dl=interstitial_glucose,
+            sensor_glucose_mg_dl=sensor_glucose,
+        )
+        self.current_time_min = current_time
+        self.cgm_last_sample_time_min = cgm_last_sample_time
+        self.cgm_next_sample_time_min = cgm_next_sample_time
+        self.cgm_dropped_count = cgm_dropped_count
+        self.cgm_skipped_count = cgm_skipped_count
+        self.cgm_delivered_count = cgm_delivered_count
 
     def advance(
         self,
@@ -267,8 +627,14 @@ class ClinicalMeasurementModel:
         dt_min: float,
         rng: np.random.Generator,
         *,
-        report_cgm: bool = True,
+        report_cgm: bool | None = None,
     ) -> None:
+        """Advance all measurement clocks to ``time_min``.
+
+        ``report_cgm`` is retained as a compatibility-only keyword. CGM reports
+        are now governed exclusively by ``cgm_sample_interval_min`` so policy
+        decision boundaries cannot change noise, dropout, or sample counts.
+        """
         time_min = float(time_min)
         dt_min = float(dt_min)
         if not np.isfinite(time_min) or not np.isfinite(dt_min):
@@ -285,39 +651,38 @@ class ClinicalMeasurementModel:
             )
         self.current_time_min = time_min
 
-        # The interstitial compartment evolves at each physiology substep, while
-        # sensor dropout/noise is realized only once per agent transition.  This
-        # lets scheduled laboratory samples use the state at their actual cadence
-        # without turning the integration cadence into an artificial CGM cadence.
+        # The interstitial compartment evolves at the physiology cadence. Sensor
+        # noise/dropout is realized only when the independent CGM clock is due.
         assert self.cgm_state is not None
-        if not report_cgm:
-            alpha = 1.0 - np.exp(-dt_min / self.config.cgm_lag_tau_min) if dt_min > 0 else 0.0
-            self.cgm_state.interstitial_glucose_mg_dl += alpha * (
-                float(state.glucose_mg_dl) - self.cgm_state.interstitial_glucose_mg_dl
-            )
-        elif rng.random() >= self.config.cgm_dropout_probability:
-            self.cgm_model.step(
-                self.cgm_state,
-                float(state.glucose_mg_dl),
-                dt_min,
-                rng=rng,
-            )
-            self.cgm_last_sample_time_min = time_min
-            self.cgm_delivered_count += 1
-        else:
-            # Physiology still evolves internally; reporting is held last-value.
-            alpha = 1.0 - np.exp(-dt_min / self.config.cgm_lag_tau_min) if dt_min > 0 else 0.0
-            self.cgm_state.interstitial_glucose_mg_dl += alpha * (
-                float(state.glucose_mg_dl) - self.cgm_state.interstitial_glucose_mg_dl
-            )
-            self.cgm_dropped_count += 1
+        self.cgm_model.advance_interstitial(
+            self.cgm_state,
+            float(state.glucose_mg_dl),
+            dt_min,
+        )
+        cgm_due = 0
+        while self.cgm_next_sample_time_min <= time_min + 1e-12:
+            cgm_due += 1
+            self.cgm_next_sample_time_min += self.config.cgm_sample_interval_min
+        if cgm_due:
+            self.cgm_skipped_count += max(0, cgm_due - 1)
+            cgm_dropout = self.config.cgm_dropout_probability
+            if cgm_dropout > 0.0 and rng.random() < cgm_dropout:
+                self.cgm_dropped_count += 1
+            else:
+                self.cgm_model.sample(self.cgm_state, rng=rng)
+                # If a caller jumps across multiple scheduled instants, current
+                # truth is only known at this endpoint; do not backdate it.
+                self.cgm_last_sample_time_min = time_min
+                self.cgm_delivered_count += 1
 
-        for name, base_spec in _BASE_CHANNELS.items():
-            spec = self._effective_spec(name, base_spec)
+        effective_specs = {
+            name: self._effective_spec(name, base_spec)
+            for name, base_spec in _BASE_CHANNELS.items()
+        }
+        due_by_name: dict[str, int] = {}
+        for name, spec in effective_specs.items():
             ch = self.channels[name]
-
             self._deliver_matured(ch, time_min)
-
             # State is known only at the end of this call. If several scheduled
             # instants were crossed, take one endpoint sample and record the
             # unresolved intermediate samples as skipped; never label current
@@ -326,9 +691,37 @@ class ClinicalMeasurementModel:
             while ch.next_sample_time_min <= time_min + 1e-12:
                 due += 1
                 ch.next_sample_time_min += spec.sample_interval_min
+            due_by_name[name] = due
+
+        # ABG and chemistry are panel draws: all members share one collection
+        # time and one panel-level dropout event. Channel-specific analytical
+        # noise remains independent after a panel is successfully collected.
+        panel_dropout: dict[str, bool] = {}
+        for group in ("abg", "chemistry"):
+            due_specs = [
+                spec
+                for name, spec in effective_specs.items()
+                if spec.group == group and due_by_name[name]
+            ]
+            if due_specs:
+                probability = max(self._dropout_probability(spec) for spec in due_specs)
+                panel_dropout[group] = bool(
+                    probability > 0.0 and rng.random() < probability
+                )
+
+        for name, spec in effective_specs.items():
+            ch = self.channels[name]
+            due = due_by_name[name]
             if due:
                 ch.skipped_count += max(0, due - 1)
-                if rng.random() < self._dropout_probability(spec):
+                if spec.group in panel_dropout:
+                    dropped = panel_dropout[spec.group]
+                else:
+                    probability = self._dropout_probability(spec)
+                    dropped = bool(
+                        probability > 0.0 and rng.random() < probability
+                    )
+                if dropped:
                     ch.dropped_count += 1
                 else:
                     sample = self._noisy(self._truth(state, name), spec, rng)
@@ -409,7 +802,9 @@ class ClinicalMeasurementModel:
             }
         groups["cgm"] = {
             "dropped": self.cgm_dropped_count,
+            "skipped": self.cgm_skipped_count,
             "delivered": self.cgm_delivered_count,
+            "next_sample_time_min": float(self.cgm_next_sample_time_min),
         }
         return {
             "time_min": float(self.current_time_min),

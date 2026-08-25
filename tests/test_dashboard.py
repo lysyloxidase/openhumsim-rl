@@ -1,16 +1,57 @@
 from __future__ import annotations
 
 import json
+from hashlib import sha256
 from pathlib import Path
 
 import pytest
 
+import examples.dashboard_server as dashboard_server
 from examples.dashboard_server import (
     DASHBOARD_HTML,
     DashboardSession,
     RevisionConflictError,
     dashboard_meta,
 )
+
+
+def _stage_dashboard_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    *,
+    release: dict[str, object] | None = None,
+    validation: dict[str, object] | None = None,
+) -> tuple[Path, Path]:
+    source_release = json.loads(
+        dashboard_server.RELEASE_MANIFEST.read_text(encoding="utf-8")
+    )
+    source_validation = json.loads(
+        dashboard_server.VALIDATION_RESULTS.read_text(encoding="utf-8")
+    )
+    release = source_release if release is None else release
+    validation = source_validation if validation is None else validation
+
+    validation_path = tmp_path / "validation" / "results.json"
+    validation_path.parent.mkdir()
+    validation_bytes = (
+        json.dumps(validation, ensure_ascii=False, indent=2) + "\n"
+    ).encode("utf-8")
+    validation_path.write_bytes(validation_bytes)
+
+    gate = release["focused_integrity_gate"]
+    assert isinstance(gate, dict)
+    gate["results_path"] = "validation/results.json"
+    gate["results_sha256"] = sha256(validation_bytes).hexdigest()
+    release_path = tmp_path / "release.json"
+    release_path.write_text(
+        json.dumps(release, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(dashboard_server, "ROOT", tmp_path)
+    monkeypatch.setattr(dashboard_server, "RELEASE_MANIFEST", release_path)
+    monkeypatch.setattr(dashboard_server, "VALIDATION_RESULTS", validation_path)
+    return release_path, validation_path
 
 
 def test_dashboard_is_self_contained_and_has_research_boundary() -> None:
@@ -54,7 +95,7 @@ def test_dashboard_meta_locks_action_and_observation_contracts() -> None:
     meta = dashboard_meta()
 
     assert meta["schema"] == "openhumsim.dashboard.meta.v2"
-    assert meta["model_version"] == "0.22.0"
+    assert meta["model_version"] == "0.23.0"
     assert meta["action_names"] == (
         "insulin",
         "oral_carbs",
@@ -71,15 +112,204 @@ def test_dashboard_meta_locks_action_and_observation_contracts() -> None:
     assert meta["availability"] == {
         "release_manifest": True,
         "validation_results": True,
-        "ci_evidence": True,
+        "ci_evidence": False,
     }
-    assert meta["validation"] == {"passed": 15, "total": 15}
-    assert meta["supported_python_ci"]["conclusion"] == "success"
-    assert meta["supported_python_ci"]["python_versions"] == [
-        "3.10",
-        "3.12",
-        "3.14",
-    ]
+    assert meta["validation"] == {
+        "passed": 10,
+        "total": 10,
+        "executed_regression_cases": 97,
+    }
+    assert meta["full_test_suite"]["status"] == "passed"
+    assert meta["full_test_suite"]["passed"] == 309
+    assert meta["full_test_suite"]["total"] == 309
+    assert meta["supported_python_ci"] is None
+    assert meta["observation_contract"]["reward_profile"] == (
+        "latent_research_v0.23"
+    )
+    assert meta["observation_contract"]["benchmark_reward_profile"] == (
+        "observable_benchmark_v0.23"
+    )
+
+
+def test_dashboard_meta_rejects_validation_with_wrong_sha256(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    _, validation_path = _stage_dashboard_evidence(monkeypatch, tmp_path)
+    validation_path.write_bytes(validation_path.read_bytes() + b" ")
+
+    meta = dashboard_server.dashboard_meta()
+
+    assert meta["availability"]["release_manifest"] is True
+    assert meta["availability"]["validation_results"] is False
+    assert meta["validation"] is None
+
+
+@pytest.mark.parametrize(
+    ("field", "invalid_value"),
+    (
+        ("schema", "openhumsim.validation-results.v999"),
+        ("version", "999.0.0"),
+    ),
+)
+def test_dashboard_meta_rejects_digest_locked_but_incompatible_validation(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    field: str,
+    invalid_value: str,
+) -> None:
+    validation = json.loads(
+        dashboard_server.VALIDATION_RESULTS.read_text(encoding="utf-8")
+    )
+    validation[field] = invalid_value
+    _stage_dashboard_evidence(
+        monkeypatch,
+        tmp_path,
+        validation=validation,
+    )
+
+    meta = dashboard_server.dashboard_meta()
+
+    assert meta["availability"]["validation_results"] is False
+    assert meta["validation"] is None
+
+
+@pytest.mark.parametrize(
+    ("field", "invalid_value"),
+    (
+        ("schema", "openhumsim.release-candidate.v999"),
+        ("version", "999.0.0"),
+    ),
+)
+def test_dashboard_meta_rejects_incompatible_release_manifest(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    field: str,
+    invalid_value: str,
+) -> None:
+    release = json.loads(
+        dashboard_server.RELEASE_MANIFEST.read_text(encoding="utf-8")
+    )
+    release[field] = invalid_value
+    _stage_dashboard_evidence(
+        monkeypatch,
+        tmp_path,
+        release=release,
+    )
+
+    meta = dashboard_server.dashboard_meta()
+
+    assert meta["availability"]["release_manifest"] is False
+    assert meta["availability"]["validation_results"] is False
+    assert meta["validation"] is None
+
+
+def test_dashboard_meta_rejects_internally_inconsistent_pass_summary(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    validation = json.loads(
+        dashboard_server.VALIDATION_RESULTS.read_text(encoding="utf-8")
+    )
+    validation["checks"][0]["passed"] = False
+    _stage_dashboard_evidence(
+        monkeypatch,
+        tmp_path,
+        validation=validation,
+    )
+
+    meta = dashboard_server.dashboard_meta()
+
+    assert meta["availability"]["validation_results"] is False
+    assert meta["validation"] is None
+
+
+def test_dashboard_ci_evidence_requires_the_exact_clean_candidate(
+    tmp_path: Path,
+) -> None:
+    release = json.loads(
+        dashboard_server.RELEASE_MANIFEST.read_text(encoding="utf-8")
+    )
+    release["focused_integrity_gate"]["git_commit"] = "a" * 40
+    release["focused_integrity_gate"]["git_worktree_dirty"] = False
+    evidence = {
+        "schema": dashboard_server.CI_EVIDENCE_SCHEMA,
+        "latest_successful_run": {
+            "conclusion": "success",
+            "commit_sha": "a" * 40,
+            "python_versions": ["3.10", "3.12", "3.14"],
+            "scientific_validation": "success",
+            "package_smoke_test": "success",
+            "run_url": "https://example.invalid/run/1",
+            "completed_at": "2026-08-25T00:00:00Z",
+        },
+    }
+    evidence_path = tmp_path / "ci.json"
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+
+    verified = dashboard_server._verified_ci_evidence(evidence_path, release)
+    assert verified is not None
+    assert verified["status"] == "passed"
+    assert verified["commit_sha"] == "a" * 40
+
+    release["focused_integrity_gate"]["git_worktree_dirty"] = True
+    assert dashboard_server._verified_ci_evidence(evidence_path, release) is None
+    release["focused_integrity_gate"]["git_worktree_dirty"] = False
+    evidence["latest_successful_run"]["commit_sha"] = "b" * 40
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+    assert dashboard_server._verified_ci_evidence(evidence_path, release) is None
+
+
+def test_dashboard_ci_evidence_rejects_partial_python_matrix(tmp_path: Path) -> None:
+    release = json.loads(
+        dashboard_server.RELEASE_MANIFEST.read_text(encoding="utf-8")
+    )
+    release["focused_integrity_gate"]["git_commit"] = "a" * 40
+    release["focused_integrity_gate"]["git_worktree_dirty"] = False
+    evidence = {
+        "schema": dashboard_server.CI_EVIDENCE_SCHEMA,
+        "latest_successful_run": {
+            "conclusion": "success",
+            "commit_sha": "a" * 40,
+            "python_versions": ["3.10", "3.12"],
+            "scientific_validation": "success",
+            "package_smoke_test": "success",
+        },
+    }
+    evidence_path = tmp_path / "ci.json"
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+
+    assert dashboard_server._verified_ci_evidence(evidence_path, release) is None
+
+
+@pytest.mark.parametrize(
+    "failed_job",
+    ["scientific_validation", "package_smoke_test"],
+)
+def test_dashboard_ci_evidence_rejects_failed_required_job(
+    tmp_path: Path,
+    failed_job: str,
+) -> None:
+    release = json.loads(
+        dashboard_server.RELEASE_MANIFEST.read_text(encoding="utf-8")
+    )
+    release["focused_integrity_gate"]["git_commit"] = "a" * 40
+    release["focused_integrity_gate"]["git_worktree_dirty"] = False
+    evidence = {
+        "schema": dashboard_server.CI_EVIDENCE_SCHEMA,
+        "latest_successful_run": {
+            "conclusion": "success",
+            "commit_sha": "a" * 40,
+            "python_versions": ["3.10", "3.12", "3.14"],
+            "scientific_validation": "success",
+            "package_smoke_test": "success",
+        },
+    }
+    evidence["latest_successful_run"][failed_job] = "failure"
+    evidence_path = tmp_path / "ci.json"
+    evidence_path.write_text(json.dumps(evidence), encoding="utf-8")
+
+    assert dashboard_server._verified_ci_evidence(evidence_path, release) is None
 
 
 def test_dashboard_session_exposes_measurements_separately_from_debug_truth() -> None:
@@ -168,7 +398,7 @@ def test_dashboard_step_uses_real_environment_and_validates_actions() -> None:
     assert manifest["randomness"]["reset_seed"] == 77
     assert manifest["randomness"]["physiology_and_measurement"][
         "independent_streams"
-    ] is False
+    ] is True
     assert len(manifest["observation_catalog"]) == 54
 
 
@@ -181,6 +411,6 @@ def test_dashboard_documentation_targets_existing_files() -> None:
     assert "docs/dashboard.md" in readme
     assert "experiment-manifest.v1" in dashboard_doc
     assert "tidy CSV" in dashboard_doc
-    assert "shared seeded generator" in dashboard_doc
+    assert "SeedSequence.spawn(2)" in dashboard_doc
     assert (root / "examples" / "dashboard_server.py").is_file()
     assert (root / "dashboard" / "index.html").is_file()

@@ -43,7 +43,7 @@ jobs:
         run: python -m pytest -q -ra -W error
 
   scientific-validation:
-    name: Scientific integrity gate · v0.22
+    name: Scientific integrity gate · v0.23
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -63,8 +63,8 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install ".[dev]"
 
-      - name: Run v0.22 mechanistic invariants
-        run: python validation/run_validation_v22.py
+      - name: Run v0.23 candidate invariants
+        run: python validation/run_validation_v23.py
 
   package:
     name: Build and smoke-test package

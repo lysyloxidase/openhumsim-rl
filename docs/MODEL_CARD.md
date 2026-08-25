@@ -5,9 +5,10 @@
 | Field | Value |
 | --- | --- |
 | Project | OpenHumSim-RL |
-| Package version | `0.22.0` |
+| Package version | `0.23.0` release candidate |
 | State schema | `0.22` |
-| Reward profile | `homeostasis_v0.21` |
+| Default debug reward | `latent_research_v0.23` |
+| Strict benchmark reward | `observable_benchmark_v0.23` |
 | Author and maintainer | [lysyloxidase](https://github.com/lysyloxidase) |
 | License | [Apache-2.0](../LICENSE) |
 | Runtime | Python 3.10 or newer |
@@ -115,6 +116,10 @@ exports.
 The default `info_profile="debug"` exposes hidden state and reward diagnostics.
 It can create oracle leakage if passed to a policy. Benchmarks should explicitly
 select `info_profile="benchmark"`, whose output is controlled by an allowlist.
+Debug runs default to `latent_research_v0.23`; benchmark mode selects and
+requires `observable_benchmark_v0.23`. Its state-dependent terms are computed
+from public observations; action cost, elapsed duration and the public terminal
+event also contribute to the complete transition reward.
 
 The clinical-like interface remains a partially observable Markov decision
 process. Observation width alone does not establish policy or checkpoint
@@ -138,24 +143,22 @@ independent, protocol-matched cohort.
 
 ## Evaluation evidence
 
-The v0.22 release record includes:
+The v0.23 candidate adds a focused gate for fail-closed solver and
+configuration checks, respiratory-mechanics continuity, total-PEEP plateau
+identity, temporal/reward/measurement contracts, checkpoint manifests,
+environment snapshots and observation-history contracts. The machine-readable
+result is created only by actually running that gate and records a fingerprint
+of the source files used by the checks.
 
-- 15 focused energy, lactate, oxygen/carbon and schema integrity checks;
-- 180 repository tests with Gymnasium and warnings treated as errors;
-- timestep and solver-refinement checks on selected coupled pathways;
-- balance, closure, rollback and interface-contract regression tests.
+Candidate evidence and its explicit pending items are available in:
 
-The frozen release run used Python 3.9.6, which is below the declared support
-floor. A subsequent GitHub Actions run closed that platform-execution gap by
-running the full suite on Python 3.10, 3.12 and 3.14, executing the scientific
-integrity gate, and installing and smoke-testing the built wheel.
+- [`validation/validation_results_v0.23.json`](../validation/validation_results_v0.23.json);
+- [`VALIDATION_AUDIT_v0.23.md`](../VALIDATION_AUDIT_v0.23.md);
+- [`RELEASE_v0.23.json`](../RELEASE_v0.23.json).
 
-Evidence is available in:
-
-- [`validation/validation_results_v0.22.json`](../validation/validation_results_v0.22.json);
-- [`VALIDATION_AUDIT_v0.22.md`](../VALIDATION_AUDIT_v0.22.md);
-- [`RELEASE_v0.22.json`](../RELEASE_v0.22.json);
-- [`CI_EVIDENCE.json`](../CI_EVIDENCE.json).
+The candidate manifest distinguishes the focused gate, the locally completed
+full repository suite and still-pending supported-interpreter CI. A local pass
+must not be presented as evidence that the CI matrix has completed.
 
 This evidence supports software verification and internal mechanistic
 consistency only. No independently reviewed, protocol-matched external clinical
@@ -205,9 +208,11 @@ validation is bundled.
 - Historical policies and checkpoints are incompatible when transition,
   observation, action, schema or reward semantics differ, even if array shapes
   happen to match.
-- The reset physiology jitter and realistic measurement process currently use
-  one shared seeded generator. They are reproducible together but cannot be
-  varied independently from a single run manifest.
+- The bundled no-op and observation-history heuristic are transparent software
+  baselines, not trained controllers or evidence of policy quality.
+- Reset physiology jitter and realistic measurement uncertainty use separate
+  child generators spawned from the reset seed. This removes draw-order
+  coupling but does not make one seed a substitute for multi-seed evaluation.
 
 ## Foreseeable misuse and mitigations
 
@@ -237,7 +242,11 @@ For each reported run, preserve:
 - exported experiment manifest and source fingerprint.
 
 Dashboard-backed runs emit `openhumsim.experiment-manifest.v1`. See
-[dashboard.md](dashboard.md) for its contents and random-stream caveat.
+[dashboard.md](dashboard.md) for its contents and random-stream semantics.
+Long-running programmatic rollouts can also use the environment's versioned
+JSON snapshot API. A history-wrapper runtime snapshot is accepted only with the
+matching base-environment state, preventing histories from different runs from
+being combined silently.
 
 ## Citation and license
 

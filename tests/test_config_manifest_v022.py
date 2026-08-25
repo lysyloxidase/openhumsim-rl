@@ -92,7 +92,7 @@ def test_structural_gas_parameters_are_finite_and_have_safe_signs() -> None:
             HumanConfig(water_vapor_pressure_mmHg=invalid)
 
 
-def test_v022_manifest_is_deterministic_exact_and_sb3_independent(
+def test_v023_manifest_is_deterministic_exact_and_sb3_independent(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -114,11 +114,11 @@ def test_v022_manifest_is_deterministic_exact_and_sb3_independent(
 
     assert first.read_bytes() == second.read_bytes()
     manifest = json.loads(first.read_text(encoding="utf-8"))
-    assert manifest["checkpoint_basename"] == "openhumsim_ppo_v022_smoke"
-    assert manifest["checkpoint_filename"] == "openhumsim_ppo_v022_smoke.zip"
-    assert manifest["openhumsim_version"] == __version__ == "0.22.0"
+    assert manifest["checkpoint_basename"] == "openhumsim_ppo_v023_smoke"
+    assert manifest["checkpoint_filename"] == "openhumsim_ppo_v023_smoke.zip"
+    assert manifest["openhumsim_version"] == __version__ == "0.23.0"
     assert manifest["state_schema_version"] == "0.22"
-    assert manifest["reward_profile"] == "homeostasis_v0.21"
+    assert manifest["reward_profile"] == "observable_benchmark_v0.23"
     assert manifest["scenario"] == "oral_glucose_75g"
     assert manifest["observation_profile"] == "clinical"
     assert manifest["measurement_profile"] == "realistic"

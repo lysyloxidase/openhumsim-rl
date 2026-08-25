@@ -2,9 +2,9 @@
 
 ## Supported versions
 
-Security fixes are applied to the current `main` branch and the latest v0.22.x
-release line. Historical validation releases are retained for reproducibility
-but are not maintained as separate supported branches.
+Security fixes are applied to the current `main` branch and the latest
+published release line. Release candidates and historical validation versions
+are not maintained as separate supported branches.
 
 ## Reporting a vulnerability
 

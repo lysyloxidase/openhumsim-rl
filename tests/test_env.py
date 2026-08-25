@@ -342,7 +342,7 @@ def test_v09_cli_doctor_and_demo():
         sys.version_info >= (3, 10) and d["dependencies"]["numpy"]["installed"]
     )
     assert d["core_ready"] is expected_core_ready
-    assert d["openhumsim_version"] == "0.22.0"
+    assert d["openhumsim_version"] == "0.23.0"
     result = run_demo("baseline", minutes=5.0, seed=123)
     assert result["simulated_minutes"] == 5.0
     assert np.isfinite(result["return"])

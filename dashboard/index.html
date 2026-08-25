@@ -414,7 +414,7 @@
       </div>
       <div class="badges" aria-label="Stan połączenia i profil danych">
         <span id="connectionBadge" class="badge offline">Łączenie…</span>
-        <span id="versionBadge" class="badge plain">v0.22</span>
+        <span id="versionBadge" class="badge plain">v0.23</span>
         <span id="profileBadge" class="badge plain">clinical · realistic</span>
         <span class="badge plain">POMDP</span>
       </div>
@@ -630,7 +630,7 @@
                 <div id="lactateValues" class="kv-grid"></div>
               </article>
               <article class="panel span-6">
-                <div class="panel-head"><div><h4>Składniki reward</h4><p>Profil homeostasis_v0.21; wartości ujemne są kosztami modelu RL.</p></div><span id="rewardTotal" class="panel-tag">Σ 0.000</span></div>
+                <div class="panel-head"><div><h4>Składniki reward</h4><p>Profil debug latent_research_v0.23; wartości ujemne są kosztami modelu RL.</p></div><span id="rewardTotal" class="panel-tag">Σ 0.000</span></div>
                 <div id="rewardBars"></div>
               </article>
               <article class="panel span-6">
@@ -645,7 +645,7 @@
           <div class="section-heading"><div><h3 id="credibilityHeading">Wiarygodność i granice</h3><p>Testy integralności oprogramowania nie zastępują zewnętrznej walidacji klinicznej.</p></div></div>
           <div class="panel-grid">
             <article class="panel span-6">
-              <div class="panel-head"><div><h4>Stan weryfikacji v0.22</h4><p>Dane odczytane z manifestu wydania i gate’a repozytorium.</p></div><span class="panel-tag">recorded evidence</span></div>
+              <div class="panel-head"><div><h4>Stan kandydata v0.23</h4><p>Dane odczytane z manifestu kandydata i rzeczywiście wykonanego gate’a.</p></div><span class="panel-tag">candidate evidence</span></div>
               <div id="validationList" class="validation-list"></div>
             </article>
             <article class="panel span-6">
@@ -655,7 +655,7 @@
                 <div class="validation-item"><span>Zewnętrzna walidacja kliniczna</span><strong class="no">NIE DOŁĄCZONA</strong></div>
                 <div class="validation-item"><span>Użycie kliniczne</span><strong class="no">NIEOBSŁUGIWANE</strong></div>
                 <div class="validation-item"><span>Pełny debug state</span><strong class="no">BRAK CLAIMU MARKOV</strong></div>
-                <div class="validation-item"><span>Checkpointy v0.21</span><strong class="no">NIEKOMPATYBILNE</strong></div>
+                <div class="validation-item"><span>Checkpointy sprzed v0.23</span><strong class="no">NIEKOMPATYBILNE</strong></div>
               </div>
             </article>
           </div>
@@ -663,7 +663,7 @@
 
         <footer>
           <p><strong>OpenHumSim-RL dashboard.</strong> Lokalne narzędzie badawcze i diagnostyczne. Górny panel pokazuje to, co widzi agent w profilu <code>clinical + realistic</code>; panele „latent” korzystają z dokładnego stanu debug i nie są dostępne w ścisłym profilu benchmarkowym.</p>
-          <p id="footerSchema">Dashboard schema openhumsim.dashboard.v2 · state schema 0.22 · reward homeostasis_v0.21.</p>
+          <p id="footerSchema">Dashboard schema openhumsim.dashboard.v2 · state schema 0.22 · reward latent_research_v0.23.</p>
         </footer>
       </main>
     </div>
@@ -680,7 +680,7 @@
     const MAX_CHART_HISTORY = 144;
 
     const FALLBACK_META = {
-      model_version: "0.22.0",
+      model_version: "0.23.0",
       scenarios: [
         ["baseline", "Stan bazowy", "Referencja"],
         ["transient_lactic_acidosis", "Przejściowa kwasica mleczanowa", "Metabolizm"],
@@ -699,12 +699,12 @@
       ],
       validation: null, validation_available:false,
       full_test_suite: null, release_available:false,
-      observation_contract: {clinical_count:54,full_count:138,state_schema_version:"0.22",reward_profile:"homeostasis_v0.21"},
+      observation_contract: {clinical_count:54,full_count:138,state_schema_version:"0.22",reward_profile:"latent_research_v0.23",benchmark_reward_profile:"observable_benchmark_v0.23"},
       observation_catalog: []
     };
 
     const BASELINE = {
-      schema:"openhumsim.dashboard.v2", model_version:"0.22.0", state_schema_version:"0.22",
+      schema:"openhumsim.dashboard.v2", model_version:"0.23.0", state_schema_version:"0.22",
       scenario:"baseline", seed:42, time_min:0, step_min:5, episode_minutes:720, reward:0, cumulative_reward:0,
       run_id:null, revision:0, request_id:null,
       data_profile:{observation:"offline-preview",measurement:"embedded-measurements",debug_truth_included:false,clinical_values_are_raw:true,offline_preview:true},
@@ -1437,7 +1437,7 @@
         if(preserved)setStatus(`Serwer jest niedostępny. Lokalny fragment ${preserved} klatek zachowano w osobnym eksporcie jako niepełny; sterowanie pozostaje wyłączone.`);
       } finally {
         app.connecting=false; refreshControlLocks();
-        $("#footerSchema").textContent=`Dashboard schema openhumsim.dashboard.v2 · state schema ${app.meta.observation_contract?.state_schema_version||'0.22'} · reward ${app.meta.observation_contract?.reward_profile||'homeostasis_v0.21'}.`;
+        $("#footerSchema").textContent=`Dashboard schema openhumsim.dashboard.v2 · state schema ${app.meta.observation_contract?.state_schema_version||'0.22'} · reward ${app.meta.observation_contract?.reward_profile||'latent_research_v0.23'}.`;
       }
       return connected;
     }

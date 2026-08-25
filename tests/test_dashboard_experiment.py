@@ -25,7 +25,7 @@ from openhumsim_rl.units import OBSERVATION_UNITS
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RELEASE = ROOT / "RELEASE_v0.22.json"
+RELEASE = ROOT / "RELEASE_v0.23.json"
 
 
 @pytest.fixture
@@ -86,7 +86,7 @@ def test_manifest_is_deterministic_resolved_and_json_finite() -> None:
 
     assert first == second
     assert first["schema"] == EXPERIMENT_MANIFEST_SCHEMA
-    assert __version__ == "0.22.0"
+    assert __version__ == "0.23.0"
     assert first["model"] == {
         "package": "openhumsim_rl",
         "environment": "HumanHomeostasisEnv",
@@ -95,7 +95,7 @@ def test_manifest_is_deterministic_resolved_and_json_finite() -> None:
         "clinical_use_supported": False,
     }
     assert first["state"]["schema_version"] == "0.22"
-    assert first["reward"]["profile"] == "homeostasis_v0.21"
+    assert first["reward"]["profile"] == "latent_research_v0.23"
     assert first["profiles"] == {
         "observation": "clinical",
         "measurement": "realistic",
@@ -125,6 +125,18 @@ def test_manifest_locks_exact_release_interfaces_and_54_item_catalog() -> None:
     observation = manifest["interfaces"]["observation"]
     action = manifest["interfaces"]["action"]
 
+    assert release["status"] == "candidate"
+    assert release["version"] == __version__ == "0.23.0"
+    assert release["state_schema_version"] == "0.22"
+    assert release["reward_profile"] == "latent_research_v0.23"
+    assert release["benchmark_reward_profile"] == (
+        "observable_benchmark_v0.23"
+    )
+    assert release["focused_integrity_gate"]["status"] == "passed"
+    assert release["full_test_suite"]["status"] == "passed"
+    assert release["full_test_suite"]["passed"] == 309
+    assert release["full_test_suite"]["total"] == 309
+    assert release["supported_interpreter_ci"]["status"] == "pending"
     assert observation["ordered_names"] == list(CLINICAL_OBSERVATION_NAMES)
     assert observation["count"] == release["clinical_observation_count"] == 54
     assert observation["sha256"] == release["clinical_observation_sha256"]
@@ -154,7 +166,7 @@ def test_manifest_locks_exact_release_interfaces_and_54_item_catalog() -> None:
     json.dumps(catalog, allow_nan=False)
 
 
-def test_manifest_records_shared_rng_and_source_bound_scenario_semantics() -> None:
+def test_manifest_records_split_rng_and_source_bound_scenario_semantics() -> None:
     baseline = DashboardSession("baseline", 19).manifest_snapshot()
     challenge = DashboardSession("airway_obstruction", 19).manifest_snapshot()
     other_seed = DashboardSession("baseline", 20).manifest_snapshot()
@@ -162,9 +174,10 @@ def test_manifest_records_shared_rng_and_source_bound_scenario_semantics() -> No
     randomness = baseline["randomness"]
     assert randomness["reset_seed"] == 19
     assert randomness["physiology_and_measurement"] == {
-        "seed": 19,
-        "stream": "shared numpy Generator owned by the environment",
-        "independent_streams": False,
+        "root_seed": 19,
+        "derivation": "numpy SeedSequence.spawn(2)",
+        "streams": ["physiology", "measurement"],
+        "independent_streams": True,
     }
     assert randomness["action_space"]["seed"] == 20
     assert baseline["scenario"]["procedural_state_challenge"] is False
@@ -200,7 +213,7 @@ def test_source_fingerprint_is_recomputable_and_contains_no_host_paths_or_secret
         ).hexdigest()
 
     release_lock = source["release_manifest"]
-    assert release_lock["source_id"] == "RELEASE_v0.22.json"
+    assert release_lock["source_id"] == "RELEASE_v0.23.json"
     assert release_lock["available"] is True
     assert release_lock["content_sha256"] == sha256(RELEASE.read_bytes()).hexdigest()
 

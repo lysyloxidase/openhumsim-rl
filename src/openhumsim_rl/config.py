@@ -1,7 +1,8 @@
 from __future__ import annotations
-from dataclasses import dataclass
-from math import isfinite
-from numbers import Integral
+from dataclasses import dataclass, field, fields
+from math import isclose, isfinite
+from numbers import Integral, Real
+from warnings import warn
 
 
 @dataclass(frozen=True)
@@ -64,7 +65,16 @@ class HumanConfig:
 
     # Glycogen / exercise
     exercise_muscle_glycogen_g_min: float = 0.22
-    liver_glycogen_hgp_fraction: float = 0.18
+    liver_glycogen_hgp_fraction: float = field(
+        default=0.18,
+        metadata={
+            "deprecated": (
+                "ignored compatibility field; hepatic glucose production is "
+                "defined by the Dalla Man core and the explicit glucagon "
+                "counterregulation pathway"
+            )
+        },
+    )
 
     # Fluid balance
     basal_fluid_loss_ml_min: float = 0.30
@@ -338,7 +348,15 @@ class HumanConfig:
     hypoxic_lactate_gain_mmol_l_min: float = 0.18
     lactate_clearance_per_min: float = 0.025
     # Dynamic hematology assumes RBC/Hb mass is conserved over short simulations.
-    baseline_rbc_volume_l: float = 2.0
+    baseline_rbc_volume_l: float = field(
+        default=2.0,
+        metadata={
+            "deprecated": (
+                "ignored compatibility field; baseline RBC volume is derived "
+                "from total blood and plasma volumes"
+            )
+        },
+    )
     # RL action 5 drives positive airway pressure through the mechanics model.
     max_ventilation_pressure_assist_cmH2O: float = 12.0
 
@@ -359,9 +377,33 @@ class HumanConfig:
     aldosterone_tau_min: float = 45.0
     gfr_tau_min: float = 8.0
     urine_flow_tau_min: float = 8.0
-    renal_bicarbonate_tau_min: float = 2880.0
-    renal_co2_compensation_gain: float = 0.35
-    potassium_buffer_gain_per_min: float = 0.25
+    renal_bicarbonate_tau_min: float = field(
+        default=2880.0,
+        metadata={
+            "deprecated": (
+                "ignored compatibility field; renal acid handling uses explicit "
+                "ammonium, titratable-acid and bicarbonate fluxes"
+            )
+        },
+    )
+    renal_co2_compensation_gain: float = field(
+        default=0.35,
+        metadata={
+            "deprecated": (
+                "ignored compatibility field; no empirical chronic CO2 "
+                "compensation target is applied"
+            )
+        },
+    )
+    potassium_buffer_gain_per_min: float = field(
+        default=0.25,
+        metadata={
+            "deprecated": (
+                "ignored compatibility field; transcellular potassium uses the "
+                "explicit insulin, pH and exercise target with a time constant"
+            )
+        },
+    )
 
     # PBPK reference compound -- generic research probe, not a real medicine
     pbpk_internal_step_min: float = 0.05
@@ -419,16 +461,56 @@ class HumanConfig:
     potassium_max_terminate: float = 7.0
 
     def __post_init__(self) -> None:
-        """Reject configurations that make the numerical problem undefined.
+        """Reject non-finite and structurally inconsistent configurations.
 
-        These values feed nested integration loops, where a zero or negative
-        step could hang ``integrate`` or trigger a division by zero far from
-        configuration construction.
-        Keep this validation deliberately limited to structural invariants; the
-        remaining values are research parameters and are not clinical ranges.
+        These checks describe numerical and dimensional requirements, not
+        clinical reference intervals. They fail at construction time so a bad
+        value cannot be silently clipped or surface later inside a nested
+        integration or root-finding loop.
         """
 
-        positive = (
+        definitions = fields(self)
+        scalar_values: dict[str, float] = {}
+        for definition in definitions:
+            name = definition.name
+            label = (
+                "water vapor pressure"
+                if name == "water_vapor_pressure_mmHg"
+                else name
+            )
+            value = getattr(self, name)
+            if isinstance(value, tuple):
+                if name != "pulmonary_unit_closing_pressures_cmH2O" or not value:
+                    raise ValueError(f"{name} must be a non-empty numeric tuple")
+                for index, component in enumerate(value):
+                    if (
+                        isinstance(component, bool)
+                        or not isinstance(component, Real)
+                        or not isfinite(float(component))
+                    ):
+                        raise ValueError(
+                            f"{name}[{index}] must be a finite real number"
+                        )
+                continue
+            if isinstance(value, bool) or not isinstance(value, Real):
+                raise ValueError(f"{label} must be a real number")
+            numeric = float(value)
+            if not isfinite(numeric):
+                raise ValueError(f"{label} must be finite")
+            scalar_values[name] = numeric
+
+        # Pleural pressure is the only signed scalar configuration quantity.
+        # Regional closing pressures are the signed tuple checked separately.
+        for name, value in scalar_values.items():
+            if name != "pulmonary_baseline_pleural_pressure_cmH2O" and value < 0.0:
+                label = (
+                    "water vapor pressure"
+                    if name == "water_vapor_pressure_mmHg"
+                    else name
+                )
+                raise ValueError(f"{label} must be nonnegative")
+
+        positive = {
             "agent_step_min",
             "integration_step_min",
             "episode_minutes",
@@ -461,11 +543,116 @@ class HumanConfig:
             "lactate_clearance_per_min",
             "acid_base_charge_tolerance_mEq_l",
             "co2_pool_solver_tolerance_mmol_l",
-        )
+            "glucose_setpoint_mg_dl",
+            "glucagon_baseline_pg_ml",
+            "glucagon_tau_min",
+            "liver_glycogen_baseline_g",
+            "muscle_glycogen_baseline_g",
+            "gut_absorption_tau_min",
+            "glucose_distribution_dl",
+            "dalla_basal_glucose_mg_dl",
+            "dalla_uU_ml_per_insulin_model_unit",
+            "sc_insulin_tmax_min",
+            "glucagon_hypoglycemia_slope_mg_dl",
+            "dalla_insulin_sensitivity_scale",
+            "dalla_gastric_absorption_scale",
+            "osmotic_water_equilibration_tau_min",
+            "potassium_transcellular_tau_min",
+            "potassium_insulin_half_effect_uU_ml",
+            "cv_baseline_cardiac_output_l_min",
+            "cv_resting_hr_bpm",
+            "cv_map_setpoint_mmHg",
+            "cv_hr_tau_min",
+            "cv_v_la0_ml",
+            "cv_v_lv0_ml",
+            "cv_v_sa0_ml",
+            "cv_v_sv0_ml",
+            "cv_v_ra0_ml",
+            "cv_v_rv0_ml",
+            "cv_v_pa0_ml",
+            "cv_v_pv0_ml",
+            "cv_c_la_ml_mmHg",
+            "cv_c_sa_ml_mmHg",
+            "cv_c_sv_ml_mmHg",
+            "cv_c_ra_ml_mmHg",
+            "cv_c_pa_ml_mmHg",
+            "cv_c_pv_ml_mmHg",
+            "cv_lv_emin",
+            "cv_lv_emax",
+            "cv_rv_emin",
+            "cv_rv_emax",
+            "cv_r_mitral_mmHg_s_ml",
+            "cv_r_aortic_mmHg_s_ml",
+            "cv_r_tricuspid_mmHg_s_ml",
+            "cv_r_pulmonic_mmHg_s_ml",
+            "cv_r_systemic_mmHg_s_ml",
+            "cv_r_systemic_venous_mmHg_s_ml",
+            "cv_r_pulmonary_mmHg_s_ml",
+            "cv_r_pulmonary_venous_mmHg_s_ml",
+            "baseline_bicarbonate_mmol_l",
+            "baseline_ph_arterial",
+            "pulmonary_baseline_diffusing_capacity_relative",
+            "pulmonary_hpv_po2_half_mmHg",
+            "pulmonary_hpv_slope_mmHg",
+            "pulmonary_hpv_max_local_resistance_multiplier",
+            "pulmonary_hpv_tau_min",
+            "pulmonary_static_compliance_l_cmH2O",
+            "pulmonary_recruitment_logistic_width_cmH2O",
+            "pulmonary_recruitment_open_tau_min",
+            "pulmonary_recruitment_close_tau_min",
+            "pulmonary_frc_l",
+            "pulmonary_lung_compliance_l_cmH2O",
+            "pulmonary_chest_wall_compliance_l_cmH2O",
+            "pulmonary_overdistension_slope_cmH2O",
+            "respiratory_airway_resistance_cmH2O_s_l",
+            "respiratory_inertance_cmH2O_s2_l",
+            "respiratory_expiratory_resistance_multiplier",
+            "respiratory_expiratory_flow_limit_l_s",
+            "respiratory_obstruction_resistance_cmH2O_s_l",
+            "respiratory_obstruction_expiratory_resistance_multiplier",
+            "respiratory_obstruction_flow_limit_l_s",
+            "respiratory_obstruction_rr_bpm",
+            "respiratory_severe_obstruction_rr_bpm",
+            "respiratory_severe_obstruction_flow_limit_l_s",
+            "respiratory_ps_rise_time_s",
+            "respiratory_ps_max_inspiratory_time_s",
+            "carbonic_acid_pka",
+            "baseline_albumin_g_dl",
+            "baseline_phosphate_mmol_l",
+            "plasma_water_fraction",
+            "rbc_water_fraction",
+            "carbonate_pka2",
+            "hemoglobin_g_dl",
+            "baseline_gfr_ml_min",
+            "baseline_urine_flow_ml_min",
+            "baseline_urine_sodium_mmol_min",
+            "adh_tau_min",
+            "renin_tau_min",
+            "angiotensin_tau_min",
+            "aldosterone_tau_min",
+            "gfr_tau_min",
+            "urine_flow_tau_min",
+            "pbpk_absorption_ka_per_min",
+            "pbpk_effect_site_tau_min",
+            "pbpk_liver_volume_l",
+            "pbpk_kidney_volume_l",
+            "pbpk_muscle_volume_l",
+            "pbpk_adipose_volume_l",
+            "pbpk_rest_volume_l",
+            "pbpk_liver_flow_l_min",
+            "pbpk_kidney_flow_l_min",
+            "pbpk_muscle_flow_l_min",
+            "pbpk_adipose_flow_l_min",
+            "pbpk_rest_flow_l_min",
+            "pbpk_kp_liver",
+            "pbpk_kp_kidney",
+            "pbpk_kp_muscle",
+            "pbpk_kp_adipose",
+            "pbpk_kp_rest",
+        }
         for name in positive:
-            value = float(getattr(self, name))
-            if not isfinite(value) or value <= 0.0:
-                raise ValueError(f"{name} must be finite and positive")
+            if scalar_values[name] <= 0.0:
+                raise ValueError(f"{name} must be positive")
 
         if not (
             self.plasma_volume_baseline_l
@@ -475,16 +662,13 @@ class HumanConfig:
             raise ValueError(
                 "baseline volumes must satisfy plasma < ECF < total body water"
             )
-        if not isfinite(float(self.water_vapor_pressure_mmHg)) or not (
-            0.0 <= self.water_vapor_pressure_mmHg < self.atmospheric_pressure_mmHg
-        ):
+        if not (0.0 <= self.water_vapor_pressure_mmHg < self.atmospheric_pressure_mmHg):
             raise ValueError("water vapor pressure must be below atmospheric pressure")
         if not (0.0 < self.baseline_fio2 <= self.max_fio2 <= 1.0):
             raise ValueError("FiO2 values must satisfy 0 < baseline_fio2 <= max_fio2 <= 1")
-        if not (0.0 < self.oxygen_max_extraction_fraction <= 1.0):
-            raise ValueError("oxygen_max_extraction_fraction must be in (0, 1]")
         if not (0.0 < self.respiratory_quotient <= 1.0):
             raise ValueError("respiratory_quotient must be in (0, 1]")
+
         nonnegative = (
             "exercise_vo2_gain",
             "exercise_vco2_gain",
@@ -504,9 +688,148 @@ class HumanConfig:
             "max_probe_drug_mg_per_step",
         )
         for name in nonnegative:
-            value = float(getattr(self, name))
-            if not isfinite(value) or value < 0.0:
-                raise ValueError(f"{name} must be finite and nonnegative")
+            if scalar_values[name] < 0.0:
+                raise ValueError(f"{name} must be nonnegative")
+
+        closed_fractions = (
+            "cv_exercise_systemic_vasodilation",
+            "pulmonary_baseline_shunt_fraction",
+            "pulmonary_shunt_challenge_fraction",
+            "pulmonary_diffusion_limitation_relative",
+            "pulmonary_hpv_baseline_function_fraction",
+            "pulmonary_mean_inspiratory_pressure_fraction",
+            "pulmonary_min_ventilation_weight_when_closed",
+            "pulmonary_peep_pleural_transmission_fraction",
+            "pulmonary_overdistension_compliance_loss_fraction",
+            "pulmonary_stiff_chest_wall_scale",
+            "pulmonary_low_lung_compliance_scale",
+            "respiratory_pressure_control_rise_fraction",
+            "respiratory_expiratory_elastance_fraction",
+            "respiratory_external_peep_threshold_unloading_fraction",
+            "respiratory_ps_neural_unloading_fraction",
+            "baseline_carbamino_fraction",
+            "carbamino_reference_o2_saturation",
+            "oxygen_supply_transition_width_fraction",
+            "baseline_ammonium_fraction_of_nae",
+            "pbpk_fraction_unbound",
+        )
+        for name in closed_fractions:
+            if not 0.0 <= scalar_values[name] <= 1.0:
+                raise ValueError(f"{name} must be in [0, 1]")
+
+        open_fractions = (
+            "cv_systolic_fraction",
+            "pulmonary_min_overdistended_compliance_fraction",
+            "respiratory_inspiratory_fraction",
+            "respiratory_ps_cycleoff_fraction_peak_flow",
+            "respiratory_neural_inspiratory_fraction",
+            "respiratory_ps_low_cycleoff_fraction",
+            "respiratory_ps_optimized_cycleoff_fraction",
+            "respiratory_ps_premature_cycleoff_fraction",
+            "respiratory_ps_long_neural_inspiratory_fraction",
+            "baseline_hematocrit",
+            "plasma_water_fraction",
+            "rbc_water_fraction",
+            "hypoventilation_efficiency",
+            "respiratory_acidosis_efficiency",
+        )
+        for name in open_fractions:
+            if not 0.0 < scalar_values[name] < 1.0:
+                raise ValueError(f"{name} must be in (0, 1)")
+        if not 0.0 < self.oxygen_max_extraction_fraction <= 1.0:
+            raise ValueError("oxygen_max_extraction_fraction must be in (0, 1]")
+
+        if self.integration_step_min > self.agent_step_min:
+            raise ValueError(
+                "simulation steps must satisfy "
+                "integration_step_min <= agent_step_min"
+            )
+        if not self.dead_space_l < self.baseline_tidal_volume_l:
+            raise ValueError("dead_space_l must be below baseline_tidal_volume_l")
+
+        initial_cv_volume = sum(
+            getattr(self, name)
+            for name in (
+                "cv_v_la0_ml",
+                "cv_v_lv0_ml",
+                "cv_v_sa0_ml",
+                "cv_v_sv0_ml",
+                "cv_v_ra0_ml",
+                "cv_v_rv0_ml",
+                "cv_v_pa0_ml",
+                "cv_v_pv0_ml",
+            )
+        )
+        if not isclose(
+            initial_cv_volume,
+            self.cv_baseline_blood_volume_ml,
+            rel_tol=1e-9,
+            abs_tol=1e-6,
+        ):
+            raise ValueError(
+                "initial cardiovascular compartment volumes must sum to "
+                "cv_baseline_blood_volume_ml"
+            )
+        if not self.plasma_volume_baseline_l < self.cv_baseline_blood_volume_ml / 1000.0:
+            raise ValueError(
+                "plasma_volume_baseline_l must be below total baseline blood volume"
+            )
+        for chamber in ("la", "lv", "sa", "sv", "ra", "rv", "pa", "pv"):
+            unstressed = getattr(self, f"cv_v0_{chamber}_ml")
+            initial = getattr(self, f"cv_v_{chamber}0_ml")
+            if not 0.0 <= unstressed < initial:
+                raise ValueError(
+                    f"cv_v0_{chamber}_ml must be nonnegative and below "
+                    f"cv_v_{chamber}0_ml"
+                )
+        if not self.cv_lv_emin < self.cv_lv_emax:
+            raise ValueError("cv_lv_emin must be below cv_lv_emax")
+        if not self.cv_rv_emin < self.cv_rv_emax:
+            raise ValueError("cv_rv_emin must be below cv_rv_emax")
+
+        closing_pressures = self.pulmonary_unit_closing_pressures_cmH2O
+        if any(
+            right <= left
+            for left, right in zip(closing_pressures, closing_pressures[1:])
+        ):
+            raise ValueError(
+                "pulmonary_unit_closing_pressures_cmH2O must be strictly increasing"
+            )
+        if self.pulmonary_hpv_max_local_resistance_multiplier < 1.0:
+            raise ValueError(
+                "pulmonary_hpv_max_local_resistance_multiplier must be at least 1"
+            )
+        if not (
+            self.pulmonary_mechanics_peep_low_cmH2O
+            < self.pulmonary_mechanics_peep_high_cmH2O
+            < self.pulmonary_mechanics_peep_overdistension_cmH2O
+        ):
+            raise ValueError(
+                "pulmonary mechanics PEEP anchors must be strictly increasing"
+            )
+        if not (
+            self.respiratory_ps_low_cycleoff_fraction
+            < self.respiratory_ps_cycleoff_fraction_peak_flow
+            < self.respiratory_ps_optimized_cycleoff_fraction
+            < self.respiratory_ps_premature_cycleoff_fraction
+        ):
+            raise ValueError(
+                "pressure-support cycle-off fractions must be strictly increasing"
+            )
+        if self.respiratory_ps_rise_time_s > self.respiratory_ps_max_inspiratory_time_s:
+            raise ValueError(
+                "respiratory_ps_rise_time_s must not exceed "
+                "respiratory_ps_max_inspiratory_time_s"
+            )
+
+        if not self.carbonic_acid_pka < self.baseline_ph_arterial < self.carbonate_pka2:
+            raise ValueError(
+                "acid-base constants must satisfy carbonic_acid_pka < "
+                "baseline_ph_arterial < carbonate_pka2"
+            )
+        if not 4.00 < self.baseline_ph_arterial < 10.00:
+            raise ValueError("baseline_ph_arterial must lie inside the acid-base bracket")
+
         resting_rq = self.baseline_vco2_ml_min / self.baseline_vo2_ml_min
         exercising_rq = resting_rq * (
             (1.0 + self.exercise_vco2_gain)
@@ -516,9 +839,35 @@ class HumanConfig:
             raise ValueError(
                 "baseline/exercise VO2 and VCO2 targets must imply metabolic RQ in [0.60, 1.0]"
             )
-        if not (0.0 <= self.baseline_ammonium_fraction_of_nae <= 1.0):
-            raise ValueError("baseline_ammonium_fraction_of_nae must be in [0, 1]")
+
+        for lower_name, upper_name in (
+            ("glucose_min_terminate", "glucose_max_terminate"),
+            ("map_min_terminate", "map_max_terminate"),
+            ("ph_min_terminate", "ph_max_terminate"),
+            ("sodium_min_terminate", "sodium_max_terminate"),
+            ("potassium_min_terminate", "potassium_max_terminate"),
+        ):
+            if not getattr(self, lower_name) < getattr(self, upper_name):
+                raise ValueError(f"{lower_name} must be below {upper_name}")
+        if not self.glucose_min_terminate < self.glucose_setpoint_mg_dl < self.glucose_max_terminate:
+            raise ValueError("glucose_setpoint_mg_dl must lie between termination limits")
+        if not self.ph_min_terminate < self.baseline_ph_arterial < self.ph_max_terminate:
+            raise ValueError("baseline_ph_arterial must lie between termination limits")
+        if not self.pbpk_target_effect_site_mg_l < self.pbpk_high_exposure_mg_l:
+            raise ValueError(
+                "pbpk_target_effect_site_mg_l must be below pbpk_high_exposure_mg_l"
+            )
+
         for name in ("acid_base_max_iterations", "co2_pool_solver_max_iterations"):
             value = getattr(self, name)
             if isinstance(value, bool) or not isinstance(value, Integral) or value < 1:
                 raise ValueError(f"{name} must be a positive integer")
+
+        for definition in definitions:
+            reason = definition.metadata.get("deprecated")
+            if reason is not None and getattr(self, definition.name) != definition.default:
+                warn(
+                    f"{definition.name} is deprecated and ignored: {reason}",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )

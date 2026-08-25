@@ -104,7 +104,10 @@ class RespiratoryMechanicsModel:
         # Passive respiratory-system mechanics (series lung + chest wall).
         dpaw = dpl + dpcw
         crs = vt / max(1e-6, dpaw)
-        plateau = peep + dpaw
+        # The passive-equivalent plateau is referenced to total end-expiratory
+        # alveolar pressure, including trapped-gas pressure from incomplete
+        # expiration as well as externally applied PEEP.
+        plateau = peep + intrinsic_peep + dpaw
 
         # During positive-pressure support, chest-wall inflation raises pleural
         # pressure; spontaneous effort is deliberately not fed into circulation.

@@ -16,7 +16,7 @@ blood-gas and PBPK dynamics behind a Gymnasium-compatible interface.
 
 **Author:** [lysyloxidase](https://github.com/lysyloxidase)
 
-**Current version:** 0.22.0
+**Current release candidate:** 0.23.0
 
 ## Capabilities
 
@@ -29,6 +29,10 @@ blood-gas and PBPK dynamics behind a Gymnasium-compatible interface.
   oxygen, pressure assistance, water and an oral PBPK probe compound.
 - Versioned state, observation, action, reward and experiment-manifest
   contracts for reproducible comparisons.
+- JSON-safe, fail-closed environment snapshots that preserve physiological,
+  solver, measurement and random-generator runtime for exact continuation.
+- A masked observation-history wrapper and deterministic transparent-policy
+  harness for partial-observability experiments.
 - Built-in research scenarios, command-line tools, validation artifacts and a
   local interactive dashboard.
 
@@ -77,6 +81,10 @@ observation, reward, terminated, truncated, info = env.step(action)
 
 The default `info_profile="debug"` is useful for mechanistic inspection but
 contains hidden state and must not be exposed to benchmark policies.
+Selecting `info_profile="benchmark"` also selects
+`observable_benchmark_v0.23`. Its state-dependent terms use the public
+observation; the complete transition reward additionally includes the agent's
+action cost, elapsed duration and public termination event.
 
 The CLI provides a deterministic smoke simulation:
 
@@ -106,10 +114,11 @@ preview; simulation steps require the Python bridge.
 
 ## Interface contract
 
-| Contract | v0.22 value |
+| Contract | v0.23 candidate value |
 | --- | --- |
 | State schema | `0.22` |
-| Reward profile | `homeostasis_v0.21` |
+| Default debug reward profile | `latent_research_v0.23` |
+| Strict benchmark reward profile | `observable_benchmark_v0.23` |
 | Clinical observation profile | 54 measurement-aware values |
 | Full debug profile | 138 mechanistic values; not claimed to be Markov |
 | Action space | 8 bounded, one-directional controls |
@@ -118,16 +127,16 @@ preview; simulation steps require the Python bridge.
 | Default decision / integration step | 5 min / 0.25 min |
 
 Exact ordered observation and action hashes are recorded in
-`RELEASE_v0.22.json`. Shape equality alone does not establish checkpoint
+`RELEASE_v0.23.json`. Shape equality alone does not establish checkpoint
 compatibility; policies trained on earlier transition kernels must be retrained
 and evaluated under a versioned protocol.
 
 ## Verification and scientific scope
 
-Every change is checked by GitHub Actions with:
+GitHub Actions is configured to check every change with:
 
 - the full test suite on Python 3.10, 3.12 and 3.14;
-- the v0.22 mechanistic integrity gate;
+- the v0.23 release-candidate integrity gate;
 - a source-distribution and wheel build;
 - installation and CLI smoke tests outside the source tree.
 
@@ -136,21 +145,31 @@ Run the same checks locally:
 ```bash
 python -m pip install -e ".[dev]"
 python -m pytest -q -ra -W error
-python validation/run_validation_v22.py
+python validation/run_validation_v23.py
 ```
 
 These checks establish software behavior, numerical invariants and internal
 mechanistic consistency. They are not independent external clinical validation.
 The evidence and remaining limitations are documented in:
 
-- [v0.22 validation audit](VALIDATION_AUDIT_v0.22.md);
-- [machine-readable validation results](validation/validation_results_v0.22.json);
-- [supported-interpreter CI evidence](CI_EVIDENCE.json);
+- [v0.23 candidate validation audit](VALIDATION_AUDIT_v0.23.md);
+- [machine-readable focused-gate results](validation/validation_results_v0.23.json);
+- [v0.23 release-candidate manifest](RELEASE_v0.23.json);
 - [model card and use boundaries](docs/MODEL_CARD.md).
 
 Historical release evidence is retained under `docs/history/` and
 `validation/` for reproducibility without turning this README into a changelog.
 Release-level changes belong in [GitHub Releases](https://github.com/lysyloxidase/openhumsim-rl/releases).
+
+For a transparent RL smoke comparison with delayed measurements and masked
+history, run:
+
+```bash
+python validation/rl_benchmark_v0.23.py --output validation/rl_benchmark_v0.23.json
+```
+
+This harness compares fixed no-op and observation-only engineering rules. It
+does not train a policy or provide evidence of clinical safety or efficacy.
 
 ## Contributing and security
 

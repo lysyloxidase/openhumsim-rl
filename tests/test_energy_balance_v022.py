@@ -229,7 +229,10 @@ def test_v022_reset_contract_and_failure_rollback_cover_energy_ledgers():
     assert env.state.lactate_cleared_mmol == 0.0
     assert env.state.cumulative_oxygen_deficit_ml == 0.0
     assert first_info["environment_semantics"]["state_schema_version"] == "0.22"
-    assert first_info["environment_semantics"]["reward_profile"] == "homeostasis_v0.21"
+    assert (
+        first_info["environment_semantics"]["reward_profile"]
+        == "latent_research_v0.23"
+    )
     assert "energy_metabolism" in first_info
     assert full_obs.shape == (len(OBSERVATION_NAMES),)
     assert len(CLINICAL_OBSERVATION_NAMES) == 54

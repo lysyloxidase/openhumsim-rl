@@ -1,6 +1,6 @@
 # Local development with VS Code
 
-This guide describes the current OpenHumSim-RL v0.22 development workflow.
+This guide describes the current OpenHumSim-RL v0.23 development workflow.
 The project requires Python 3.10 or newer and uses
 [uv](https://docs.astral.sh/uv/) for local environments.
 
@@ -43,7 +43,7 @@ Run the complete test suite and the version-locked scientific integrity gate:
 
 ```bash
 uv run pytest -q -ra
-uv run python validation/run_validation_v22.py
+uv run python validation/run_validation_v23.py
 ```
 
 The same commands are available as **OpenHumSim: tests** and
