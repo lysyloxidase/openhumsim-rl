@@ -1,4 +1,4 @@
-# OpenHumSim-RL v0.23.0 release candidate
+# OpenHumSim-RL v0.23.0
 
 > Research software only. OpenHumSim-RL is not clinically validated and must
 > not be used for diagnosis, treatment selection, dosing, alarms, ventilator
@@ -38,20 +38,21 @@ not compatible even when their tensor shapes match. The PPO example writes
 
 ## Verification status
 
-The focused v0.23 candidate gate was executed locally on Python 3.12.13 and
+The focused v0.23 release gate was executed locally on Python 3.12.13 and
 passed 10/10 top-level checks, including 97 executed regression cases, exact
 version/reward/schema checks and a stable source fingerprint. The generated record is
 `validation/validation_results_v0.23.json`.
 
 The full local repository suite passed 309/309 tests on Python 3.12.13 with
-warnings treated as errors. Supported-interpreter CI is still pending in the
-candidate manifest. The wheel and source distribution also passed metadata
-checks and an isolated wheel-install/CLI smoke test. These passing checks are
-internal software and mechanistic consistency evidence; they are not external
-clinical validation.
+warnings treated as errors. GitHub Actions then passed the full suite on Python
+3.10, 3.12 and 3.14, the focused scientific gate, and the isolated package
+build/smoke test for source commit `080e8b8`. The wheel and source distribution
+also passed metadata checks and an isolated wheel-install/CLI smoke test. These
+passing checks are internal software and mechanistic consistency evidence; they
+are not external clinical validation.
 
-See `VALIDATION_AUDIT_v0.23.md` and `RELEASE_v0.23.json` for scope and pending
-release work.
+See `VALIDATION_AUDIT_v0.23.md` and `RELEASE_v0.23.json` for the verified scope
+and remaining scientific limitations.
 
 OpenHumSim-RL is distributed under the Apache License 2.0. Copyright 2026
 lysyloxidase.

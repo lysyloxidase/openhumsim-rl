@@ -1,6 +1,6 @@
 {
-  "schema": "openhumsim.release-candidate.v1",
-  "status": "candidate",
+  "schema": "openhumsim.release.v1",
+  "status": "released",
   "version": "0.23.0",
   "title": "Fail-closed contracts, observable benchmark reward and mechanics continuity",
   "author": "lysyloxidase",
@@ -25,14 +25,14 @@
     "passed": 10,
     "total": 10,
     "executed_regression_cases": 97,
-    "executed_at_utc": "2026-08-25T14:24:08.909303+00:00",
+    "executed_at_utc": "2026-08-25T14:40:14.156704+00:00",
     "host_python": "3.12.13",
     "results_path": "validation/validation_results_v0.23.json",
-    "results_sha256": "8a81b1fa7e8a4a8f16adae23ff7e667c4c81ad4e5f8f216db3b8df6c9a6b2847",
+    "results_sha256": "21e2bc8f312b2201ba1cc18beca08052442709713bec2b2d8a5ced004267ee6e",
     "source_fingerprint_sha256": "f7b08aea1dca41c3f471192ac29af262f87604f8d0432a7d0486f69ca2793b87",
     "source_file_count": 42,
-    "git_commit": "266429ade21e37b0dc772e9526fa964f6496c7b2",
-    "git_worktree_dirty": true
+    "git_commit": "080e8b82ea050541f13324917d3920b5a8b1807d",
+    "git_worktree_dirty": false
   },
   "full_test_suite": {
     "status": "passed",
@@ -56,12 +56,21 @@
     "checkout_only_validation_guard": "passed"
   },
   "supported_interpreter_ci": {
-    "status": "pending",
+    "status": "passed",
+    "execution": "github-actions",
+    "workflow": ".github/workflows/ci.yml",
+    "run_id": 32860834543,
+    "run_url": "https://github.com/lysyloxidase/openhumsim-rl/actions/runs/32860834543",
+    "commit_sha": "080e8b82ea050541f13324917d3920b5a8b1807d",
+    "completed_at": "2026-08-25T15:05:42Z",
+    "conclusion": "success",
     "python_versions": [
       "3.10",
       "3.12",
       "3.14"
-    ]
+    ],
+    "scientific_validation": "success",
+    "package_smoke_test": "success"
   },
   "historical_rl_checkpoints_compatible": false,
   "full_observation_claimed_markov": false,

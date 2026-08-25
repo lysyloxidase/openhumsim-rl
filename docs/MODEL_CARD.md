@@ -5,7 +5,7 @@
 | Field | Value |
 | --- | --- |
 | Project | OpenHumSim-RL |
-| Package version | `0.23.0` release candidate |
+| Package version | `0.23.0` release |
 | State schema | `0.22` |
 | Default debug reward | `latent_research_v0.23` |
 | Strict benchmark reward | `observable_benchmark_v0.23` |
@@ -143,22 +143,21 @@ independent, protocol-matched cohort.
 
 ## Evaluation evidence
 
-The v0.23 candidate adds a focused gate for fail-closed solver and
+The v0.23 release adds a focused gate for fail-closed solver and
 configuration checks, respiratory-mechanics continuity, total-PEEP plateau
 identity, temporal/reward/measurement contracts, checkpoint manifests,
 environment snapshots and observation-history contracts. The machine-readable
 result is created only by actually running that gate and records a fingerprint
 of the source files used by the checks.
 
-Candidate evidence and its explicit pending items are available in:
+Release evidence and its explicit limitations are available in:
 
 - [`validation/validation_results_v0.23.json`](../validation/validation_results_v0.23.json);
 - [`VALIDATION_AUDIT_v0.23.md`](../VALIDATION_AUDIT_v0.23.md);
 - [`RELEASE_v0.23.json`](../RELEASE_v0.23.json).
 
-The candidate manifest distinguishes the focused gate, the locally completed
-full repository suite and still-pending supported-interpreter CI. A local pass
-must not be presented as evidence that the CI matrix has completed.
+The release manifest distinguishes the focused gate, the locally completed
+full repository suite and the successful supported-interpreter CI matrix.
 
 This evidence supports software verification and internal mechanistic
 consistency only. No independently reviewed, protocol-matched external clinical

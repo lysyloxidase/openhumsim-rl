@@ -1,4 +1,4 @@
-# OpenHumSim-RL v0.23 release-candidate validation audit
+# OpenHumSim-RL v0.23 validation audit
 
 ## Decision
 
@@ -10,15 +10,15 @@ strict observation history.
 The full local repository suite also passed 309/309 tests with warnings as
 errors. A wheel and source distribution passed `twine check`; the wheel then
 passed an isolated core installation, CLI diagnostics and baseline simulation.
-This does not approve a final release: supported-interpreter CI remains
-explicitly pending.
+The supported-interpreter CI matrix and isolated package job also passed for
+the exact clean source commit recorded by the focused gate.
 
 This is internal software verification and mechanistic consistency evidence,
 not independent external clinical validation.
 
 ## Contract and compatibility
 
-- Package candidate: `0.23.0`.
+- Package release: `0.23.0`.
 - Persisted state schema: `0.22` (unchanged).
 - Default debug reward: `latent_research_v0.23`.
 - Strict benchmark reward: `observable_benchmark_v0.23`.
@@ -34,9 +34,9 @@ hidden-state-free policy evidence.
 
 `validation/run_validation_v23.py` wrote
 `validation/validation_results_v0.23.json` only after all checks ran. The file
-records execution at `2026-08-25T14:24:08.909303+00:00` on CPython 3.12.13 and
+records execution at `2026-08-25T14:40:14.156704+00:00` on CPython 3.12.13 and
 has SHA-256
-`8a81b1fa7e8a4a8f16adae23ff7e667c4c81ad4e5f8f216db3b8df6c9a6b2847`.
+`21e2bc8f312b2201ba1cc18beca08052442709713bec2b2d8a5ced004267ee6e`.
 It identifies 42 relevant source/test files with source fingerprint
 `f7b08aea1dca41c3f471192ac29af262f87604f8d0432a7d0486f69ca2793b87`
 and verifies that fingerprint did not change while the gate ran.
@@ -121,11 +121,13 @@ observation-history rules; it does not train or validate a controller.
 6. Virtual-subject variability is an engineering prior, not an identified
    clinical population or patient posterior.
 
-## Candidate release blockers
+## Release completion evidence
 
-- Run the supported Python matrix and isolated wheel installation in CI for the
-  exact candidate commit.
-- Record those outcomes without modifying the historical v0.22 evidence.
+- GitHub Actions run `32860834543` passed the full suite on Python 3.10, 3.12
+  and 3.14, the focused scientific gate, and the package build/smoke test for
+  exact source commit `080e8b82ea050541f13324917d3920b5a8b1807d`.
+- The outcome is recorded separately from the historical v0.22 evidence in
+  `CI_EVIDENCE.json` and `RELEASE_v0.23.json`.
 
-Until those items are complete, `RELEASE_v0.23.json` remains a candidate
-manifest rather than a final release record.
+`RELEASE_v0.23.json` is therefore the final v0.23 software release record. The
+scientific and clinical limitations above remain in force.

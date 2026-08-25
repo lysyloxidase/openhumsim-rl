@@ -16,7 +16,7 @@ blood-gas and PBPK dynamics behind a Gymnasium-compatible interface.
 
 **Author:** [lysyloxidase](https://github.com/lysyloxidase)
 
-**Current release candidate:** 0.23.0
+**Current release:** 0.23.0
 
 ## Capabilities
 
@@ -114,7 +114,7 @@ preview; simulation steps require the Python bridge.
 
 ## Interface contract
 
-| Contract | v0.23 candidate value |
+| Contract | v0.23 release value |
 | --- | --- |
 | State schema | `0.22` |
 | Default debug reward profile | `latent_research_v0.23` |
@@ -136,7 +136,7 @@ and evaluated under a versioned protocol.
 GitHub Actions is configured to check every change with:
 
 - the full test suite on Python 3.10, 3.12 and 3.14;
-- the v0.23 release-candidate integrity gate;
+- the v0.23 release integrity gate;
 - a source-distribution and wheel build;
 - installation and CLI smoke tests outside the source tree.
 
@@ -152,9 +152,9 @@ These checks establish software behavior, numerical invariants and internal
 mechanistic consistency. They are not independent external clinical validation.
 The evidence and remaining limitations are documented in:
 
-- [v0.23 candidate validation audit](VALIDATION_AUDIT_v0.23.md);
+- [v0.23 validation audit](VALIDATION_AUDIT_v0.23.md);
 - [machine-readable focused-gate results](validation/validation_results_v0.23.json);
-- [v0.23 release-candidate manifest](RELEASE_v0.23.json);
+- [v0.23 release manifest](RELEASE_v0.23.json);
 - [model card and use boundaries](docs/MODEL_CARD.md).
 
 Historical release evidence is retained under `docs/history/` and

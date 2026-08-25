@@ -47,7 +47,7 @@ SESSION_HEADER = "X-OpenHumSim-Session"
 DEFAULT_MAX_SESSIONS = 32
 DEFAULT_SESSION_TTL_SECONDS = 6 * 60 * 60
 EXPERIMENT_MANIFEST_SCHEMA = "openhumsim.experiment-manifest.v1"
-RELEASE_MANIFEST_SCHEMA = "openhumsim.release-candidate.v1"
+RELEASE_MANIFEST_SCHEMA = "openhumsim.release.v1"
 VALIDATION_RESULTS_SCHEMA = "openhumsim.validation-results.v1"
 CI_EVIDENCE_SCHEMA = "openhumsim.ci-evidence.v1"
 ORDERED_NAMES_HASH_FORMAT = "sha256:canonical-json-array:utf-8"
@@ -266,7 +266,7 @@ def _verified_ci_evidence(
     path: Path,
     release: dict[str, Any] | None,
 ) -> dict[str, Any] | None:
-    """Accept CI evidence only when it identifies this exact clean candidate."""
+    """Accept CI evidence only when it identifies the exact clean release source."""
 
     evidence = _read_json(path)
     if evidence is None or evidence.get("schema") != CI_EVIDENCE_SCHEMA:

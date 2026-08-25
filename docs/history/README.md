@@ -4,7 +4,7 @@ This directory preserves release manifests and validation records for versions
 0.9 through 0.21. They describe the exact behavior, evidence and limitations of
 their respective versions and are retained for scientific reproducibility.
 
-For the current v0.23 release candidate, use:
+For the current v0.23 release, use:
 
 - [`RELEASE_v0.23.json`](../../RELEASE_v0.23.json)
 - [`VALIDATION_AUDIT_v0.23.md`](../../VALIDATION_AUDIT_v0.23.md)

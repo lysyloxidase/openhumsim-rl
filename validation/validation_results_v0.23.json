@@ -3,7 +3,7 @@
   "version": "0.23.0",
   "state_schema_version": "0.22",
   "scope": "internal v0.23 solver/configuration, respiratory mechanics, temporal, reward, measurement, transactional-step, checkpoint-manifest, environment-snapshot and observation-history invariants; not external clinical validation",
-  "executed_at_utc": "2026-08-25T14:24:08.909303+00:00",
+  "executed_at_utc": "2026-08-25T14:40:14.156704+00:00",
   "runtime": {
     "python": "3.12.13",
     "implementation": "CPython",
@@ -188,8 +188,8 @@
         "sha256": "c00cab3e9ec6419c62543db5823517160bc73b7dac201a69b55d6ed46e21de46"
       }
     ],
-    "git_commit": "266429ade21e37b0dc772e9526fa964f6496c7b2",
-    "git_worktree_dirty": true
+    "git_commit": "080e8b82ea050541f13324917d3920b5a8b1807d",
+    "git_worktree_dirty": false
   },
   "summary": {
     "passed": 10,
@@ -220,7 +220,7 @@
         "test_path": "tests/test_solver_config_hardening.py",
         "returncode": 0,
         "executed_cases": 26,
-        "stdout": "..........................                                               [100%]\n26 passed in 0.22s",
+        "stdout": "..........................                                               [100%]\n26 passed in 0.24s",
         "stderr": ""
       }
     },
@@ -231,7 +231,7 @@
         "test_path": "tests/test_mechanics_continuity_v023.py",
         "returncode": 0,
         "executed_cases": 2,
-        "stdout": "..                                                                       [100%]\n2 passed in 0.88s",
+        "stdout": "..                                                                       [100%]\n2 passed in 0.95s",
         "stderr": ""
       }
     },
@@ -242,7 +242,7 @@
         "test_path": "tests/test_temporal_contract_v023.py",
         "returncode": 0,
         "executed_cases": 9,
-        "stdout": ".........                                                                [100%]\n9 passed in 8.09s",
+        "stdout": ".........                                                                [100%]\n9 passed in 8.50s",
         "stderr": ""
       }
     },
@@ -253,7 +253,7 @@
         "test_path": "tests/test_step_transaction_v023.py",
         "returncode": 0,
         "executed_cases": 4,
-        "stdout": "....                                                                     [100%]\n4 passed in 0.78s",
+        "stdout": "....                                                                     [100%]\n4 passed in 0.84s",
         "stderr": ""
       }
     },
@@ -264,7 +264,7 @@
         "test_path": "tests/test_policy_manifest_v023.py",
         "returncode": 0,
         "executed_cases": 8,
-        "stdout": "........                                                                 [100%]\n8 passed in 0.67s",
+        "stdout": "........                                                                 [100%]\n8 passed in 0.71s",
         "stderr": ""
       }
     },
@@ -275,7 +275,7 @@
         "test_path": "tests/test_environment_snapshot_v023.py",
         "returncode": 0,
         "executed_cases": 34,
-        "stdout": "..................................                                       [100%]\n34 passed in 46.31s",
+        "stdout": "..................................                                       [100%]\n34 passed in 46.72s",
         "stderr": ""
       }
     },
@@ -286,7 +286,7 @@
         "test_path": "tests/test_history_wrapper_v023.py",
         "returncode": 0,
         "executed_cases": 14,
-        "stdout": "..............                                                           [100%]\n14 passed in 5.52s",
+        "stdout": "..............                                                           [100%]\n14 passed in 5.66s",
         "stderr": ""
       }
     },
