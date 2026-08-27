@@ -25,9 +25,11 @@ It is not independent external clinical validation.
 
 `validation/run_validation_v23.py` writes
 `validation/validation_results_v0.23.1.json` only after all checks execute. The
-candidate record was produced on 2026-08-27 with source stability verified
-before and after the gate. The final release manifest records the exact result
-digest, source fingerprint, commit and CI run.
+clean-source record was produced on 2026-08-27 for commit `dac4e3e` with source
+stability verified before and after the gate. Its SHA-256 is
+`eb2b8cdf1981a27d6fd4fdd6a04656c545affe5aa5e368b183103669ef541c22` and its
+source fingerprint is
+`404431b2658ab79fb6c7a414ce5842fb96cdc86937175ac725891b4ffd425806`.
 
 The focused gate covers:
 
@@ -81,3 +83,13 @@ or safety.
    clinical population or patient posterior.
 
 The authoritative machine-readable record is `RELEASE_v0.23.1.json`.
+
+## Release completion evidence
+
+- GitHub Actions run `33077302430` passed the full suite on Python 3.10, 3.12
+  and 3.14, the focused scientific gate and the isolated package build/smoke
+  test for exact source commit
+  `dac4e3e1a39303e3fe46300caebf5908437e07ae`.
+- CodeQL run `33077302724` passed for the same source commit.
+- The exact CI record is stored in `CI_EVIDENCE.json` and
+  `RELEASE_v0.23.1.json`.

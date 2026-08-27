@@ -36,7 +36,9 @@ The focused gate passed 11/11 checks with 103 executed regression cases on
 CPython 3.12.13. The complete local suite passed 315/315 tests with warnings as
 errors. Wheel and source distributions passed metadata checks; the wheel passed
 an isolated installation, CLI diagnostics, baseline simulation and the
-checkout-only validation guard.
+checkout-only validation guard. GitHub Actions passed the full suite on Python
+3.10, 3.12 and 3.14, the scientific gate and package smoke job for source
+commit `dac4e3e`; CodeQL passed for the same commit.
 
 See `VALIDATION_AUDIT_v0.23.1.md` and `RELEASE_v0.23.1.json` for the exact
 evidence and remaining limitations.

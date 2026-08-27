@@ -125,7 +125,7 @@ def test_manifest_locks_exact_release_interfaces_and_54_item_catalog() -> None:
     observation = manifest["interfaces"]["observation"]
     action = manifest["interfaces"]["action"]
 
-    assert release["status"] == "candidate"
+    assert release["status"] == "released"
     assert release["version"] == __version__ == "0.23.1"
     assert release["state_schema_version"] == "0.22"
     assert release["reward_profile"] == "latent_research_v0.23"
@@ -136,7 +136,7 @@ def test_manifest_locks_exact_release_interfaces_and_54_item_catalog() -> None:
     assert release["full_test_suite"]["status"] == "passed"
     assert release["full_test_suite"]["passed"] == 315
     assert release["full_test_suite"]["total"] == 315
-    assert release["supported_interpreter_ci"]["status"] == "pending"
+    assert release["supported_interpreter_ci"]["status"] == "passed"
     assert observation["ordered_names"] == list(CLINICAL_OBSERVATION_NAMES)
     assert observation["count"] == release["clinical_observation_count"] == 54
     assert observation["sha256"] == release["clinical_observation_sha256"]

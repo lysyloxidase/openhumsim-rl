@@ -113,7 +113,7 @@ def test_dashboard_meta_locks_action_and_observation_contracts() -> None:
     assert meta["availability"] == {
         "release_manifest": True,
         "validation_results": True,
-        "ci_evidence": False,
+        "ci_evidence": True,
     }
     assert meta["validation"] == {
         "passed": 11,
@@ -123,7 +123,13 @@ def test_dashboard_meta_locks_action_and_observation_contracts() -> None:
     assert meta["full_test_suite"]["status"] == "passed"
     assert meta["full_test_suite"]["passed"] == 315
     assert meta["full_test_suite"]["total"] == 315
-    assert meta["supported_python_ci"] is None
+    assert meta["supported_python_ci"]["status"] == "passed"
+    assert meta["supported_python_ci"]["conclusion"] == "success"
+    assert meta["supported_python_ci"]["python_versions"] == [
+        "3.10",
+        "3.12",
+        "3.14",
+    ]
     assert meta["observation_contract"]["reward_profile"] == (
         "latent_research_v0.23"
     )

@@ -1,6 +1,6 @@
 {
   "schema": "openhumsim.release.v1",
-  "status": "candidate",
+  "status": "released",
   "version": "0.23.1",
   "title": "Pulmonary input fidelity and fail-closed runtime restoration",
   "author": "lysyloxidase",
@@ -25,14 +25,14 @@
     "passed": 11,
     "total": 11,
     "executed_regression_cases": 103,
-    "executed_at_utc": "2026-08-27T13:13:18.842325+00:00",
+    "executed_at_utc": "2026-08-27T13:31:15.365211+00:00",
     "host_python": "3.12.13",
     "results_path": "validation/validation_results_v0.23.1.json",
-    "results_sha256": "118c32b0238caeadca69af052ea0cc910d179c9aabca02a3045ad9212c632623",
+    "results_sha256": "eb2b8cdf1981a27d6fd4fdd6a04656c545affe5aa5e368b183103669ef541c22",
     "source_fingerprint_sha256": "404431b2658ab79fb6c7a414ce5842fb96cdc86937175ac725891b4ffd425806",
     "source_file_count": 43,
-    "git_commit": "8a3602b2922687cb079739e1cb701a0e5af506ea",
-    "git_worktree_dirty": true
+    "git_commit": "dac4e3e1a39303e3fe46300caebf5908437e07ae",
+    "git_worktree_dirty": false
   },
   "full_test_suite": {
     "status": "passed",
@@ -50,21 +50,30 @@
     "execution": "local",
     "host_python": "3.12.13",
     "wheel": "openhumsim_rl-0.23.1-py3-none-any.whl",
-    "wheel_sha256": "96cb204aeb63c876fc5e62a7d72cdc0b1c63a462270fa93b70d1e953154688c0",
     "sdist": "openhumsim_rl-0.23.1.tar.gz",
-    "sdist_sha256": "14f14af62269479a1592231b8cf787b5f64b9ce70cab83c357af3c62d60998e2",
     "twine_check": "passed",
     "isolated_wheel_install": "passed",
     "cli_smoke": "version, doctor and baseline demo passed",
     "checkout_only_validation_guard": "passed"
   },
   "supported_interpreter_ci": {
-    "status": "pending",
+    "status": "passed",
+    "execution": "github-actions",
+    "workflow": ".github/workflows/ci.yml",
+    "run_id": 33077302430,
+    "run_url": "https://github.com/lysyloxidase/openhumsim-rl/actions/runs/33077302430",
+    "commit_sha": "dac4e3e1a39303e3fe46300caebf5908437e07ae",
+    "completed_at": "2026-08-27T13:57:03Z",
+    "conclusion": "success",
     "python_versions": [
       "3.10",
       "3.12",
       "3.14"
-    ]
+    ],
+    "scientific_validation": "success",
+    "package_smoke_test": "success",
+    "codeql_run_id": 33077302724,
+    "codeql_conclusion": "success"
   },
   "historical_rl_checkpoints_compatible": false,
   "full_observation_claimed_markov": false,
