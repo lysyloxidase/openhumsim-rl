@@ -1,6 +1,6 @@
 # Local development with VS Code
 
-This guide describes the current OpenHumSim-RL v0.23 development workflow.
+This guide describes the current OpenHumSim-RL v0.23.1 development workflow.
 The project requires Python 3.10 or newer and uses
 [uv](https://docs.astral.sh/uv/) for local environments.
 

@@ -531,6 +531,17 @@ class ClinicalMeasurementModel:
                 raise ValueError(
                     f"{name}.delivered_count must include the initial sample"
                 )
+            expected_event_count = int(round(grid_index))
+            actual_event_count = (
+                delivered_count
+                + dropped_count
+                + skipped_count
+                + len(pending_results)
+            )
+            if actual_event_count != expected_event_count:
+                raise ValueError(
+                    f"{name} measurement counters do not match its sampling schedule"
+                )
             restored_channels[str(name)] = _ChannelState(
                 value=value,
                 sample_time_min=sample_time,
@@ -540,6 +551,39 @@ class ClinicalMeasurementModel:
                 skipped_count=skipped_count,
                 delivered_count=delivered_count,
             )
+
+        # ABG and chemistry channels are collected as panels in ``advance``.
+        # Their delivery clocks, dropout/skipped counters and pending-result
+        # timestamps must therefore remain identical across every panel member.
+        # Validate this before committing any restored state so a corrupted
+        # snapshot cannot expose an impossible mixture of old and new panel values.
+        def panel_schedule_signature(channel: _ChannelState) -> tuple:
+            return (
+                channel.sample_time_min,
+                channel.next_sample_time_min,
+                channel.dropped_count,
+                channel.skipped_count,
+                channel.delivered_count,
+                tuple(
+                    (result.sample_time_min, result.available_time_min)
+                    for result in channel.pending_results
+                ),
+            )
+
+        for group in ("abg", "chemistry"):
+            panel_names = [
+                name
+                for name, base_spec in _BASE_CHANNELS.items()
+                if self._effective_spec(name, base_spec).group == group
+            ]
+            reference = panel_schedule_signature(restored_channels[panel_names[0]])
+            if any(
+                panel_schedule_signature(restored_channels[name]) != reference
+                for name in panel_names[1:]
+            ):
+                raise ValueError(
+                    f"{group} panel measurement runtime is internally inconsistent"
+                )
         restored_cgm = snapshot["cgm_state"]
         if not isinstance(restored_cgm, Mapping):
             raise TypeError("cgm_state must be an initialized mapping")
@@ -606,6 +650,14 @@ class ClinicalMeasurementModel:
         )
         if cgm_delivered_count < 1:
             raise ValueError("cgm_delivered_count must include the initial sample")
+        expected_cgm_event_count = int(round(cgm_grid_index))
+        actual_cgm_event_count = (
+            cgm_delivered_count + cgm_dropped_count + cgm_skipped_count
+        )
+        if actual_cgm_event_count != expected_cgm_event_count:
+            raise ValueError(
+                "CGM measurement counters do not match its sampling schedule"
+            )
 
         # Commit only after the complete snapshot has passed validation.
         self.channels = restored_channels

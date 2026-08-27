@@ -385,6 +385,10 @@ class HumanHomeostasisEnv(_BaseEnv):
         seed: int | None = None,
         options: dict[str, Any] | None = None,
     ):
+        # A reset is fallible and reconstructs the environment in place. Keep the
+        # lifecycle closed until every physiology and measurement initialization
+        # check has completed successfully.
+        self._needs_reset = True
         super().reset(seed=seed)
         if seed is not None and hasattr(self.action_space, "seed"):
             self.action_space.seed(seed + 1)
@@ -562,9 +566,15 @@ class HumanHomeostasisEnv(_BaseEnv):
             raise FloatingPointError("Physiology reset produced a non-finite state")
         self.elapsed_minutes = 0.0
         self._last_reward_terms = {}
-        self._needs_reset = False
+        terminal, termination_reason = self._termination_for_state(self.state)
+        if terminal:
+            raise ValueError(
+                "Physiology reset produced a terminal initial state: "
+                f"{termination_reason or 'unknown termination'}"
+            )
         if self.measurement_model is not None:
             self.measurement_model.initialize(self.state, self._measurement_rng)
+        self._needs_reset = False
 
         return self._get_obs(), self._get_info(scenario=scenario)
 

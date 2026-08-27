@@ -335,19 +335,6 @@
     .debug-zone { margin-top: 28px; border: 1px solid #594b72; border-radius: var(--radius); background: rgba(31, 25, 42, .62); }
     .debug-zone > summary { min-height: 58px; padding: 18px; color: #ddccff; font-weight: 800; letter-spacing: .055em; text-transform: uppercase; }
     .debug-content { position: relative; padding: 0 16px 16px; }
-    .watermark {
-      position: absolute;
-      z-index: 0;
-      right: 18px;
-      top: -8px;
-      color: rgba(182, 154, 248, .07);
-      font-size: clamp(30px, 6vw, 82px);
-      font-weight: 900;
-      line-height: .9;
-      letter-spacing: -.05em;
-      pointer-events: none;
-      text-align: right;
-    }
     .debug-content .panel-grid { position: relative; z-index: 1; }
     .debug-content .panel { border-color: #443b57; background: rgba(17, 23, 31, .92); }
     .residual.ok { color: var(--green); }
@@ -414,7 +401,7 @@
       </div>
       <div class="badges" aria-label="Stan połączenia i profil danych">
         <span id="connectionBadge" class="badge offline">Łączenie…</span>
-        <span id="versionBadge" class="badge plain">v0.23</span>
+        <span id="versionBadge" class="badge plain">v0.23.1</span>
         <span id="profileBadge" class="badge plain">clinical · realistic</span>
         <span class="badge plain">POMDP</span>
       </div>
@@ -587,7 +574,6 @@
         <details id="systemDebug" class="debug-zone">
           <summary>Latent model state · system balances</summary>
           <div class="debug-content">
-            <div class="watermark" aria-hidden="true">SYNTHETIC<br>LATENT MODEL STATE</div>
             <div class="section-heading">
               <div><h3 id="systemsHeading">Bilans systemowy</h3><p>Dokładny, ukryty stan mechanistyczny; nie jest częścią obserwacji agenta.</p></div>
             </div>
@@ -619,7 +605,6 @@
         <details id="ledgerDebug" class="debug-zone">
           <summary>Latent model state · debug diagnostics</summary>
           <div class="debug-content">
-            <div class="watermark" aria-hidden="true">SYNTHETIC<br>LATENT MODEL STATE</div>
             <div class="panel-grid">
               <article class="panel span-6">
                 <div class="panel-head"><div><h4>Ledgery zachowania</h4><p>Residual nie jest klinicznym wynikiem; kontroluje spójność numeryczną.</p></div><span class="panel-tag">integrity</span></div>
@@ -645,7 +630,7 @@
           <div class="section-heading"><div><h3 id="credibilityHeading">Wiarygodność i granice</h3><p>Testy integralności oprogramowania nie zastępują zewnętrznej walidacji klinicznej.</p></div></div>
           <div class="panel-grid">
             <article class="panel span-6">
-              <div class="panel-head"><div><h4>Stan wydania v0.23</h4><p>Dane odczytane z manifestu wydania i rzeczywiście wykonanej bramki.</p></div><span class="panel-tag">release evidence</span></div>
+              <div class="panel-head"><div><h4>Stan wydania v0.23.1</h4><p>Dane odczytane z manifestu wydania i rzeczywiście wykonanej bramki.</p></div><span class="panel-tag">release evidence</span></div>
               <div id="validationList" class="validation-list"></div>
             </article>
             <article class="panel span-6">
@@ -680,7 +665,7 @@
     const MAX_CHART_HISTORY = 144;
 
     const FALLBACK_META = {
-      model_version: "0.23.0",
+      model_version: "0.23.1",
       scenarios: [
         ["baseline", "Stan bazowy", "Referencja"],
         ["transient_lactic_acidosis", "Przejściowa kwasica mleczanowa", "Metabolizm"],
@@ -704,7 +689,7 @@
     };
 
     const BASELINE = {
-      schema:"openhumsim.dashboard.v2", model_version:"0.23.0", state_schema_version:"0.22",
+      schema:"openhumsim.dashboard.v2", model_version:"0.23.1", state_schema_version:"0.22",
       scenario:"baseline", seed:42, time_min:0, step_min:5, episode_minutes:720, reward:0, cumulative_reward:0,
       run_id:null, revision:0, request_id:null,
       data_profile:{observation:"offline-preview",measurement:"embedded-measurements",debug_truth_included:false,clinical_values_are_raw:true,offline_preview:true},

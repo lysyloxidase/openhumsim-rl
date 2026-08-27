@@ -1,4 +1,4 @@
-"""Focused v0.23 release-candidate integrity gate.
+"""Focused v0.23.1 release-candidate integrity gate.
 
 This script executes the solver/configuration, respiratory-mechanics,
 temporal/reward/measurement, transactional-step, policy-manifest,
@@ -29,7 +29,7 @@ if str(SRC) not in sys.path:
 
 from historical_version_guard import require_exact_version
 
-require_exact_version("0.23.0")
+require_exact_version("0.23.1")
 
 from openhumsim_rl import HumanHomeostasisEnv, __version__
 from openhumsim_rl.env import (
@@ -39,10 +39,14 @@ from openhumsim_rl.env import (
 from openhumsim_rl.physiology import STATE_SCHEMA_VERSION
 
 
-RESULTS_PATH = ROOT / "validation" / "validation_results_v0.23.json"
+RESULTS_PATH = ROOT / "validation" / "validation_results_v0.23.1.json"
 checks: list[dict[str, object]] = []
 
 PYTEST_CONTRACTS = (
+    (
+        "patch_release_regressions",
+        "tests/test_patch_regressions_v0231.py",
+    ),
     ("solver_and_config_regressions", "tests/test_solver_config_hardening.py"),
     (
         "mechanics_continuity_and_total_peep",
@@ -186,7 +190,7 @@ source_snapshot_before = _source_snapshot()
 
 add(
     "exact_release_version",
-    __version__ == "0.23.0",
+    __version__ == "0.23.1",
     {"version": __version__},
 )
 
@@ -225,10 +229,10 @@ add(
 
 payload = {
     "schema": "openhumsim.validation-results.v1",
-    "version": "0.23.0",
+    "version": "0.23.1",
     "state_schema_version": "0.22",
     "scope": (
-        "internal v0.23 solver/configuration, respiratory mechanics, temporal, "
+        "internal v0.23.1 pulmonary, solver/configuration, respiratory mechanics, temporal, "
         "reward, measurement, transactional-step, checkpoint-manifest, "
         "environment-snapshot and observation-history invariants; not external "
         "clinical validation"

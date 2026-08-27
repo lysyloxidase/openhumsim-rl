@@ -150,7 +150,7 @@ class MultiCompartmentPulmonaryExchangeModel:
 
     def _regional_distribution(self, state, pco2_mmHg: float, fio2: float, recruitment: np.ndarray, dt_min: float | None):
         c = self.cfg
-        fio2_fraction = float(np.clip(fio2, 0.15, 1.0))
+        fio2_fraction = float(np.clip(fio2, 0.0, 1.0))
         pulmonary_rer = effective_pulmonary_rer(state, c)
         sigma = max(0.0, float(state.pulmonary_vq_log_sd))
         rel_vq = np.exp(self._Z * sigma)
@@ -276,7 +276,13 @@ class MultiCompartmentPulmonaryExchangeModel:
         # Local pH follows the regional PACO2 at the current systemic bicarbonate
         # concentration. This is reduced but preserves the Bohr direction across V/Q units.
         hco3 = max(1e-6, float(state.bicarbonate_mmol_l))
-        local_ph = 6.10 + np.log10(hco3 / np.maximum(1e-6, 0.0301 * local_paco2))
+        local_ph = c.carbonic_acid_pka + np.log10(
+            hco3
+            / np.maximum(
+                1e-6,
+                c.co2_solubility_mmol_l_mmHg * local_paco2,
+            )
+        )
         endcap_content = np.asarray([
             self._o2_content(float(po2), ph=float(ph), pco2_mmHg=float(pc), hemoglobin_g_dl=hb)
             for po2, ph, pc in zip(endcap_po2, local_ph, local_paco2)
@@ -291,7 +297,7 @@ class MultiCompartmentPulmonaryExchangeModel:
             pao2, float(state.ph_arterial), float(pco2_mmHg)
         ).saturation_fraction
 
-        fio2_fraction = float(np.clip(fio2, 0.15, 1.0))
+        fio2_fraction = float(np.clip(fio2, 0.0, 1.0))
         pio2 = fio2_fraction * (
             c.atmospheric_pressure_mmHg - c.water_vapor_pressure_mmHg
         )

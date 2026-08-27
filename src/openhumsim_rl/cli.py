@@ -167,7 +167,7 @@ def main(argv: list[str] | None = None) -> int:
     p_demo.add_argument("--seed", type=int, default=42)
     p_demo.add_argument("--full-state", action="store_true", help="Print all mechanistic state variables")
 
-    p_val = sub.add_parser("validate", help="Run repository tests and v0.23 integrity checks")
+    p_val = sub.add_parser("validate", help="Run repository tests and v0.23.1 integrity checks")
     p_val.add_argument("--scientific-only", action="store_true")
 
     p_data = sub.add_parser("data", help="External-data utilities")

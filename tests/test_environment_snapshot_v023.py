@@ -200,6 +200,17 @@ def test_snapshot_rejects_corrupt_measurement_runtime_atomically():
     pending[0]["available_time_min"] -= 0.5
     corruptions.append(bad)
     bad = deepcopy(payload)
+    pending = bad["runtime"]["measurement"]["channels"]["paco2_mmHg"][
+        "pending_results"
+    ]
+    assert pending
+    # This remains locally chronological and preserves the configured result
+    # delay, but it is impossible because the other ABG panel members retain the
+    # shared collection/result times.
+    pending[0]["sample_time_min"] -= 0.5
+    pending[0]["available_time_min"] -= 0.5
+    corruptions.append(bad)
+    bad = deepcopy(payload)
     bad["runtime"]["measurement"]["channels"]["spo2_pct"]["value"] = 101.0
     corruptions.append(bad)
     bad = deepcopy(payload)
@@ -238,6 +249,14 @@ def test_snapshot_rejects_corrupt_measurement_runtime_atomically():
     bad["runtime"]["measurement"]["channels"]["heart_rate_bpm"][
         "delivered_count"
     ] = 0
+    corruptions.append(bad)
+    bad = deepcopy(payload)
+    bad["runtime"]["measurement"]["channels"]["heart_rate_bpm"][
+        "delivered_count"
+    ] += 1
+    corruptions.append(bad)
+    bad = deepcopy(payload)
+    bad["runtime"]["measurement"]["cgm_delivered_count"] += 1
     corruptions.append(bad)
     bad = deepcopy(payload)
     bad["runtime"]["measurement"]["cgm_next_sample_time_min"] = 10_000.0

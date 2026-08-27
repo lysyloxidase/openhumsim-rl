@@ -114,9 +114,9 @@ def test_v023_manifest_is_deterministic_exact_and_sb3_independent(
 
     assert first.read_bytes() == second.read_bytes()
     manifest = json.loads(first.read_text(encoding="utf-8"))
-    assert manifest["checkpoint_basename"] == "openhumsim_ppo_v023_smoke"
-    assert manifest["checkpoint_filename"] == "openhumsim_ppo_v023_smoke.zip"
-    assert manifest["openhumsim_version"] == __version__ == "0.23.0"
+    assert manifest["checkpoint_basename"] == "openhumsim_ppo_v0231_smoke"
+    assert manifest["checkpoint_filename"] == "openhumsim_ppo_v0231_smoke.zip"
+    assert manifest["openhumsim_version"] == __version__ == "0.23.1"
     assert manifest["state_schema_version"] == "0.22"
     assert manifest["reward_profile"] == "observable_benchmark_v0.23"
     assert manifest["scenario"] == "oral_glucose_75g"

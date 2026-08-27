@@ -25,7 +25,7 @@ from openhumsim_rl.units import OBSERVATION_UNITS
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RELEASE = ROOT / "RELEASE_v0.23.json"
+RELEASE = ROOT / "RELEASE_v0.23.1.json"
 
 
 @pytest.fixture
@@ -86,7 +86,7 @@ def test_manifest_is_deterministic_resolved_and_json_finite() -> None:
 
     assert first == second
     assert first["schema"] == EXPERIMENT_MANIFEST_SCHEMA
-    assert __version__ == "0.23.0"
+    assert __version__ == "0.23.1"
     assert first["model"] == {
         "package": "openhumsim_rl",
         "environment": "HumanHomeostasisEnv",
@@ -125,8 +125,8 @@ def test_manifest_locks_exact_release_interfaces_and_54_item_catalog() -> None:
     observation = manifest["interfaces"]["observation"]
     action = manifest["interfaces"]["action"]
 
-    assert release["status"] == "released"
-    assert release["version"] == __version__ == "0.23.0"
+    assert release["status"] == "candidate"
+    assert release["version"] == __version__ == "0.23.1"
     assert release["state_schema_version"] == "0.22"
     assert release["reward_profile"] == "latent_research_v0.23"
     assert release["benchmark_reward_profile"] == (
@@ -134,9 +134,9 @@ def test_manifest_locks_exact_release_interfaces_and_54_item_catalog() -> None:
     )
     assert release["focused_integrity_gate"]["status"] == "passed"
     assert release["full_test_suite"]["status"] == "passed"
-    assert release["full_test_suite"]["passed"] == 309
-    assert release["full_test_suite"]["total"] == 309
-    assert release["supported_interpreter_ci"]["status"] == "passed"
+    assert release["full_test_suite"]["passed"] == 315
+    assert release["full_test_suite"]["total"] == 315
+    assert release["supported_interpreter_ci"]["status"] == "pending"
     assert observation["ordered_names"] == list(CLINICAL_OBSERVATION_NAMES)
     assert observation["count"] == release["clinical_observation_count"] == 54
     assert observation["sha256"] == release["clinical_observation_sha256"]
@@ -213,7 +213,7 @@ def test_source_fingerprint_is_recomputable_and_contains_no_host_paths_or_secret
         ).hexdigest()
 
     release_lock = source["release_manifest"]
-    assert release_lock["source_id"] == "RELEASE_v0.23.json"
+    assert release_lock["source_id"] == "RELEASE_v0.23.1.json"
     assert release_lock["available"] is True
     assert release_lock["content_sha256"] == sha256(RELEASE.read_bytes()).hexdigest()
 

@@ -60,7 +60,8 @@ def test_dashboard_is_self_contained_and_has_research_boundary() -> None:
     assert '<html lang="pl">' in html
     assert 'name="viewport"' in html
     assert "RESEARCH SOFTWARE ONLY" in html
-    assert "LATENT MODEL STATE" in html
+    assert "Latent model state · system balances" in html
+    assert "SYNTHETIC<br>LATENT MODEL STATE" not in html
     assert "/api/step" in html
     assert "/api/history" in html
     assert "X-OpenHumSim-Session" in html
@@ -95,7 +96,7 @@ def test_dashboard_meta_locks_action_and_observation_contracts() -> None:
     meta = dashboard_meta()
 
     assert meta["schema"] == "openhumsim.dashboard.meta.v2"
-    assert meta["model_version"] == "0.23.0"
+    assert meta["model_version"] == "0.23.1"
     assert meta["action_names"] == (
         "insulin",
         "oral_carbs",
@@ -112,23 +113,17 @@ def test_dashboard_meta_locks_action_and_observation_contracts() -> None:
     assert meta["availability"] == {
         "release_manifest": True,
         "validation_results": True,
-        "ci_evidence": True,
+        "ci_evidence": False,
     }
     assert meta["validation"] == {
-        "passed": 10,
-        "total": 10,
-        "executed_regression_cases": 97,
+        "passed": 11,
+        "total": 11,
+        "executed_regression_cases": 103,
     }
     assert meta["full_test_suite"]["status"] == "passed"
-    assert meta["full_test_suite"]["passed"] == 309
-    assert meta["full_test_suite"]["total"] == 309
-    assert meta["supported_python_ci"]["status"] == "passed"
-    assert meta["supported_python_ci"]["conclusion"] == "success"
-    assert meta["supported_python_ci"]["python_versions"] == [
-        "3.10",
-        "3.12",
-        "3.14",
-    ]
+    assert meta["full_test_suite"]["passed"] == 315
+    assert meta["full_test_suite"]["total"] == 315
+    assert meta["supported_python_ci"] is None
     assert meta["observation_contract"]["reward_profile"] == (
         "latent_research_v0.23"
     )

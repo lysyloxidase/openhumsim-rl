@@ -49,7 +49,7 @@ from openhumsim_rl.policy_manifest import (
 from openhumsim_rl.units import ACTION_SEMANTICS
 
 
-CHECKPOINT_BASENAME = "openhumsim_ppo_v023_smoke"
+CHECKPOINT_BASENAME = "openhumsim_ppo_v0231_smoke"
 MANIFEST_FILENAME = f"{CHECKPOINT_BASENAME}.manifest.json"
 CHECKPOINT_FILENAME = f"{CHECKPOINT_BASENAME}.zip"
 STATE_SCHEMA_VERSION = "0.22"

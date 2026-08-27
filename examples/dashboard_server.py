@@ -39,8 +39,8 @@ from openhumsim_rl.units import OBSERVATION_UNITS
 
 ROOT = Path(__file__).resolve().parents[1]
 DASHBOARD_HTML = ROOT / "dashboard" / "index.html"
-RELEASE_MANIFEST = ROOT / "RELEASE_v0.23.json"
-VALIDATION_RESULTS = ROOT / "validation" / "validation_results_v0.23.json"
+RELEASE_MANIFEST = ROOT / "RELEASE_v0.23.1.json"
+VALIDATION_RESULTS = ROOT / "validation" / "validation_results_v0.23.1.json"
 CI_EVIDENCE = ROOT / "CI_EVIDENCE.json"
 MAX_REQUEST_BYTES = 64 * 1024
 SESSION_HEADER = "X-OpenHumSim-Session"
@@ -377,7 +377,7 @@ def _source_fingerprint() -> dict[str, Any]:
         "sha256": _canonical_sha256(files),
         "hash_format": SOURCE_FINGERPRINT_HASH_FORMAT,
         "release_manifest": {
-            "source_id": "RELEASE_v0.23.json",
+            "source_id": "RELEASE_v0.23.1.json",
             "available": release_available,
             "content_sha256": release_sha256,
         },

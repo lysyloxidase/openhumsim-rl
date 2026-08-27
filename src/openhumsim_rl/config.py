@@ -795,6 +795,11 @@ class HumanConfig:
             raise ValueError(
                 "pulmonary_unit_closing_pressures_cmH2O must be strictly increasing"
             )
+        if len(closing_pressures) != 6:
+            raise ValueError(
+                "pulmonary_unit_closing_pressures_cmH2O must contain exactly "
+                "6 values for the six-compartment pulmonary model"
+            )
         if self.pulmonary_hpv_max_local_resistance_multiplier < 1.0:
             raise ValueError(
                 "pulmonary_hpv_max_local_resistance_multiplier must be at least 1"

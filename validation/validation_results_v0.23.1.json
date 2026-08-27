@@ -1,0 +1,317 @@
+{
+  "schema": "openhumsim.validation-results.v1",
+  "version": "0.23.1",
+  "state_schema_version": "0.22",
+  "scope": "internal v0.23.1 pulmonary, solver/configuration, respiratory mechanics, temporal, reward, measurement, transactional-step, checkpoint-manifest, environment-snapshot and observation-history invariants; not external clinical validation",
+  "executed_at_utc": "2026-08-27T13:13:18.842325+00:00",
+  "runtime": {
+    "python": "3.12.13",
+    "implementation": "CPython",
+    "platform": "macOS-26.4.1-arm64-arm-64bit",
+    "packages": {
+      "numpy": "2.5.2",
+      "pytest": "9.1.1",
+      "gymnasium": "1.3.0"
+    }
+  },
+  "source_provenance": {
+    "fingerprint_schema": "openhumsim.source-fingerprint.v1",
+    "sha256": "404431b2658ab79fb6c7a414ce5842fb96cdc86937175ac725891b4ffd425806",
+    "file_count": 43,
+    "files": [
+      {
+        "path": "examples/train_ppo.py",
+        "sha256": "17cfc68a593381cae54d72a7335a4d706005f1288216e9afcd4910041ebd49b3"
+      },
+      {
+        "path": "pyproject.toml",
+        "sha256": "b54eb2b50ff0ada9e202a9240afdebabee5fa547b214826659190b3458bdd699"
+      },
+      {
+        "path": "src/openhumsim_rl/__init__.py",
+        "sha256": "62f4f1788570b6b4d4b804c3a44a9ab4d40579f1b05c72dfb8c8341661a7d8b9"
+      },
+      {
+        "path": "src/openhumsim_rl/__main__.py",
+        "sha256": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d"
+      },
+      {
+        "path": "src/openhumsim_rl/acid_base.py",
+        "sha256": "a03b0da58c16aaceb85f6edaa0bf71d438c1a57b4858cc039babf50c2b315100"
+      },
+      {
+        "path": "src/openhumsim_rl/blood_gas.py",
+        "sha256": "1099457d439c514d2d7c721065f09b75ac8ab1ae9e7851cff8bf805372e12968"
+      },
+      {
+        "path": "src/openhumsim_rl/calibration.py",
+        "sha256": "fffe590cf06581d9a7a0ab9d7b8e8ef979f6a63cf207716ecf4c6cbc5573e725"
+      },
+      {
+        "path": "src/openhumsim_rl/cardiovascular.py",
+        "sha256": "68328639896fce18d592b422a54cfc4c477ca9b323f1a222022109c6048abb5c"
+      },
+      {
+        "path": "src/openhumsim_rl/cgm.py",
+        "sha256": "87743a15023e219295469df7a6f62b93f8a35a8db9e6b93b26da12a3f086c9a3"
+      },
+      {
+        "path": "src/openhumsim_rl/cgm_reference.py",
+        "sha256": "505929dc7e6d98f641df8f0d4abcf9d1bb9b17301a636044e6c216ced4282abb"
+      },
+      {
+        "path": "src/openhumsim_rl/cli.py",
+        "sha256": "240e3d7046e3bee27eba189c038b90059851b2f44d47c1e0acab151ab62eab54"
+      },
+      {
+        "path": "src/openhumsim_rl/compat.py",
+        "sha256": "128eeda0be400350ee03db99400e3e86533dce8b7b8cb9fde532a1e5810518cd"
+      },
+      {
+        "path": "src/openhumsim_rl/config.py",
+        "sha256": "76138fd108307eb4c9796000fbba9329366f47200dfc71e208fdf8c281c1e7fe"
+      },
+      {
+        "path": "src/openhumsim_rl/energy_metabolism.py",
+        "sha256": "56736a07e340a30b0d107e7645dd5d4df0fd6d67af28775af8349e7032f1245a"
+      },
+      {
+        "path": "src/openhumsim_rl/env.py",
+        "sha256": "7eaf40219449114b6d96decbb880f9d81df786698cbad9c8c9cd89fa34920264"
+      },
+      {
+        "path": "src/openhumsim_rl/event_replay.py",
+        "sha256": "ed0694835cca131c445324bceb830f686c35123eac77a26fa2b3822789586b53"
+      },
+      {
+        "path": "src/openhumsim_rl/external_data.py",
+        "sha256": "35f97b0f96362b5428967aa342198c248273c22f3aa4150d72a7bbfdc93de096"
+      },
+      {
+        "path": "src/openhumsim_rl/measurement.py",
+        "sha256": "daa7329f8542923f453111b0cf5f173051851bd5838fb43a89646688b726ca94"
+      },
+      {
+        "path": "src/openhumsim_rl/metabolism_dallaman.py",
+        "sha256": "3b5aa677e9d2536fb24fae2cb5675a3dc920b9cb486299a59ddfc2982418de75"
+      },
+      {
+        "path": "src/openhumsim_rl/oxygen_binding.py",
+        "sha256": "27af0b3ada3a04006529921cf854a6b7b6182aafc2d7833922dc0a20be700226"
+      },
+      {
+        "path": "src/openhumsim_rl/pbpk.py",
+        "sha256": "c0a678e70a55b19bb668f9ca653a842be31ceb5d71cdc9f127131f57110717ce"
+      },
+      {
+        "path": "src/openhumsim_rl/physiology.py",
+        "sha256": "bcb83576578c70e23cd1047d348d9665390b1378d7ad923f38667b9181d10d34"
+      },
+      {
+        "path": "src/openhumsim_rl/policy_manifest.py",
+        "sha256": "3d4e7d870ab3a068a4d583541add9752572528be1100efaa5abcaec6ef9362a0"
+      },
+      {
+        "path": "src/openhumsim_rl/population.py",
+        "sha256": "14fa5a80fded5bbb6dc8bbb17b72f2074c0700fd248755f39cd5ff17df9e94cf"
+      },
+      {
+        "path": "src/openhumsim_rl/posterior.py",
+        "sha256": "9c6d7995d7c29ce97cf9d653eaee1504e23b7fdbc97ae408f3f41927de11a46c"
+      },
+      {
+        "path": "src/openhumsim_rl/pulmonary_exchange.py",
+        "sha256": "36adbdbca7dd51669cdef8dbc0835cf82f8fe96ad3273540647b72ffdd296bfb"
+      },
+      {
+        "path": "src/openhumsim_rl/renal.py",
+        "sha256": "28cf395d5cf8727d31c6c79aaf74959b027deb4d451378189e5d2e1f43549936"
+      },
+      {
+        "path": "src/openhumsim_rl/respiratory.py",
+        "sha256": "33585b5c2d8fa95f24c08e21f5c2e4af7586a6f0bffdbce37fba02d958435c6b"
+      },
+      {
+        "path": "src/openhumsim_rl/respiratory_cycle.py",
+        "sha256": "ea2cff2cfe27e9d08b9f7b2cc37685fba5d15efa1af3c900e4cf228c4436c388"
+      },
+      {
+        "path": "src/openhumsim_rl/respiratory_mechanics.py",
+        "sha256": "28f9e34212fdc75be1cc741783289cda2ea7783a8d19d7e326d698c13819d40e"
+      },
+      {
+        "path": "src/openhumsim_rl/snapshot.py",
+        "sha256": "2f8a5b0a4a45eed86edcc264b7c4d0a115725d4a50d2f98fd06bf401d430cdfa"
+      },
+      {
+        "path": "src/openhumsim_rl/units.py",
+        "sha256": "68cedc0a6a26f57e4c653e0801b20cacfa94b3b80cce144e29217454bf38bae1"
+      },
+      {
+        "path": "src/openhumsim_rl/wrappers.py",
+        "sha256": "1a1a16b3e444b03941a89ed61656242d41e27e4e62db139a053cb9aa32ce485e"
+      },
+      {
+        "path": "tests/test_environment_snapshot_v023.py",
+        "sha256": "734aecea1396a380df512f8710220681d2046ef906d8437bd8892f1d46057445"
+      },
+      {
+        "path": "tests/test_history_wrapper_v023.py",
+        "sha256": "c6f5ac22106fa3ce17be223580a15379ed1eb722ab34f45b702b22c92fa773d9"
+      },
+      {
+        "path": "tests/test_mechanics_continuity_v023.py",
+        "sha256": "49b7680a070ef386fc51a647578e7dbc632c746dbe275214c31e728a7beae540"
+      },
+      {
+        "path": "tests/test_patch_regressions_v0231.py",
+        "sha256": "d346f3434830c645ce9d58723c4ee6373639ea41b55c63624a1696be9653c214"
+      },
+      {
+        "path": "tests/test_policy_manifest_v023.py",
+        "sha256": "8ad118e8a409a0a59153cfbcd85cb379555fe76aeb71962351cd030829045098"
+      },
+      {
+        "path": "tests/test_solver_config_hardening.py",
+        "sha256": "a9834482dc9dd327d5082e14497bc6953f80f6d35d125ba0f4f8c77be64822f9"
+      },
+      {
+        "path": "tests/test_step_transaction_v023.py",
+        "sha256": "efd6781ae78e21da586d9d94ee5c1a763acce0782fc5e1503a00eb7d8e74e37e"
+      },
+      {
+        "path": "tests/test_temporal_contract_v023.py",
+        "sha256": "ab0f049e36d9bfe67dd9956392165097287f6fd2d4c0d21f6083c114009b253e"
+      },
+      {
+        "path": "validation/rl_benchmark_v0.23.py",
+        "sha256": "901861f79e252ad9abc39d6805f3cfd2b9c25047ad83ac20fb8921527e863705"
+      },
+      {
+        "path": "validation/run_validation_v23.py",
+        "sha256": "9f4862311e105543790fbb4a7e01bd6821d1b819226cf65e6f6c725305795d5b"
+      }
+    ],
+    "git_commit": "8a3602b2922687cb079739e1cb701a0e5af506ea",
+    "git_worktree_dirty": true
+  },
+  "summary": {
+    "passed": 11,
+    "total": 11,
+    "executed_regression_cases": 103
+  },
+  "checks": [
+    {
+      "name": "exact_release_version",
+      "passed": true,
+      "values": {
+        "version": "0.23.1"
+      }
+    },
+    {
+      "name": "state_schema_and_reward_profiles",
+      "passed": true,
+      "values": {
+        "state_schema_version": "0.22",
+        "debug_reward_profile": "latent_research_v0.23",
+        "benchmark_reward_profile": "observable_benchmark_v0.23"
+      }
+    },
+    {
+      "name": "patch_release_regressions",
+      "passed": true,
+      "values": {
+        "test_path": "tests/test_patch_regressions_v0231.py",
+        "returncode": 0,
+        "executed_cases": 6,
+        "stdout": "......                                                                   [100%]\n6 passed in 0.24s",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "solver_and_config_regressions",
+      "passed": true,
+      "values": {
+        "test_path": "tests/test_solver_config_hardening.py",
+        "returncode": 0,
+        "executed_cases": 26,
+        "stdout": "..........................                                               [100%]\n26 passed in 0.25s",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "mechanics_continuity_and_total_peep",
+      "passed": true,
+      "values": {
+        "test_path": "tests/test_mechanics_continuity_v023.py",
+        "returncode": 0,
+        "executed_cases": 2,
+        "stdout": "..                                                                       [100%]\n2 passed in 0.91s",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "temporal_reward_and_measurement_contracts",
+      "passed": true,
+      "values": {
+        "test_path": "tests/test_temporal_contract_v023.py",
+        "returncode": 0,
+        "executed_cases": 9,
+        "stdout": ".........                                                                [100%]\n9 passed in 7.74s",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "transactional_step_contracts",
+      "passed": true,
+      "values": {
+        "test_path": "tests/test_step_transaction_v023.py",
+        "returncode": 0,
+        "executed_cases": 4,
+        "stdout": "....                                                                     [100%]\n4 passed in 0.75s",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "policy_manifest_and_checkpoint_contracts",
+      "passed": true,
+      "values": {
+        "test_path": "tests/test_policy_manifest_v023.py",
+        "returncode": 0,
+        "executed_cases": 8,
+        "stdout": "........                                                                 [100%]\n8 passed in 0.65s",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "environment_snapshot_contracts",
+      "passed": true,
+      "values": {
+        "test_path": "tests/test_environment_snapshot_v023.py",
+        "returncode": 0,
+        "executed_cases": 34,
+        "stdout": "..................................                                       [100%]\n34 passed in 44.71s",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "observation_history_and_baseline_harness_contracts",
+      "passed": true,
+      "values": {
+        "test_path": "tests/test_history_wrapper_v023.py",
+        "returncode": 0,
+        "executed_cases": 14,
+        "stdout": "..............                                                           [100%]\n14 passed in 5.47s",
+        "stderr": ""
+      }
+    },
+    {
+      "name": "source_snapshot_stable_during_gate",
+      "passed": true,
+      "values": {
+        "before_sha256": "404431b2658ab79fb6c7a414ce5842fb96cdc86937175ac725891b4ffd425806",
+        "after_sha256": "404431b2658ab79fb6c7a414ce5842fb96cdc86937175ac725891b4ffd425806"
+      }
+    }
+  ]
+}

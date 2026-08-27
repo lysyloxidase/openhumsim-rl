@@ -206,7 +206,7 @@ class WholeBloodGasChemistryModel:
             # V/Q solver inside every PCO2 root-finding iteration.
             return float(state.pao2_mmHg), float(np.clip(state.spo2_pct / 100.0, 0.0, 1.0))
         c = self.cfg
-        fio2_fraction = float(np.clip(fio2, 0.15, 1.0))
+        fio2_fraction = float(np.clip(fio2, 0.0, 1.0))
         inspired_o2 = fio2_fraction * (
             c.atmospheric_pressure_mmHg - c.water_vapor_pressure_mmHg
         )
