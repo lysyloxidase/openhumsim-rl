@@ -381,12 +381,10 @@ def _source_fingerprint() -> dict[str, Any]:
     """Fingerprint executable model sources without exposing host paths."""
 
     package_sources = sorted(PACKAGE_ROOT.glob("*.py"))
-    checkout_package = (ROOT / "src" / "openhumsim_rl").resolve()
-    source_prefix = (
-        "src/openhumsim_rl"
-        if PACKAGE_ROOT.resolve() == checkout_package
-        else "openhumsim_rl"
-    )
+    # Public source identifiers describe repository provenance, not an
+    # installation-specific site-packages path. Keeping them canonical also
+    # makes wheel and source-checkout experiment manifests comparable.
+    source_prefix = "src/openhumsim_rl"
     files = [
         {
             "source_id": f"{source_prefix}/{source.name}",

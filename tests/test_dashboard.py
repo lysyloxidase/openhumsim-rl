@@ -113,13 +113,34 @@ def test_dashboard_is_self_contained_and_has_research_boundary() -> None:
 def test_packaged_dashboard_is_canonical_and_legacy_import_is_compatible() -> None:
     root = Path(__file__).resolve().parents[1]
     redirect = (root / "dashboard" / "index.html").read_text(encoding="utf-8")
+    canonical = root / "src" / "openhumsim_rl" / "dashboard" / "index.html"
 
     assert dashboard_server is packaged_dashboard_server
-    assert DASHBOARD_HTML == (
-        root / "src" / "openhumsim_rl" / "dashboard" / "index.html"
-    )
     assert DASHBOARD_HTML.is_file()
+    assert DASHBOARD_HTML.read_bytes() == canonical.read_bytes()
     assert "../src/openhumsim_rl/dashboard/index.html" in redirect
+
+
+def test_dashboard_source_fingerprint_uses_repository_ids_when_installed(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        dashboard_server,
+        "ROOT",
+        dashboard_server.PACKAGE_ROOT,
+    )
+
+    source = dashboard_server._source_fingerprint()
+
+    assert source["source_files"]
+    assert all(
+        item["source_id"].startswith("src/openhumsim_rl/")
+        for item in source["source_files"]
+    )
+    assert any(
+        item["source_id"] == "src/openhumsim_rl/env.py"
+        for item in source["source_files"]
+    )
 
 
 def test_dashboard_meta_locks_action_and_observation_contracts() -> None:
