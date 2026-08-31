@@ -5,6 +5,7 @@ type: software
 authors:
   - family-names: "lysyloxidase"
 version: 0.23.2
+date-released: 2026-08-31
 license: Apache-2.0
 repository-code: "https://github.com/lysyloxidase/openhumsim-rl"
 url: "https://github.com/lysyloxidase/openhumsim-rl"

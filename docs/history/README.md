@@ -4,8 +4,14 @@ This directory preserves release manifests and validation records for versions
 0.9 through 0.21. They describe the exact behavior, evidence and limitations of
 their respective versions and are retained for scientific reproducibility.
 
-The active package version is 0.23.2. Its release evidence has not been created.
-For the latest completed v0.23.1 release evidence, use:
+The active package version is 0.23.2. Its release evidence is published at:
+
+- [`RELEASE_v0.23.2.json`](../../RELEASE_v0.23.2.json)
+- [`VALIDATION_AUDIT_v0.23.2.md`](../../VALIDATION_AUDIT_v0.23.2.md)
+- [`RELEASE_NOTES_v0.23.2.md`](../../RELEASE_NOTES_v0.23.2.md)
+- [`validation/validation_results_v0.23.2.json`](../../validation/validation_results_v0.23.2.json)
+
+The preceding v0.23.1 release evidence remains available at:
 
 - [`RELEASE_v0.23.1.json`](../../RELEASE_v0.23.1.json)
 - [`VALIDATION_AUDIT_v0.23.1.md`](../../VALIDATION_AUDIT_v0.23.1.md)
@@ -13,8 +19,7 @@ For the latest completed v0.23.1 release evidence, use:
 
 The frozen v0.22 and v0.23.1 files are not rewritten as v0.23.2 evidence.
 Records for any other version must not be interpreted as evidence for the
-active candidate; their interfaces, behavior and test counts may no longer
-apply.
+active release; their interfaces, behavior and test counts may no longer apply.
 
 | Version | Release manifest | Validation record |
 | --- | --- | --- |
