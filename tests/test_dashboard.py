@@ -7,12 +7,34 @@ from pathlib import Path
 import pytest
 
 import examples.dashboard_server as dashboard_server
+import openhumsim_rl.dashboard_server as packaged_dashboard_server
+from openhumsim_rl import __version__
 from examples.dashboard_server import (
     DASHBOARD_HTML,
     DashboardSession,
     RevisionConflictError,
     dashboard_meta,
 )
+
+
+ROOT = Path(__file__).resolve().parents[1]
+CURRENT_RELEASE = ROOT / f"RELEASE_v{__version__}.json"
+HISTORICAL_RELEASE = ROOT / "RELEASE_v0.23.1.json"
+HISTORICAL_VALIDATION = (
+    ROOT / "validation" / "validation_results_v0.23.1.json"
+)
+
+
+def _candidate_release_fixture() -> dict[str, object]:
+    payload = json.loads(HISTORICAL_RELEASE.read_text(encoding="utf-8"))
+    payload["version"] = __version__
+    return payload
+
+
+def _candidate_validation_fixture() -> dict[str, object]:
+    payload = json.loads(HISTORICAL_VALIDATION.read_text(encoding="utf-8"))
+    payload["version"] = __version__
+    return payload
 
 
 def _stage_dashboard_evidence(
@@ -22,12 +44,8 @@ def _stage_dashboard_evidence(
     release: dict[str, object] | None = None,
     validation: dict[str, object] | None = None,
 ) -> tuple[Path, Path]:
-    source_release = json.loads(
-        dashboard_server.RELEASE_MANIFEST.read_text(encoding="utf-8")
-    )
-    source_validation = json.loads(
-        dashboard_server.VALIDATION_RESULTS.read_text(encoding="utf-8")
-    )
+    source_release = _candidate_release_fixture()
+    source_validation = _candidate_validation_fixture()
     release = source_release if release is None else release
     validation = source_validation if validation is None else validation
 
@@ -92,11 +110,23 @@ def test_dashboard_is_self_contained_and_has_research_boundary() -> None:
     assert '<link rel="stylesheet"' not in html
 
 
+def test_packaged_dashboard_is_canonical_and_legacy_import_is_compatible() -> None:
+    root = Path(__file__).resolve().parents[1]
+    redirect = (root / "dashboard" / "index.html").read_text(encoding="utf-8")
+
+    assert dashboard_server is packaged_dashboard_server
+    assert DASHBOARD_HTML == (
+        root / "src" / "openhumsim_rl" / "dashboard" / "index.html"
+    )
+    assert DASHBOARD_HTML.is_file()
+    assert "../src/openhumsim_rl/dashboard/index.html" in redirect
+
+
 def test_dashboard_meta_locks_action_and_observation_contracts() -> None:
     meta = dashboard_meta()
 
     assert meta["schema"] == "openhumsim.dashboard.meta.v2"
-    assert meta["model_version"] == "0.23.1"
+    assert meta["model_version"] == "0.23.2"
     assert meta["action_names"] == (
         "insulin",
         "oral_carbs",
@@ -108,34 +138,46 @@ def test_dashboard_meta_locks_action_and_observation_contracts() -> None:
         "oral_probe_compound",
     )
     assert [item["name"] for item in meta["actions"]] == list(meta["action_names"])
-    assert meta["observation_contract"]["clinical_count"] == 54
-    assert meta["observation_contract"]["full_count"] == 138
+    if not CURRENT_RELEASE.is_file():
+        assert meta["availability"] == {
+            "release_manifest": False,
+            "validation_results": False,
+            "ci_evidence": False,
+        }
+        assert meta["validation"] is None
+        assert meta["full_test_suite"] is None
+        assert meta["supported_python_ci"] is None
+        assert meta["observation_contract"] == {
+            "clinical_count": None,
+            "full_count": None,
+            "state_schema_version": None,
+            "reward_profile": None,
+            "benchmark_reward_profile": None,
+        }
+        return
+
+    release = json.loads(CURRENT_RELEASE.read_text(encoding="utf-8"))
     assert meta["availability"] == {
         "release_manifest": True,
         "validation_results": True,
         "ci_evidence": True,
     }
     assert meta["validation"] == {
-        "passed": 11,
-        "total": 11,
-        "executed_regression_cases": 103,
+        "passed": release["focused_integrity_gate"]["passed"],
+        "total": release["focused_integrity_gate"]["total"],
+        "executed_regression_cases": release["focused_integrity_gate"][
+            "executed_regression_cases"
+        ],
     }
-    assert meta["full_test_suite"]["status"] == "passed"
-    assert meta["full_test_suite"]["passed"] == 315
-    assert meta["full_test_suite"]["total"] == 315
-    assert meta["supported_python_ci"]["status"] == "passed"
-    assert meta["supported_python_ci"]["conclusion"] == "success"
-    assert meta["supported_python_ci"]["python_versions"] == [
-        "3.10",
-        "3.12",
-        "3.14",
-    ]
-    assert meta["observation_contract"]["reward_profile"] == (
-        "latent_research_v0.23"
-    )
-    assert meta["observation_contract"]["benchmark_reward_profile"] == (
-        "observable_benchmark_v0.23"
-    )
+    assert meta["full_test_suite"] == release["full_test_suite"]
+    assert meta["supported_python_ci"] == release["supported_interpreter_ci"]
+    assert meta["observation_contract"] == {
+        "clinical_count": release["clinical_observation_count"],
+        "full_count": release["full_observation_count"],
+        "state_schema_version": release["state_schema_version"],
+        "reward_profile": release["reward_profile"],
+        "benchmark_reward_profile": release["benchmark_reward_profile"],
+    }
 
 
 def test_dashboard_meta_rejects_validation_with_wrong_sha256(
@@ -165,9 +207,7 @@ def test_dashboard_meta_rejects_digest_locked_but_incompatible_validation(
     field: str,
     invalid_value: str,
 ) -> None:
-    validation = json.loads(
-        dashboard_server.VALIDATION_RESULTS.read_text(encoding="utf-8")
-    )
+    validation = _candidate_validation_fixture()
     validation[field] = invalid_value
     _stage_dashboard_evidence(
         monkeypatch,
@@ -194,9 +234,7 @@ def test_dashboard_meta_rejects_incompatible_release_manifest(
     field: str,
     invalid_value: str,
 ) -> None:
-    release = json.loads(
-        dashboard_server.RELEASE_MANIFEST.read_text(encoding="utf-8")
-    )
+    release = _candidate_release_fixture()
     release[field] = invalid_value
     _stage_dashboard_evidence(
         monkeypatch,
@@ -215,9 +253,7 @@ def test_dashboard_meta_rejects_internally_inconsistent_pass_summary(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    validation = json.loads(
-        dashboard_server.VALIDATION_RESULTS.read_text(encoding="utf-8")
-    )
+    validation = _candidate_validation_fixture()
     validation["checks"][0]["passed"] = False
     _stage_dashboard_evidence(
         monkeypatch,
@@ -234,9 +270,7 @@ def test_dashboard_meta_rejects_internally_inconsistent_pass_summary(
 def test_dashboard_ci_evidence_requires_the_exact_clean_candidate(
     tmp_path: Path,
 ) -> None:
-    release = json.loads(
-        dashboard_server.RELEASE_MANIFEST.read_text(encoding="utf-8")
-    )
+    release = _candidate_release_fixture()
     release["focused_integrity_gate"]["git_commit"] = "a" * 40
     release["focused_integrity_gate"]["git_worktree_dirty"] = False
     evidence = {
@@ -268,9 +302,7 @@ def test_dashboard_ci_evidence_requires_the_exact_clean_candidate(
 
 
 def test_dashboard_ci_evidence_rejects_partial_python_matrix(tmp_path: Path) -> None:
-    release = json.loads(
-        dashboard_server.RELEASE_MANIFEST.read_text(encoding="utf-8")
-    )
+    release = _candidate_release_fixture()
     release["focused_integrity_gate"]["git_commit"] = "a" * 40
     release["focused_integrity_gate"]["git_worktree_dirty"] = False
     evidence = {
@@ -297,9 +329,7 @@ def test_dashboard_ci_evidence_rejects_failed_required_job(
     tmp_path: Path,
     failed_job: str,
 ) -> None:
-    release = json.loads(
-        dashboard_server.RELEASE_MANIFEST.read_text(encoding="utf-8")
-    )
+    release = _candidate_release_fixture()
     release["focused_integrity_gate"]["git_commit"] = "a" * 40
     release["focused_integrity_gate"]["git_worktree_dirty"] = False
     evidence = {
@@ -409,15 +439,100 @@ def test_dashboard_step_uses_real_environment_and_validates_actions() -> None:
     assert len(manifest["observation_catalog"]) == 54
 
 
+def test_dashboard_step_rolls_back_after_post_transition_frame_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    session = DashboardSession()
+    assert session.env is not None
+    before_frame = session.snapshot()
+    before_history = session.history_envelope()
+    before_environment = session.env.to_versioned_snapshot()
+    request_id = "b3e0fd12-7d27-4ba0-afb2-353eabfe3af0"
+    original_frame = session._frame
+
+    def fail_frame() -> dict[str, object]:
+        raise RuntimeError("injected dashboard frame failure")
+
+    monkeypatch.setattr(session, "_frame", fail_frame)
+    with pytest.raises(RuntimeError, match="injected dashboard frame failure"):
+        session.step(
+            {"saline": 0.5},
+            expected_run_id=before_frame["run_id"],
+            expected_revision=before_frame["revision"],
+            request_id=request_id,
+        )
+
+    assert session.env.to_versioned_snapshot() == before_environment
+    assert session.snapshot() == before_frame
+    assert session.history_envelope() == before_history
+    assert session.revision == before_frame["revision"]
+
+    monkeypatch.setattr(session, "_frame", original_frame)
+    retried = session.step(
+        {"saline": 0.5},
+        expected_run_id=before_frame["run_id"],
+        expected_revision=before_frame["revision"],
+        request_id=request_id,
+    )
+    assert retried["revision"] == before_frame["revision"] + 1
+    assert retried["time_min"] > before_frame["time_min"]
+
+
+def test_dashboard_reset_rolls_back_after_frame_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    session = DashboardSession()
+    assert session.env is not None
+    before_frame = session.snapshot()
+    before_history = session.history_envelope()
+    before_environment = session.env.to_versioned_snapshot()
+    original_frame = session._frame
+
+    def fail_frame() -> dict[str, object]:
+        raise RuntimeError("injected dashboard reset frame failure")
+
+    monkeypatch.setattr(session, "_frame", fail_frame)
+    with pytest.raises(
+        RuntimeError,
+        match="injected dashboard reset frame failure",
+    ):
+        session.reset(
+            "fasting",
+            77,
+            expected_run_id=before_frame["run_id"],
+            expected_revision=before_frame["revision"],
+        )
+
+    assert session.env is not None
+    assert session.env.to_versioned_snapshot() == before_environment
+    assert session.snapshot() == before_frame
+    assert session.history_envelope() == before_history
+
+    monkeypatch.setattr(session, "_frame", original_frame)
+    reset = session.reset(
+        "fasting",
+        77,
+        expected_run_id=before_frame["run_id"],
+        expected_revision=before_frame["revision"],
+    )
+    assert reset["seed"] == 77
+    assert reset["revision"] == 0
+    assert reset["run_id"] != before_frame["run_id"]
+
+
 def test_dashboard_documentation_targets_existing_files() -> None:
     root = Path(__file__).resolve().parents[1]
     readme = (root / "README.md").read_text(encoding="utf-8")
     dashboard_doc = (root / "docs" / "dashboard.md").read_text(encoding="utf-8")
 
-    assert "PYTHONPATH=src python3 examples/dashboard_server.py" in readme
+    assert "openhumsim dashboard" in readme
     assert "docs/dashboard.md" in readme
+    assert "openhumsim dashboard --help" in dashboard_doc
     assert "experiment-manifest.v1" in dashboard_doc
     assert "tidy CSV" in dashboard_doc
     assert "SeedSequence.spawn(2)" in dashboard_doc
     assert (root / "examples" / "dashboard_server.py").is_file()
     assert (root / "dashboard" / "index.html").is_file()
+    assert (
+        root / "src" / "openhumsim_rl" / "dashboard" / "index.html"
+    ).is_file()

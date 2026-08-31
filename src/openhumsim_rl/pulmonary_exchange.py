@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import copy
 from dataclasses import dataclass
 from math import exp
 import numpy as np
@@ -260,22 +261,28 @@ class MultiCompartmentPulmonaryExchangeModel:
         apply: bool = False,
     ) -> PulmonaryExchangeResult:
         c = self.cfg
+        # A result-only evaluation must not advance recruitment/HPV kinetics or
+        # alter any diagnostic on the caller's live state.  HumanState consists of
+        # scalar fields, so a shallow copy is a complete isolated working state.
+        working_state = state if apply else copy(state)
         exercise = float(np.clip(exercise, 0.0, 1.0))
-        pulmonary_rer = effective_pulmonary_rer(state, c)
-        recruitment = self._update_recruitment(state, dt_min)
+        pulmonary_rer = effective_pulmonary_rer(working_state, c)
+        recruitment = self._update_recruitment(working_state, dt_min)
         recruitment_fraction = float(np.sum(self._BASE_Q * recruitment))
         q, v_frac, local_vq, local_paco2, local_pao2, global_vq, hpv_r, redistribution = self._regional_distribution(
-            state, pco2_mmHg, fio2, recruitment, dt_min
+            working_state, pco2_mmHg, fio2, recruitment, dt_min
         )
-        shunt = float(np.clip(state.pulmonary_shunt_fraction, 0.0, 0.80))
+        shunt = float(np.clip(working_state.pulmonary_shunt_fraction, 0.0, 0.80))
 
-        pv_o2 = self._venous_po2(state)
-        transit, equil, effective_capillary_volume = self._diffusion_fraction(state, exercise, recruitment_fraction)
+        pv_o2 = self._venous_po2(working_state)
+        transit, equil, effective_capillary_volume = self._diffusion_fraction(
+            working_state, exercise, recruitment_fraction
+        )
         endcap_po2 = pv_o2 + equil * (local_pao2 - pv_o2)
-        hb = float(getattr(state, "hemoglobin_g_dl", c.hemoglobin_g_dl))
+        hb = float(getattr(working_state, "hemoglobin_g_dl", c.hemoglobin_g_dl))
         # Local pH follows the regional PACO2 at the current systemic bicarbonate
         # concentration. This is reduced but preserves the Bohr direction across V/Q units.
-        hco3 = max(1e-6, float(state.bicarbonate_mmol_l))
+        hco3 = max(1e-6, float(working_state.bicarbonate_mmol_l))
         local_ph = c.carbonic_acid_pka + np.log10(
             hco3
             / np.maximum(
@@ -288,13 +295,18 @@ class MultiCompartmentPulmonaryExchangeModel:
             for po2, ph, pc in zip(endcap_po2, local_ph, local_paco2)
         ], dtype=float)
         ventilated_cap_content = float(np.sum(q * endcap_content))
-        venous_content = max(0.0, float(state.mixed_venous_o2_content_ml_dl))
+        venous_content = max(
+            0.0, float(working_state.mixed_venous_o2_content_ml_dl)
+        )
         arterial_content = (1.0 - shunt) * ventilated_cap_content + shunt * venous_content
         pao2 = self._po2_from_content(
-            arterial_content, ph=float(state.ph_arterial), pco2_mmHg=float(pco2_mmHg), hemoglobin_g_dl=hb
+            arterial_content,
+            ph=float(working_state.ph_arterial),
+            pco2_mmHg=float(pco2_mmHg),
+            hemoglobin_g_dl=hb,
         )
         sao2 = self.oxygen_binding.saturation(
-            pao2, float(state.ph_arterial), float(pco2_mmHg)
+            pao2, float(working_state.ph_arterial), float(pco2_mmHg)
         ).saturation_fraction
 
         fio2_fraction = float(np.clip(fio2, 0.0, 1.0))
@@ -313,7 +325,10 @@ class MultiCompartmentPulmonaryExchangeModel:
         high_v = float(np.sum(v_frac[local_vq > 2.0]))
 
         alveolar_fraction = float(np.clip(
-            (state.tidal_volume_l - c.dead_space_l) / max(1e-6, state.tidal_volume_l), 0.0, 1.0
+            (working_state.tidal_volume_l - c.dead_space_l)
+            / max(1e-6, working_state.tidal_volume_l),
+            0.0,
+            1.0,
         ))
         high_vq_waste = float(np.sum(v_frac * np.maximum(0.0, 1.0 - 1.0 / np.maximum(local_vq, 1.0))))
         alveolar_dead_space = float(np.clip(0.25 * high_vq_waste, 0.0, 0.40))
@@ -334,7 +349,9 @@ class MultiCompartmentPulmonaryExchangeModel:
             enghoff_dead_space_fraction=enghoff,
             recruitment_fraction=recruitment_fraction,
             derecruited_fraction=1.0-recruitment_fraction,
-            mean_distending_pressure_cmH2O=float(state.pulmonary_mean_distending_pressure_cmH2O),
+            mean_distending_pressure_cmH2O=float(
+                working_state.pulmonary_mean_distending_pressure_cmH2O
+            ),
             hpv_resistance_multiplier=float(hpv_r),
             perfusion_redistribution_index=float(redistribution),
             hpv_diverted_flow_fraction=float(redistribution),

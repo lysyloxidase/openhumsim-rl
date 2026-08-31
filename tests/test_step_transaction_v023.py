@@ -53,6 +53,59 @@ def test_unexpected_integration_exception_rolls_back_before_reraising() -> None:
     assert env.to_versioned_snapshot() == before
 
 
+def test_late_unexpected_exception_rolls_back_the_complete_agent_step() -> None:
+    env = HumanHomeostasisEnv(
+        config=HumanConfig(agent_step_min=0.5, integration_step_min=0.25),
+        observation_profile="clinical",
+        measurement_profile="realistic",
+    )
+    env.reset(seed=23003)
+    before = deepcopy(env.to_versioned_snapshot())
+    action = ZERO_ACTION.copy()
+    action[3] = 0.5
+    action[7] = 0.5
+    original_integrate = env.model.integrate
+    call_count = 0
+
+    def fail_during_second_substep(state, intervention, duration_min):
+        nonlocal call_count
+        call_count += 1
+        if call_count == 2:
+            state.glucose_mg_dl += 123.0
+            env.model.cardiovascular._cardiac_phase += 0.25
+            raise RuntimeError("late integration programming failure")
+        return original_integrate(state, intervention, duration_min)
+
+    env.model.integrate = fail_during_second_substep
+    with pytest.raises(RuntimeError, match="late integration programming failure"):
+        env.step(action)
+
+    assert call_count == 2
+    assert env.to_versioned_snapshot() == before
+
+
+def test_output_construction_exception_rolls_back_the_complete_agent_step() -> None:
+    env = HumanHomeostasisEnv(
+        config=HumanConfig(agent_step_min=0.5, integration_step_min=0.25),
+        observation_profile="clinical",
+        measurement_profile="realistic",
+    )
+    env.reset(seed=23004)
+    before = deepcopy(env.to_versioned_snapshot())
+    action = ZERO_ACTION.copy()
+    action[3] = 0.5
+
+    def fail_info(**kwargs):
+        del kwargs
+        raise RuntimeError("transition info programming failure")
+
+    env._get_info = fail_info
+    with pytest.raises(RuntimeError, match="transition info programming failure"):
+        env.step(action)
+
+    assert env.to_versioned_snapshot() == before
+
+
 def test_nonfinite_private_integration_runtime_is_a_controlled_failure() -> None:
     env = _realistic_environment()
     before = deepcopy(env.to_versioned_snapshot())

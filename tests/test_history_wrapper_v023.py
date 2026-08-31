@@ -65,6 +65,8 @@ def test_history_layout_mask_space_and_dtype() -> None:
     env = ObservationHistoryWrapper(_strict_env(), history_length=3)
     observation, info = env.reset(seed=2301)
     width = env.base_observation_size
+    policy_contract = env.policy_observation_contract()
+    preprocessing = policy_contract["preprocessing"]
 
     assert observation.shape == (3 * width + 3,)
     assert observation.dtype == np.float32
@@ -97,6 +99,20 @@ def test_history_layout_mask_space_and_dtype() -> None:
     )
     assert info["info_profile"] == step_info["info_profile"] == "benchmark"
     assert len(env.observation_names) == env.observation_space.shape[0]
+    assert policy_contract["observation_names"] == list(env.observation_names)
+    assert policy_contract["observation_space"]["shape"] == [3 * width + 3]
+    assert preprocessing["history_length"] == 3
+    assert preprocessing["base_observation_size"] == width
+    assert preprocessing["layout"] == {
+        "order": "oldest_to_newest_then_valid_history_mask",
+        "history_shape": [3, width],
+        "history_values_slice": [0, 3 * width],
+        "valid_history_mask_slice": [3 * width, 3 * width + 3],
+        "latest_observation_slice": [2 * width, 3 * width],
+    }
+    assert preprocessing["base_observation_contract"]["preprocessing"] == (
+        env.env.policy_observation_contract()["preprocessing"]
+    )
 
 
 def test_history_wrapper_is_seed_deterministic_and_preserves_strict_info() -> None:

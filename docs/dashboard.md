@@ -10,17 +10,17 @@ transitions are computed by `HumanHomeostasisEnv` in the local bridge.
 
 ## Start the dashboard
 
-From the repository root, run:
+From any working directory after installing OpenHumSim-RL, run:
 
 ```bash
-PYTHONPATH=src python3 examples/dashboard_server.py
+openhumsim dashboard
 ```
 
 The default address is `http://127.0.0.1:8765/`, and the server opens it in the
 default browser. Command-line options are available with `--help`:
 
 ```bash
-PYTHONPATH=src python3 examples/dashboard_server.py --help
+openhumsim dashboard --help
 ```
 
 - `--no-open` starts the bridge without opening a browser.
@@ -29,10 +29,19 @@ PYTHONPATH=src python3 examples/dashboard_server.py --help
 - `--allowed-host NAME_OR_IP` permits an additional exact HTTP `Host` value and
   can be repeated.
 
+The simulator and dashboard are fully available from an installed wheel.
+Version-locked validation and CI evidence remain repository artifacts: outside
+the matching source checkout their dashboard fields are marked unavailable
+instead of borrowing files from an unrelated current working directory.
+
 The bridge binds to loopback by default. If it is deliberately exposed through
 a LAN or DNS name, that name must also be supplied with `--allowed-host`. Host
 and port validation reduces DNS-rebinding exposure; it does not turn the local
 research server into an internet-facing production service.
+
+All HTML, API and error responses deny framing with both CSP
+`frame-ancestors 'none'` and `X-Frame-Options: DENY`, preventing another page
+from embedding the local controls for clickjacking.
 
 ## Measured observations and latent state
 
@@ -41,9 +50,9 @@ from the measurement layer together with sampling time and age. Noise, delay,
 sampling intervals and dropout can therefore make them differ from the current
 mechanistic state.
 
-Exact internal values appear only in panels explicitly labelled `model truth`,
-`latent` or `LATENT MODEL STATE · DEBUG`. They are useful for investigation but
-must not be passed to a benchmark policy as if they were observations.
+Exact internal values appear only in panels explicitly labelled `model truth`
+or `Latent model state · debug diagnostics`. They are useful for investigation
+but must not be passed to a benchmark policy as if they were observations.
 
 The observation inspector lists all 54 channels in the clinical-like policy
 vector with their units, measurement group and current provenance. Displayed
@@ -108,9 +117,10 @@ Every server-side history envelope and complete JSON export includes an
 - a path-free fingerprint of the executable model sources;
 - a canonical self-hash for the manifest.
 
-The source fingerprint contains repository-relative identifiers and content
-hashes, not local filesystem paths. Preserve the full JSON export rather than a
-screenshot of the abbreviated manifest panel when reproducibility matters.
+The source fingerprint contains checkout- or distribution-relative identifiers
+and content hashes, not local filesystem paths. Preserve the full JSON export
+rather than a screenshot of the abbreviated manifest panel when reproducibility
+matters.
 
 ## Randomness semantics
 
@@ -126,8 +136,9 @@ preserve the complete manifest and use multiple declared seeds.
 
 ## Offline preview
 
-Opening `dashboard/index.html` directly is supported as a static UI preview. It
-uses a bundled illustrative snapshot and is labelled `offline preview`.
+In a source checkout, opening `dashboard/index.html` redirects to the canonical
+packaged HTML resource and is supported as a static UI preview. It uses a
+bundled illustrative snapshot and is labelled `offline preview`.
 Interventions, reset operations and simulation steps are unavailable because
 the physiological model does not run in the browser.
 

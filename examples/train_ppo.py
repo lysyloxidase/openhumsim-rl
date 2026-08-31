@@ -34,6 +34,8 @@ from openhumsim_rl.env import (
     ACTION_NAMES,
     CLINICAL_OBSERVATION_NAMES,
     OBSERVABLE_REWARD_PROFILE,
+    POLICY_ACTION_CONTRACT_SCHEMA,
+    POLICY_OBSERVATION_CONTRACT_SCHEMA,
     _normalization_for,
 )
 from openhumsim_rl.measurement import ClinicalMeasurementConfig
@@ -49,7 +51,7 @@ from openhumsim_rl.policy_manifest import (
 from openhumsim_rl.units import ACTION_SEMANTICS
 
 
-CHECKPOINT_BASENAME = "openhumsim_ppo_v0231_smoke"
+CHECKPOINT_BASENAME = "openhumsim_ppo_v0232_smoke"
 MANIFEST_FILENAME = f"{CHECKPOINT_BASENAME}.manifest.json"
 CHECKPOINT_FILENAME = f"{CHECKPOINT_BASENAME}.zip"
 STATE_SCHEMA_VERSION = "0.22"
@@ -187,6 +189,88 @@ def _space_contract(space, *, width: int, label: str) -> dict[str, Any]:
     )
 
 
+def _policy_observation_contract(environment: Any) -> dict[str, Any]:
+    """Read and verify an environment or wrapper's public policy contract."""
+
+    builder = getattr(environment, "policy_observation_contract", None)
+    if not callable(builder):
+        raise ValueError(
+            "environment must expose policy_observation_contract()"
+        )
+    try:
+        contract = normalize_json_types(builder())
+    except (TypeError, ValueError) as exc:
+        raise ValueError("policy observation contract is not finite JSON") from exc
+    expected_keys = {
+        "schema",
+        "observation_names",
+        "observation_space",
+        "preprocessing",
+    }
+    if not isinstance(contract, dict) or set(contract) != expected_keys:
+        raise ValueError("policy observation contract has an invalid key set")
+    if contract["schema"] != POLICY_OBSERVATION_CONTRACT_SCHEMA:
+        raise ValueError("policy observation contract schema is unsupported")
+    names = contract["observation_names"]
+    actual_names = [str(name) for name in environment.observation_names]
+    if (
+        not isinstance(names, list)
+        or any(not isinstance(name, str) for name in names)
+        or names != actual_names
+    ):
+        raise ValueError(
+            "policy observation contract names do not match the environment"
+        )
+    actual_space = _space_contract(
+        environment.observation_space,
+        width=len(names),
+        label="observation",
+    )
+    if contract["observation_space"] != actual_space:
+        raise ValueError(
+            "policy observation contract space does not match the environment"
+        )
+    if not isinstance(contract["preprocessing"], dict):
+        raise ValueError("policy observation preprocessing must be a mapping")
+    return contract
+
+
+def _policy_action_contract(environment: Any) -> dict[str, Any]:
+    """Read and verify an environment or wrapper's public action contract."""
+
+    builder = getattr(environment, "policy_action_contract", None)
+    if not callable(builder):
+        raise ValueError("environment must expose policy_action_contract()")
+    try:
+        contract = normalize_json_types(builder())
+    except (TypeError, ValueError) as exc:
+        raise ValueError("policy action contract is not finite JSON") from exc
+    expected_keys = {
+        "schema",
+        "interface_id",
+        "action_names",
+        "policy_space",
+        "native_space",
+        "mapping",
+    }
+    if not isinstance(contract, dict) or set(contract) != expected_keys:
+        raise ValueError("policy action contract has an invalid key set")
+    if contract["schema"] != POLICY_ACTION_CONTRACT_SCHEMA:
+        raise ValueError("policy action contract schema is unsupported")
+    if contract["action_names"] != list(ACTION_NAMES):
+        raise ValueError("policy action contract names do not match the environment")
+    actual_space = _space_contract(
+        environment.action_space,
+        width=len(ACTION_NAMES),
+        label="action",
+    )
+    if contract["policy_space"] != actual_space:
+        raise ValueError(
+            "policy action contract space does not match the environment"
+        )
+    return contract
+
+
 def capture_training_provenance() -> dict[str, Any]:
     """Capture source and runtime identity before a training run starts."""
 
@@ -218,7 +302,7 @@ def assert_training_provenance_unchanged(
 
 def build_training_manifest(
     *,
-    environment: HumanHomeostasisEnv | None = None,
+    environment: Any | None = None,
     config: HumanConfig | None = None,
     observation_names: Sequence[str] | None = None,
     observation_centers: Sequence[float] | None = None,
@@ -236,19 +320,23 @@ def build_training_manifest(
     """Build reproducible checkpoint metadata without importing SB3."""
 
     if environment is not None:
-        effective_config = environment.config
-        ordered_names = tuple(environment.observation_names)
-        center = np.asarray(environment._obs_center, dtype=float)
-        scale = np.asarray(environment._obs_scale, dtype=float)
-        scenario = str(environment.active_scenario)
-        observation_profile = str(environment.observation_profile)
-        measurement_profile = str(environment.measurement_profile)
-        info_profile = str(environment.info_profile)
-        reward_profile = str(environment.reward_profile)
+        base_environment = getattr(environment, "unwrapped", environment)
+        contract = _policy_observation_contract(environment)
+        policy_action_contract = _policy_action_contract(environment)
+        effective_config = base_environment.config
+        ordered_names = tuple(contract["observation_names"])
+        center = None
+        scale = None
+        observation_preprocessing = contract["preprocessing"]
+        scenario = str(base_environment.active_scenario)
+        observation_profile = str(base_environment.observation_profile)
+        measurement_profile = str(base_environment.measurement_profile)
+        info_profile = str(base_environment.info_profile)
+        reward_profile = str(base_environment.reward_profile)
         measurement_config_payload = (
             None
-            if environment.measurement_model is None
-            else asdict(environment.measurement_model.config)
+            if base_environment.measurement_model is None
+            else asdict(base_environment.measurement_model.config)
         )
         observation_space_contract = _space_contract(
             environment.observation_space,
@@ -261,6 +349,8 @@ def build_training_manifest(
             label="action",
         )
     else:
+        observation_preprocessing = None
+        policy_action_contract = None
         effective_config = HumanConfig() if config is None else config
         ordered_names = tuple(
             CLINICAL_OBSERVATION_NAMES
@@ -335,10 +425,12 @@ def build_training_manifest(
         observation_names=ordered_names,
         observation_centers=center,
         observation_scales=scale,
+        observation_preprocessing=observation_preprocessing,
         observation_space_contract=observation_space_contract,
         action_names=ACTION_NAMES,
         action_semantics=ACTION_SEMANTICS,
         action_space_contract=action_space_contract,
+        policy_action_contract=policy_action_contract,
         config=effective_config,
         algorithm=ALGORITHM,
         algorithm_hyperparameters=PPO_HYPERPARAMETERS,
@@ -355,7 +447,7 @@ def build_training_manifest(
 def write_training_manifest(
     path: str | Path = MANIFEST_FILENAME,
     *,
-    environment: HumanHomeostasisEnv | None = None,
+    environment: Any | None = None,
     config: HumanConfig | None = None,
     observation_names: Sequence[str] | None = None,
     checkpoint_path: str | Path = CHECKPOINT_FILENAME,
@@ -384,7 +476,7 @@ def load_policy_checked(
     checkpoint_path: str | Path = CHECKPOINT_FILENAME,
     manifest_path: str | Path = MANIFEST_FILENAME,
     *,
-    env: HumanHomeostasisEnv | None = None,
+    env: Any | None = None,
 ):
     """Load PPO only after exact artifact and environment compatibility checks."""
 

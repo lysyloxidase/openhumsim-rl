@@ -74,6 +74,24 @@ def _request(
         connection.close()
 
 
+def _raw_get(
+    server: tuple[str, int, str],
+    path: str,
+) -> tuple[int, dict[str, str], bytes]:
+    host, port, _ = server
+    connection = HTTPConnection(host, port, timeout=10.0)
+    try:
+        connection.request("GET", path)
+        response = connection.getresponse()
+        return (
+            response.status,
+            {name.lower(): value for name, value in response.getheaders()},
+            response.read(),
+        )
+    finally:
+        connection.close()
+
+
 def _create_session(
     server: tuple[str, int, str],
     *,
@@ -449,6 +467,27 @@ def test_http_input_contract_is_strict(
     )
     assert status == 400
     assert "non-finite JSON number" in body["error"]
+
+
+@pytest.mark.parametrize(
+    ("path", "expected_status"),
+    [
+        ("/", 200),
+        ("/api/meta", 200),
+        ("/not-found", 404),
+    ],
+)
+def test_all_dashboard_responses_deny_cross_origin_framing(
+    dashboard_http: tuple[str, int, str],
+    path: str,
+    expected_status: int,
+) -> None:
+    status, headers, body = _raw_get(dashboard_http, path)
+
+    assert status == expected_status
+    assert body
+    assert headers["x-frame-options"] == "DENY"
+    assert "frame-ancestors 'none'" in headers["content-security-policy"]
 
 
 def test_step_requires_preconditions_and_known_top_level_keys(

@@ -531,6 +531,16 @@ class ClinicalMeasurementModel:
                 raise ValueError(
                     f"{name}.delivered_count must include the initial sample"
                 )
+            # Initialization is the only delivery at t=0.  Conversely, every
+            # later delivered result comes from a strictly positive sampling
+            # instant.  Binding the timestamp to the delivery counter prevents a
+            # restored policy observation from claiming a fresh measurement that
+            # was never collected, while still permitting arbitrary legal
+            # dropout/skipped-event histories.
+            if (delivered_count == 1) != (sample_time == 0.0):
+                raise ValueError(
+                    f"{name}.sample_time_min is inconsistent with delivered_count"
+                )
             expected_event_count = int(round(grid_index))
             actual_event_count = (
                 delivered_count
@@ -650,6 +660,11 @@ class ClinicalMeasurementModel:
         )
         if cgm_delivered_count < 1:
             raise ValueError("cgm_delivered_count must include the initial sample")
+        if (cgm_delivered_count == 1) != (cgm_last_sample_time == 0.0):
+            raise ValueError(
+                "cgm_last_sample_time_min is inconsistent with "
+                "cgm_delivered_count"
+            )
         expected_cgm_event_count = int(round(cgm_grid_index))
         actual_cgm_event_count = (
             cgm_delivered_count + cgm_dropped_count + cgm_skipped_count

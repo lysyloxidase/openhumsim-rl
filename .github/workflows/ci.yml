@@ -26,6 +26,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -43,13 +45,15 @@ jobs:
         run: python -m pytest -q -ra -W error
 
   scientific-validation:
-    name: Scientific integrity gate · v0.23.1
+    name: Scientific integrity gate · v0.23.2
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
 
       - name: Set up Python 3.12
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -63,8 +67,14 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install ".[dev]"
 
-      - name: Run v0.23.1 candidate invariants
-        run: python validation/run_validation_v23.py
+      - name: Verify committed release evidence when present
+        run: |
+          if test -f RELEASE_v0.23.2.json; then
+            python validation/verify_release_evidence.py
+          fi
+
+      - name: Run v0.23.2 integrity gate
+        run: python validation/run_validation_v0232.py
 
   package:
     name: Build and smoke-test package
@@ -98,6 +108,9 @@ jobs:
           "$RUNNER_TEMP/openhumsim-smoke/bin/openhumsim" --version
           "$RUNNER_TEMP/openhumsim-smoke/bin/openhumsim" doctor
           "$RUNNER_TEMP/openhumsim-smoke/bin/openhumsim" demo --scenario baseline --minutes 5 --seed 42
+          "$RUNNER_TEMP/openhumsim-smoke/bin/openhumsim" dashboard --help
+          "$RUNNER_TEMP/openhumsim-smoke/bin/python" -m openhumsim_rl.dashboard_server --help
+          "$RUNNER_TEMP/openhumsim-smoke/bin/python" -c 'from importlib.resources import files; page = files("openhumsim_rl").joinpath("dashboard", "index.html"); assert "RESEARCH SOFTWARE ONLY" in page.read_text(encoding="utf-8")'
           if "$RUNNER_TEMP/openhumsim-smoke/bin/openhumsim" validate --scientific-only 2> validate-error.txt; then
             echo "installed wheel unexpectedly found checkout-only validation assets" >&2
             exit 1

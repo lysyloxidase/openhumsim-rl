@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from hashlib import sha256
 import importlib.util
 import json
 from pathlib import Path
@@ -10,13 +11,19 @@ from types import ModuleType
 import numpy as np
 import pytest
 
-from openhumsim_rl import HumanConfig, HumanHomeostasisEnv
+from openhumsim_rl import (
+    HumanConfig,
+    HumanHomeostasisEnv,
+    ObservationHistoryWrapper,
+    SymmetricActionHumanEnv,
+)
 from openhumsim_rl.env import LATENT_REWARD_PROFILE, OBSERVABLE_REWARD_PROFILE
 from openhumsim_rl.measurement import ClinicalMeasurementConfig
 from openhumsim_rl.policy_manifest import (
     POLICY_MANIFEST_CONTRACT_KEYS,
     POLICY_MANIFEST_SCHEMA,
     PolicyCompatibilityError,
+    canonical_json,
     validate_policy_manifest,
 )
 
@@ -94,6 +101,21 @@ def test_policy_manifest_locks_training_artifact_and_complete_contract(tmp_path:
         "dtype": "float32",
         "low": [0.0] * 8,
         "high": [1.0] * 8,
+    }
+    assert manifest["action_contract"]["policy_interface"] == {
+        "schema": "openhumsim.policy-action-contract.v1",
+        "interface_id": "native_one_sided_v1",
+        "action_names": list(manifest["action_contract"]["names"]),
+        "policy_space": manifest["action_contract"]["space"],
+        "native_space": manifest["action_contract"]["space"],
+        "mapping": {
+            "schema": "openhumsim.policy-action-mapping.v1",
+            "transform": "identity",
+            "expression": "native=policy_action",
+            "componentwise": True,
+            "negative_policy_values": "not_applicable",
+            "policy_zero_is_no_intervention": True,
+        },
     }
     assert manifest["observation_space"] == {
         "shape": [54],
@@ -301,6 +323,159 @@ def test_loader_uses_actual_environment_measurement_and_normalization(
             checkpoint_path=checkpoint,
             manifest_path=manifest_path,
             env=wrong_action_space,
+        )
+
+
+def test_history_wrapper_manifest_locks_layout_and_loader_length(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    training = _training_module()
+    _install_fake_sb3(monkeypatch)
+    checkpoint = tmp_path / training.CHECKPOINT_FILENAME
+    checkpoint.write_bytes(b"history-policy-checkpoint")
+    manifest_path = tmp_path / training.MANIFEST_FILENAME
+    source = ObservationHistoryWrapper(_benchmark_env(), history_length=3)
+    provenance = training.capture_training_provenance()
+
+    training.write_training_manifest(
+        manifest_path,
+        environment=source,
+        checkpoint_path=checkpoint,
+        require_checkpoint=True,
+        provenance=provenance,
+    )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    preprocessing = manifest["observation_normalization"]
+
+    assert manifest["observation_space"]["shape"] == [165]
+    assert len(manifest["observation_names"]) == 165
+    assert preprocessing["history_length"] == 3
+    assert preprocessing["base_observation_size"] == 54
+    assert preprocessing["output_size"] == 165
+    assert preprocessing["layout"]["valid_history_mask_slice"] == [162, 165]
+    assert preprocessing["valid_history_mask"] == {
+        "transform": "identity",
+        "length": 3,
+        "values": [0.0, 1.0],
+        "semantics": "0=zero_padding,1=valid_observation",
+    }
+
+    malformed = deepcopy(manifest)
+    malformed["observation_normalization"]["layout"][
+        "latest_observation_slice"
+    ][0] -= 1
+    malformed["observation_normalization_sha256"] = sha256(
+        canonical_json(malformed["observation_normalization"]).encode("utf-8")
+    ).hexdigest()
+    with pytest.raises(PolicyCompatibilityError, match="layout"):
+        validate_policy_manifest(
+            malformed,
+            checkpoint_path=checkpoint,
+            expected=_compatibility_contract(malformed),
+        )
+
+    matching = ObservationHistoryWrapper(_benchmark_env(), history_length=3)
+    loaded = training.load_policy_checked(
+        checkpoint_path=checkpoint,
+        manifest_path=manifest_path,
+        env=matching,
+    )
+    assert loaded["payload"] == b"history-policy-checkpoint"
+    assert loaded["env"] is matching
+
+    wrong_length = ObservationHistoryWrapper(_benchmark_env(), history_length=2)
+    with pytest.raises(PolicyCompatibilityError, match="policy contract mismatch"):
+        training.load_policy_checked(
+            checkpoint_path=checkpoint,
+            manifest_path=manifest_path,
+            env=wrong_length,
+        )
+
+
+def test_symmetric_action_manifest_locks_positive_part_mapping(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    training = _training_module()
+    _install_fake_sb3(monkeypatch)
+    checkpoint = tmp_path / training.CHECKPOINT_FILENAME
+    checkpoint.write_bytes(b"symmetric-policy-checkpoint")
+    manifest_path = tmp_path / training.MANIFEST_FILENAME
+    source = SymmetricActionHumanEnv(
+        scenario="oral_glucose_75g",
+        observation_profile="clinical",
+        measurement_profile="realistic",
+        info_profile="benchmark",
+    )
+    provenance = training.capture_training_provenance()
+    training.write_training_manifest(
+        manifest_path,
+        environment=source,
+        checkpoint_path=checkpoint,
+        require_checkpoint=True,
+        provenance=provenance,
+    )
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    interface = manifest["action_contract"]["policy_interface"]
+
+    assert manifest["action_contract"]["space"]["low"] == [-1.0] * 8
+    assert interface["interface_id"] == "symmetric_positive_part_v1"
+    assert interface["mapping"] == {
+        "schema": "openhumsim.policy-action-mapping.v1",
+        "transform": "componentwise_positive_part",
+        "expression": "native=max(policy_action,0)",
+        "componentwise": True,
+        "negative_policy_values": "mapped_to_zero",
+        "policy_zero_is_no_intervention": True,
+    }
+    assert interface["native_space"]["low"] == [0.0] * 8
+    assert interface["native_space"]["high"] == [1.0] * 8
+
+    matching = SymmetricActionHumanEnv(
+        scenario="oral_glucose_75g",
+        observation_profile="clinical",
+        measurement_profile="realistic",
+        info_profile="benchmark",
+    )
+    loaded = training.load_policy_checked(
+        checkpoint_path=checkpoint,
+        manifest_path=manifest_path,
+        env=matching,
+    )
+    assert loaded["payload"] == b"symmetric-policy-checkpoint"
+
+    class SameBoxDifferentMapping(SymmetricActionHumanEnv):
+        def policy_action_contract(self):
+            contract = super().policy_action_contract()
+            contract["interface_id"] = "native_one_sided_v1"
+            contract["native_space"] = contract["policy_space"]
+            contract["mapping"] = {
+                "schema": "openhumsim.policy-action-mapping.v1",
+                "transform": "identity",
+                "expression": "native=policy_action",
+                "componentwise": True,
+                "negative_policy_values": "not_applicable",
+                "policy_zero_is_no_intervention": True,
+            }
+            return contract
+
+    different_mapping = SameBoxDifferentMapping(
+        scenario="oral_glucose_75g",
+        observation_profile="clinical",
+        measurement_profile="realistic",
+        info_profile="benchmark",
+    )
+    assert different_mapping.action_space.shape == matching.action_space.shape
+    assert np.array_equal(
+        different_mapping.action_space.low,
+        matching.action_space.low,
+    )
+    with pytest.raises(PolicyCompatibilityError, match="action_contract"):
+        training.load_policy_checked(
+            checkpoint_path=checkpoint,
+            manifest_path=manifest_path,
+            env=different_mapping,
         )
 
 

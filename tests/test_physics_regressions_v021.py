@@ -100,7 +100,7 @@ def test_hpv_fixed_point_advances_kinetics_only_once():
         fio2=0.15,
         exercise=0.0,
         dt_min=dt_min,
-        apply=False,
+        apply=True,
     )
 
     tones = np.asarray(

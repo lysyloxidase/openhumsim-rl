@@ -6,7 +6,11 @@ import json
 import numpy as np
 import pytest
 
-from openhumsim_rl import HumanConfig, HumanHomeostasisEnv
+from openhumsim_rl import (
+    HumanConfig,
+    HumanHomeostasisEnv,
+    SymmetricActionHumanEnv,
+)
 from openhumsim_rl.compat import Box as CompatibilityBox
 from openhumsim_rl.env import ACTION_NAMES, BENCHMARK_INFO_KEYS
 from openhumsim_rl.measurement import ClinicalMeasurementConfig
@@ -69,6 +73,21 @@ def _snapshot_after_two_steps() -> tuple[HumanHomeostasisEnv, dict]:
     return env, payload
 
 
+def _symmetric_environment() -> SymmetricActionHumanEnv:
+    return SymmetricActionHumanEnv(
+        config=HumanConfig(
+            agent_step_min=5.0,
+            integration_step_min=0.25,
+            episode_minutes=30.0,
+        ),
+        scenario="oral_glucose_75g",
+        observation_profile="clinical",
+        measurement_profile="realistic",
+        measurement_config=_measurement_config(),
+        info_profile="benchmark",
+    )
+
+
 def test_json_snapshot_restores_an_identical_stochastic_continuation():
     source, payload = _snapshot_after_two_steps()
     assert payload["schema"] == ENVIRONMENT_SNAPSHOT_SCHEMA
@@ -104,6 +123,40 @@ def test_json_snapshot_restores_an_identical_stochastic_continuation():
     assert "state" not in restored_result[4]
     assert source.state.as_dict() == restored.state.as_dict()
     assert source.to_versioned_snapshot() == restored.to_versioned_snapshot()
+
+
+def test_symmetric_action_snapshot_locks_mapping_and_continuation():
+    source = _symmetric_environment()
+    source.reset(seed=2312)
+    action = np.zeros(len(ACTION_NAMES), dtype=np.float32)
+    action[0] = -0.8
+    action[2] = 0.3
+    action[5] = 0.1
+    source.step(action)
+    source.action_space.sample()
+    payload = json.loads(
+        json.dumps(source.to_versioned_snapshot(), allow_nan=False)
+    )
+
+    restored = _symmetric_environment()
+    restored.restore_versioned_snapshot(payload)
+    assert restored.to_versioned_snapshot() == payload
+    np.testing.assert_array_equal(
+        source.action_space.sample(), restored.action_space.sample()
+    )
+
+    continuation = np.zeros(len(ACTION_NAMES), dtype=np.float32)
+    continuation[0] = -0.2
+    continuation[4] = 0.25
+    source_result = source.step(continuation)
+    restored_result = restored.step(continuation)
+    np.testing.assert_array_equal(source_result[0], restored_result[0])
+    assert source_result[1:] == restored_result[1:]
+    assert source.to_versioned_snapshot() == restored.to_versioned_snapshot()
+
+    base = _environment()
+    with pytest.raises(ValueError, match="action_contract"):
+        base.restore_versioned_snapshot(payload)
 
 
 def test_snapshot_rejects_schema_and_contract_tampering_without_mutation():
@@ -266,6 +319,44 @@ def test_snapshot_rejects_corrupt_measurement_runtime_atomically():
         with pytest.raises(ValueError, match="invalid measurement runtime"):
             target.restore_versioned_snapshot(corrupted)
         assert target.to_versioned_snapshot() == before
+
+
+@pytest.mark.parametrize(
+    ("timestamp_path", "timestamp_value"),
+    [
+        (("cgm_last_sample_time_min",), 1.0),
+        (("channels", "heart_rate_bpm", "sample_time_min"), 1.0),
+    ],
+)
+def test_snapshot_rejects_fabricated_measurement_freshness_before_first_sample(
+    timestamp_path: tuple[str, ...],
+    timestamp_value: float,
+) -> None:
+    config = HumanConfig(
+        agent_step_min=1.0,
+        integration_step_min=0.25,
+        episode_minutes=10.0,
+    )
+    source = _environment(config=config)
+    source.reset(seed=986)
+    source.step(np.zeros(len(ACTION_NAMES), dtype=np.float32))
+    payload = source.to_versioned_snapshot()
+    measurement = payload["runtime"]["measurement"]
+    assert measurement["cgm_delivered_count"] == 1
+    assert measurement["channels"]["heart_rate_bpm"]["delivered_count"] == 1
+
+    corrupted = deepcopy(payload)
+    target_value = corrupted["runtime"]["measurement"]
+    for key in timestamp_path[:-1]:
+        target_value = target_value[key]
+    target_value[timestamp_path[-1]] = timestamp_value
+
+    target = _environment(config=config)
+    target.reset(seed=985)
+    before = target.to_versioned_snapshot()
+    with pytest.raises(ValueError, match="invalid measurement runtime"):
+        target.restore_versioned_snapshot(corrupted)
+    assert target.to_versioned_snapshot() == before
 
 
 @pytest.mark.parametrize(

@@ -188,8 +188,12 @@ class DynamicRespiratoryCycleModel:
 
         configured_pc = max(0.0, float(state.respiratory_ventilator_pressure_control_cmH2O))
         action_assist = max(0.0, float(ventilation_pressure_assist_cmH2O))
-        pc_amp = max(configured_pc, action_assist) if (configured_pc > 0.0 or action_assist > 0.0) else pressure_need
-        pc_amp *= positive_fraction
+        # Positive-pressure fraction controls how an actual airway-pressure source
+        # is shared/transmitted; it is not itself a pressure source.  Falling back
+        # to ``pressure_need`` here would add a full ventilator breath whenever the
+        # flag was set (for example by a PEEP/CPAP scenario), while the patient kept
+        # generating the same muscle pressure below.
+        pc_amp = max(configured_pc, action_assist) * positive_fraction
 
         muscle_gain = max(0.0, float(state.respiratory_muscle_drive_gain))
         if psv_mode:

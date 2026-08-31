@@ -124,6 +124,11 @@ REWARD_REFERENCE_INTERVAL_MIN = 5.0
 OBSERVABLE_REWARD_PROFILE = "observable_benchmark_v0.23"
 LATENT_REWARD_PROFILE = "latent_research_v0.23"
 REWARD_PROFILES = (OBSERVABLE_REWARD_PROFILE, LATENT_REWARD_PROFILE)
+POLICY_OBSERVATION_CONTRACT_SCHEMA = (
+    "openhumsim.policy-observation-contract.v1"
+)
+POLICY_ACTION_CONTRACT_SCHEMA = "openhumsim.policy-action-contract.v1"
+POLICY_ACTION_MAPPING_SCHEMA = "openhumsim.policy-action-mapping.v1"
 
 # ``info`` is passed to benchmark policies by several evaluation helpers.  Keep
 # this contract positive (an allowlist), so a debug-only diagnostic cannot
@@ -614,6 +619,72 @@ class HumanHomeostasisEnv(_BaseEnv):
                 "dtype": str(np.dtype(self.action_space.dtype)),
                 "low": encode_json_value(self.action_space.low),
                 "high": encode_json_value(self.action_space.high),
+                "policy_interface": self.policy_action_contract(),
+            },
+        }
+
+    @staticmethod
+    def _policy_box_contract(space: Any) -> dict[str, Any]:
+        return {
+            "shape": [int(size) for size in space.shape],
+            "dtype": np.dtype(space.dtype).name,
+            "low": [
+                float(value) for value in np.asarray(space.low).reshape(-1)
+            ],
+            "high": [
+                float(value) for value in np.asarray(space.high).reshape(-1)
+            ],
+        }
+
+    def policy_action_contract(self) -> dict[str, Any]:
+        """Describe the exact policy-to-native action transformation."""
+
+        policy_space = self._policy_box_contract(self.action_space)
+        return {
+            "schema": POLICY_ACTION_CONTRACT_SCHEMA,
+            "interface_id": "native_one_sided_v1",
+            "action_names": [str(name) for name in ACTION_NAMES],
+            "policy_space": policy_space,
+            "native_space": policy_space,
+            "mapping": {
+                "schema": POLICY_ACTION_MAPPING_SCHEMA,
+                "transform": "identity",
+                "expression": "native=policy_action",
+                "componentwise": True,
+                "negative_policy_values": "not_applicable",
+                "policy_zero_is_no_intervention": True,
+            },
+        }
+
+    def policy_observation_contract(self) -> dict[str, Any]:
+        """Return the public policy-facing observation transformation contract.
+
+        Checkpoint tooling must describe the values actually supplied to a
+        policy, rather than reaching through wrappers for private normalization
+        arrays.  The base environment exposes its elementwise transformation;
+        policy-facing wrappers may compose and version that contract.
+        """
+
+        return {
+            "schema": POLICY_OBSERVATION_CONTRACT_SCHEMA,
+            "observation_names": [str(name) for name in self.observation_names],
+            "observation_space": {
+                "shape": [int(size) for size in self.observation_space.shape],
+                "dtype": np.dtype(self.observation_space.dtype).name,
+                "low": [
+                    float(value)
+                    for value in np.asarray(self.observation_space.low).reshape(-1)
+                ],
+                "high": [
+                    float(value)
+                    for value in np.asarray(self.observation_space.high).reshape(-1)
+                ],
+            },
+            # Preserve the established base-manifest payload byte-for-byte.
+            "preprocessing": {
+                "transform": "tanh((raw-center)/scale)",
+                "centers": [float(value) for value in self._obs_center],
+                "scales": [float(value) for value in self._obs_scale],
             },
         }
 
@@ -1680,6 +1751,8 @@ class HumanHomeostasisEnv(_BaseEnv):
         pre_action_state = deepcopy(self.state)
         pre_action_runtime = deepcopy(self.model.runtime_snapshot())
         pre_action_elapsed_minutes = float(self.elapsed_minutes)
+        pre_action_last_reward_terms = deepcopy(self._last_reward_terms)
+        pre_action_needs_reset = bool(self._needs_reset)
         pre_action_measurement_runtime = (
             None
             if self.measurement_model is None
@@ -1713,6 +1786,8 @@ class HumanHomeostasisEnv(_BaseEnv):
             self.state = pre_action_state
             self.model.restore_runtime_snapshot(pre_action_runtime)
             self.elapsed_minutes = pre_action_elapsed_minutes
+            self._last_reward_terms = pre_action_last_reward_terms
+            self._needs_reset = pre_action_needs_reset
             if self.measurement_model is not None:
                 assert pre_action_measurement_runtime is not None
                 self.measurement_model.restore_runtime_snapshot(
@@ -1729,6 +1804,8 @@ class HumanHomeostasisEnv(_BaseEnv):
             self.state = pre_action_state
             self.model.restore_runtime_snapshot(pre_action_runtime)
             self.elapsed_minutes = pre_action_elapsed_minutes
+            self._last_reward_terms = pre_action_last_reward_terms
+            self._needs_reset = pre_action_needs_reset
             if self.measurement_model is not None:
                 assert pre_action_measurement_runtime is not None
                 self.measurement_model.restore_runtime_snapshot(
@@ -1745,8 +1822,10 @@ class HumanHomeostasisEnv(_BaseEnv):
             if instant_action_pending:
                 # The instant action and its first continuous evolution form one
                 # atomic transition.  If that first substep fails, roll both back;
-                # after one successful substep the bolus is committed and later
-                # failures retain all already-completed simulated time.
+                # after one successful substep the bolus is committed for the
+                # controlled numerical-failure path, which retains completed
+                # simulated time. Unexpected exceptions still roll back the whole
+                # policy decision because no transition is returned to the caller.
                 last_finite_state = pre_action_state
                 last_model_runtime = pre_action_runtime
                 last_elapsed_minutes = pre_action_elapsed_minutes
@@ -1892,16 +1971,24 @@ class HumanHomeostasisEnv(_BaseEnv):
                 termination_reason = "numerical_failure_nonfinite_state"
                 break
             except Exception:
-                self.state = last_finite_state
-                self.model.restore_runtime_snapshot(last_model_runtime)
-                self.elapsed_minutes = last_elapsed_minutes
+                # A programming/runtime exception does not produce a Gymnasium
+                # transition that the caller can acknowledge.  Roll back the
+                # complete policy decision, including an already completed first
+                # integration substep and any instantaneous bolus.  Retaining the
+                # last finite substep is reserved for the controlled numerical
+                # failure path above, which returns an explicit terminal event.
+                self.state = pre_action_state
+                self.model.restore_runtime_snapshot(pre_action_runtime)
+                self.elapsed_minutes = pre_action_elapsed_minutes
+                self._last_reward_terms = pre_action_last_reward_terms
+                self._needs_reset = pre_action_needs_reset
                 if self.measurement_model is not None:
-                    assert last_measurement_runtime is not None
+                    assert pre_action_measurement_runtime is not None
                     self.measurement_model.restore_runtime_snapshot(
-                        last_measurement_runtime
+                        pre_action_measurement_runtime
                     )
                 self._measurement_rng.bit_generator.state = deepcopy(
-                    last_measurement_rng_state
+                    pre_action_measurement_rng_state
                 )
                 raise
 
@@ -1933,20 +2020,41 @@ class HumanHomeostasisEnv(_BaseEnv):
         if not np.isfinite(reward):
             raise FloatingPointError("Reward calculation produced a non-finite value")
 
-        self._last_reward_terms = reward_terms
-        truncated = self.elapsed_minutes >= self.config.episode_minutes - 1e-12
-        self._needs_reset = bool(terminated or truncated)
-
-        return (
-            self._get_obs(),
-            float(reward),
-            bool(terminated),
-            bool(truncated),
-            self._get_info(
+        try:
+            self._last_reward_terms = reward_terms
+            truncated = self.elapsed_minutes >= self.config.episode_minutes - 1e-12
+            self._needs_reset = bool(terminated or truncated)
+            observation = self._get_obs()
+            info = self._get_info(
                 action=action,
                 intervention=intervention,
                 termination_reason=termination_reason,
-            ),
+            )
+        except Exception:
+            # Observation/info construction is part of the public transition.
+            # If it fails, the caller received no transition and must be able to
+            # retry from the exact pre-action environment state.
+            self.state = pre_action_state
+            self.model.restore_runtime_snapshot(pre_action_runtime)
+            self.elapsed_minutes = pre_action_elapsed_minutes
+            self._last_reward_terms = pre_action_last_reward_terms
+            self._needs_reset = pre_action_needs_reset
+            if self.measurement_model is not None:
+                assert pre_action_measurement_runtime is not None
+                self.measurement_model.restore_runtime_snapshot(
+                    pre_action_measurement_runtime
+                )
+            self._measurement_rng.bit_generator.state = deepcopy(
+                pre_action_measurement_rng_state
+            )
+            raise
+
+        return (
+            observation,
+            float(reward),
+            bool(terminated),
+            bool(truncated),
+            info,
         )
 
     def render(self):

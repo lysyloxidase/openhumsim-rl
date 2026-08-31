@@ -16,7 +16,7 @@ blood-gas and PBPK dynamics behind a Gymnasium-compatible interface.
 
 **Author:** [lysyloxidase](https://github.com/lysyloxidase)
 
-**Current release:** 0.23.1
+**Current package version:** 0.23.2
 
 ## Capabilities
 
@@ -97,10 +97,10 @@ population and external-data commands.
 
 ## Interactive dashboard
 
-Start the local Python bridge from the repository root:
+Start the packaged local bridge from any working directory:
 
 ```bash
-PYTHONPATH=src python3 examples/dashboard_server.py
+openhumsim dashboard
 ```
 
 The server opens a browser on the loopback interface and connects the HTML
@@ -109,8 +109,9 @@ explicitly labelled latent model state and exports reproducibility metadata.
 See [Dashboard usage and data provenance](docs/dashboard.md) for session,
 security, export and random-stream details.
 
-Opening `dashboard/index.html` directly is supported only as an offline UI
-preview; simulation steps require the Python bridge.
+In a source checkout, `dashboard/index.html` redirects to the canonical
+packaged HTML resource for an offline-only preview. Simulation steps require
+the Python bridge.
 
 ## Interface contract
 
@@ -126,17 +127,17 @@ preview; simulation steps require the Python bridge.
 | Strict policy metadata | `info_profile="benchmark"` |
 | Default decision / integration step | 5 min / 0.25 min |
 
-Exact ordered observation and action hashes are recorded in
-`RELEASE_v0.23.1.json`. Shape equality alone does not establish checkpoint
-compatibility; policies trained on earlier transition kernels must be retrained
-and evaluated under a versioned protocol.
+The exact ordered observation and action hashes are locked in the current
+machine-readable release manifest. Shape equality alone does not establish
+checkpoint compatibility; policies trained on earlier transition kernels must
+be retrained and evaluated under a versioned protocol.
 
 ## Verification and scientific scope
 
 GitHub Actions is configured to check every change with:
 
 - the full test suite on Python 3.10, 3.12 and 3.14;
-- the v0.23.1 release integrity gate;
+- the v0.23.2 integrity gate;
 - a source-distribution and wheel build;
 - installation and CLI smoke tests outside the source tree.
 
@@ -145,17 +146,22 @@ Run the same checks locally:
 ```bash
 python -m pip install -e ".[dev]"
 python -m pytest -q -ra -W error
-python validation/run_validation_v23.py
+python validation/run_validation_v0232.py
 ```
 
 These checks establish software behavior, numerical invariants and internal
 mechanistic consistency. They are not independent external clinical validation.
-The evidence and remaining limitations are documented in:
+Release evidence and remaining limitations are documented in:
 
-- [v0.23.1 validation audit](VALIDATION_AUDIT_v0.23.1.md);
-- [machine-readable focused-gate results](validation/validation_results_v0.23.1.json);
-- [v0.23.1 release manifest](RELEASE_v0.23.1.json);
+- [v0.23.2 validation audit](VALIDATION_AUDIT_v0.23.2.md);
+- [machine-readable focused-gate results](validation/validation_results_v0.23.2.json);
+- [v0.23.2 release manifest](RELEASE_v0.23.2.json);
 - [model card and use boundaries](docs/MODEL_CARD.md).
+
+The dashboard and release workflow validate these files fail-closed against
+their recorded source fingerprint, result digest and CI candidate commit.
+Historical records remain available for provenance but are not evidence for
+the current package version.
 
 Historical release evidence is retained under `docs/history/` and
 `validation/` for reproducibility without turning this README into a changelog.

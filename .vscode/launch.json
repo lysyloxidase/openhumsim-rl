@@ -26,7 +26,7 @@
       "name": "OpenHumSim: scientific validation",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/validation/run_validation_v23.py",
+      "program": "${workspaceFolder}/validation/run_validation_v0232.py",
       "cwd": "${workspaceFolder}",
       "env": {
         "PYTHONPATH": "${workspaceFolder}/src"

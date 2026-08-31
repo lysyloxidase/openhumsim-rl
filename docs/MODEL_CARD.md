@@ -5,7 +5,7 @@
 | Field | Value |
 | --- | --- |
 | Project | OpenHumSim-RL |
-| Package version | `0.23.1` release |
+| Package version | `0.23.2` active development version |
 | State schema | `0.22` |
 | Default debug reward | `latent_research_v0.23` |
 | Strict benchmark reward | `observable_benchmark_v0.23` |
@@ -16,7 +16,7 @@
 
 OpenHumSim-RL is a deterministic-step, stochastic-observation research
 simulator that exposes a reduced-order model of coupled human physiology through
-a Gymnasium-compatible environment. The current release focuses on explicit
+a Gymnasium-compatible environment. The current package version focuses on explicit
 units, conserved pools, numerical closure, measurement provenance and versioned
 RL contracts.
 
@@ -143,21 +143,25 @@ independent, protocol-matched cohort.
 
 ## Evaluation evidence
 
-The v0.23.1 release uses a focused gate for fail-closed solver and
-configuration checks, respiratory-mechanics continuity, total-PEEP plateau
-identity, temporal/reward/measurement contracts, checkpoint manifests,
-environment snapshots and observation-history contracts. The machine-readable
-result is created only by actually running that gate and records a fingerprint
-of the source files used by the checks.
+The v0.23.2 release uses a focused gate for fail-closed solver and configuration
+checks, pulmonary and positive-pressure semantics, respiratory-mechanics
+continuity, temporal/reward/measurement contracts, policy observation/action
+manifests, environment snapshots, observation history and the packaged
+dashboard. The machine-readable result is created only by actually running
+that gate and records a fingerprint of the source files used by the checks.
 
-Release evidence and its explicit limitations are available in:
+The release evidence and its explicit limitations are available in:
 
-- [`validation/validation_results_v0.23.1.json`](../validation/validation_results_v0.23.1.json);
-- [`VALIDATION_AUDIT_v0.23.1.md`](../VALIDATION_AUDIT_v0.23.1.md);
-- [`RELEASE_v0.23.1.json`](../RELEASE_v0.23.1.json).
+- [`validation/validation_results_v0.23.2.json`](../validation/validation_results_v0.23.2.json);
+- [`VALIDATION_AUDIT_v0.23.2.md`](../VALIDATION_AUDIT_v0.23.2.md);
+- [`RELEASE_v0.23.2.json`](../RELEASE_v0.23.2.json).
 
 The release manifest distinguishes the focused gate, the locally completed
 full repository suite and the successful supported-interpreter CI matrix.
+
+The matching runner is `validation/run_validation_v0232.py`. The release
+workflow refuses to build tagged artifacts unless the result digest, source
+fingerprint, release manifest and supported-interpreter CI evidence agree.
 
 This evidence supports software verification and internal mechanistic
 consistency only. No independently reviewed, protocol-matched external clinical

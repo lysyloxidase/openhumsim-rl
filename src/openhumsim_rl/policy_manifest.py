@@ -12,6 +12,14 @@ from .config import HumanConfig
 
 
 POLICY_MANIFEST_SCHEMA = "openhumsim.policy-manifest.v1"
+POLICY_OBSERVATION_CONTRACT_SCHEMA = (
+    "openhumsim.policy-observation-contract.v1"
+)
+POLICY_ACTION_CONTRACT_SCHEMA = "openhumsim.policy-action-contract.v1"
+POLICY_ACTION_MAPPING_SCHEMA = "openhumsim.policy-action-mapping.v1"
+OBSERVATION_HISTORY_PREPROCESSING_SCHEMA = (
+    "openhumsim.observation-history-preprocessing.v1"
+)
 
 # Every field that can change policy inputs, outputs, execution, or provenance
 # must be supplied independently by a validator. Derived hashes are checked
@@ -133,6 +141,252 @@ def _normalize_space_contract(
     )
 
 
+def _normalize_policy_action_contract(
+    value: Mapping[str, Any],
+    *,
+    action_names: Sequence[str],
+    policy_space: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Validate the policy-facing action mapping and its native target."""
+
+    expected_keys = {
+        "schema",
+        "interface_id",
+        "action_names",
+        "policy_space",
+        "native_space",
+        "mapping",
+    }
+    if not isinstance(value, Mapping) or set(value) != expected_keys:
+        raise ValueError("policy action contract has an invalid key set")
+    normalized = normalize_json_types(dict(value))
+    if normalized["schema"] != POLICY_ACTION_CONTRACT_SCHEMA:
+        raise ValueError("policy action contract schema is unsupported")
+    names = [str(name) for name in action_names]
+    if normalized["action_names"] != names:
+        raise ValueError("policy action names do not match the action contract")
+    normalized_policy_space = _normalize_space_contract(
+        normalized["policy_space"],
+        width=len(names),
+        label="policy action",
+    )
+    expected_policy_space = _normalize_space_contract(
+        policy_space,
+        width=len(names),
+        label="action",
+    )
+    if normalized_policy_space != expected_policy_space:
+        raise ValueError(
+            "policy action space does not match the environment action space"
+        )
+    native_space = _normalize_space_contract(
+        normalized["native_space"],
+        width=len(names),
+        label="native action",
+    )
+
+    mapping = normalized["mapping"]
+    mapping_keys = {
+        "schema",
+        "transform",
+        "expression",
+        "componentwise",
+        "negative_policy_values",
+        "policy_zero_is_no_intervention",
+    }
+    if not isinstance(mapping, dict) or set(mapping) != mapping_keys:
+        raise ValueError("policy action mapping has an invalid key set")
+    if mapping["schema"] != POLICY_ACTION_MAPPING_SCHEMA:
+        raise ValueError("policy action mapping schema is unsupported")
+    if mapping["componentwise"] is not True:
+        raise ValueError("policy action mapping must be componentwise")
+    if mapping["policy_zero_is_no_intervention"] is not True:
+        raise ValueError("policy action zero must mean no intervention")
+
+    interface_id = normalized["interface_id"]
+    if interface_id == "native_one_sided_v1":
+        expected_mapping = {
+            "schema": POLICY_ACTION_MAPPING_SCHEMA,
+            "transform": "identity",
+            "expression": "native=policy_action",
+            "componentwise": True,
+            "negative_policy_values": "not_applicable",
+            "policy_zero_is_no_intervention": True,
+        }
+        if mapping != expected_mapping or native_space != normalized_policy_space:
+            raise ValueError("native action mapping is internally inconsistent")
+    elif interface_id == "symmetric_positive_part_v1":
+        expected_mapping = {
+            "schema": POLICY_ACTION_MAPPING_SCHEMA,
+            "transform": "componentwise_positive_part",
+            "expression": "native=max(policy_action,0)",
+            "componentwise": True,
+            "negative_policy_values": "mapped_to_zero",
+            "policy_zero_is_no_intervention": True,
+        }
+        policy_low = np.asarray(normalized_policy_space["low"], dtype=float)
+        policy_high = np.asarray(normalized_policy_space["high"], dtype=float)
+        native_low = np.asarray(native_space["low"], dtype=float)
+        native_high = np.asarray(native_space["high"], dtype=float)
+        if (
+            mapping != expected_mapping
+            or not np.array_equal(policy_low, -np.ones(len(names)))
+            or not np.array_equal(policy_high, np.ones(len(names)))
+            or not np.array_equal(native_low, np.zeros(len(names)))
+            or not np.array_equal(native_high, np.ones(len(names)))
+        ):
+            raise ValueError(
+                "symmetric positive-part action mapping is internally inconsistent"
+            )
+    else:
+        raise ValueError("policy action interface is unsupported")
+
+    normalized["policy_space"] = normalized_policy_space
+    normalized["native_space"] = native_space
+    return normalize_json_types(normalized)
+
+
+def _normalize_observation_preprocessing(
+    value: Mapping[str, Any],
+    *,
+    width: int,
+) -> dict[str, Any]:
+    """Validate and canonicalize a policy-facing observation transformation."""
+
+    if not isinstance(value, Mapping):
+        raise ValueError("observation preprocessing must be a mapping")
+    normalized = normalize_json_types(dict(value))
+    legacy_keys = {"transform", "centers", "scales"}
+    if set(normalized) == legacy_keys:
+        if normalized["transform"] != "tanh((raw-center)/scale)":
+            raise ValueError("base observation transform is unsupported")
+        centers_raw = normalized["centers"]
+        scales_raw = normalized["scales"]
+        if not isinstance(centers_raw, list) or not isinstance(scales_raw, list):
+            raise ValueError("observation centers and scales must be arrays")
+        if len(centers_raw) != width or len(scales_raw) != width:
+            raise ValueError(
+                "observation preprocessing width does not match observation names"
+            )
+        try:
+            centers = np.asarray(centers_raw, dtype=float)
+            scales = np.asarray(scales_raw, dtype=float)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("observation centers and scales must be numeric") from exc
+        if (
+            centers.shape != (width,)
+            or scales.shape != (width,)
+            or not np.all(np.isfinite(centers))
+            or not np.all(np.isfinite(scales))
+            or np.any(scales <= 0.0)
+        ):
+            raise ValueError("observation centers and scales are invalid")
+        return normalize_json_types(
+            {
+                "transform": "tanh((raw-center)/scale)",
+                "centers": centers.tolist(),
+                "scales": scales.tolist(),
+            }
+        )
+
+    history_keys = {
+        "schema",
+        "transform",
+        "history_length",
+        "base_observation_size",
+        "output_size",
+        "layout",
+        "base_observation_contract",
+        "padding_value",
+        "valid_history_mask",
+    }
+    if set(normalized) != history_keys:
+        raise ValueError("observation preprocessing fields are unsupported")
+    if normalized["schema"] != OBSERVATION_HISTORY_PREPROCESSING_SCHEMA:
+        raise ValueError("observation-history preprocessing schema is unsupported")
+    if normalized["transform"] != "masked_history_concatenation":
+        raise ValueError("observation-history transform is unsupported")
+    history_length = normalized["history_length"]
+    base_size = normalized["base_observation_size"]
+    output_size = normalized["output_size"]
+    if (
+        type(history_length) is not int
+        or history_length < 1
+        or type(base_size) is not int
+        or base_size < 1
+        or type(output_size) is not int
+    ):
+        raise ValueError("observation-history dimensions must be positive integers")
+    expected_output_size = history_length * base_size + history_length
+    if output_size != expected_output_size or width != expected_output_size:
+        raise ValueError(
+            "observation-history dimensions do not match the policy observation"
+        )
+
+    values_stop = history_length * base_size
+    expected_layout = {
+        "order": "oldest_to_newest_then_valid_history_mask",
+        "history_shape": [history_length, base_size],
+        "history_values_slice": [0, values_stop],
+        "valid_history_mask_slice": [values_stop, output_size],
+        "latest_observation_slice": [values_stop - base_size, values_stop],
+    }
+    if normalized["layout"] != expected_layout:
+        raise ValueError("observation-history layout is internally inconsistent")
+    padding_value = normalized["padding_value"]
+    if (
+        isinstance(padding_value, bool)
+        or not isinstance(padding_value, (int, float))
+        or float(padding_value) != 0.0
+    ):
+        raise ValueError("observation-history padding value must be zero")
+    expected_mask = {
+        "transform": "identity",
+        "length": history_length,
+        "values": [0.0, 1.0],
+        "semantics": "0=zero_padding,1=valid_observation",
+    }
+    if normalized["valid_history_mask"] != expected_mask:
+        raise ValueError("observation-history validity-mask contract is invalid")
+
+    base_contract = normalized["base_observation_contract"]
+    expected_base_keys = {
+        "schema",
+        "observation_names",
+        "observation_space",
+        "preprocessing",
+    }
+    if not isinstance(base_contract, dict) or set(base_contract) != expected_base_keys:
+        raise ValueError("base policy observation contract is malformed")
+    if base_contract["schema"] != POLICY_OBSERVATION_CONTRACT_SCHEMA:
+        raise ValueError("base policy observation contract schema is unsupported")
+    base_names = base_contract["observation_names"]
+    if (
+        not isinstance(base_names, list)
+        or len(base_names) != base_size
+        or any(not isinstance(name, str) for name in base_names)
+        or len(set(base_names)) != len(base_names)
+    ):
+        raise ValueError("base policy observation names are invalid")
+    base_space = _normalize_space_contract(
+        base_contract["observation_space"],
+        width=base_size,
+        label="base observation",
+    )
+    base_preprocessing = _normalize_observation_preprocessing(
+        base_contract["preprocessing"],
+        width=base_size,
+    )
+    normalized["base_observation_contract"] = {
+        "schema": POLICY_OBSERVATION_CONTRACT_SCHEMA,
+        "observation_names": list(base_names),
+        "observation_space": base_space,
+        "preprocessing": base_preprocessing,
+    }
+    normalized["padding_value"] = 0.0
+    return normalize_json_types(normalized)
+
+
 def build_policy_manifest(
     *,
     checkpoint_path: str | Path,
@@ -145,8 +399,8 @@ def build_policy_manifest(
     measurement_config: Mapping[str, Any] | None,
     info_profile: str,
     observation_names: Sequence[str],
-    observation_centers: Sequence[float],
-    observation_scales: Sequence[float],
+    observation_centers: Sequence[float] | None,
+    observation_scales: Sequence[float] | None,
     observation_space_contract: Mapping[str, Any],
     action_names: Sequence[str],
     action_semantics: Mapping[str, Any],
@@ -160,6 +414,8 @@ def build_policy_manifest(
     source_tree_dirty: bool | None,
     source_fingerprint_sha256: str,
     runtime: Mapping[str, Any],
+    observation_preprocessing: Mapping[str, Any] | None = None,
+    policy_action_contract: Mapping[str, Any] | None = None,
     require_checkpoint: bool = False,
 ) -> dict[str, Any]:
     """Build a fail-closed policy sidecar with artifact and interface hashes."""
@@ -168,13 +424,25 @@ def build_policy_manifest(
     if require_checkpoint and not checkpoint.is_file():
         raise FileNotFoundError(checkpoint)
     names = [str(value) for value in observation_names]
-    centers = [float(value) for value in observation_centers]
-    scales = [float(value) for value in observation_scales]
     actions = [str(value) for value in action_names]
-    if not (len(names) == len(centers) == len(scales)):
-        raise ValueError("observation names, centers and scales must have equal length")
-    if any(scale <= 0.0 for scale in scales):
-        raise ValueError("observation scales must be positive")
+    if len(set(names)) != len(names):
+        raise ValueError("observation names must be unique")
+    if observation_preprocessing is None:
+        if observation_centers is None or observation_scales is None:
+            raise ValueError(
+                "observation centers and scales are required for the base transform"
+            )
+        preprocessing_payload: Mapping[str, Any] = {
+            "transform": "tanh((raw-center)/scale)",
+            "centers": [float(value) for value in observation_centers],
+            "scales": [float(value) for value in observation_scales],
+        }
+    else:
+        if observation_centers is not None or observation_scales is not None:
+            raise ValueError(
+                "supply either observation preprocessing or centers/scales, not both"
+            )
+        preprocessing_payload = observation_preprocessing
     if int(total_timesteps) <= 0:
         raise ValueError("total_timesteps must be positive")
 
@@ -188,17 +456,38 @@ def build_policy_manifest(
         width=len(actions),
         label="action",
     )
-    normalization = normalize_json_types({
-        "transform": "tanh((raw-center)/scale)",
-        "centers": centers,
-        "scales": scales,
-    })
+    normalization = _normalize_observation_preprocessing(
+        preprocessing_payload,
+        width=len(names),
+    )
+    if policy_action_contract is None:
+        policy_action_contract = {
+            "schema": POLICY_ACTION_CONTRACT_SCHEMA,
+            "interface_id": "native_one_sided_v1",
+            "action_names": actions,
+            "policy_space": action_space,
+            "native_space": action_space,
+            "mapping": {
+                "schema": POLICY_ACTION_MAPPING_SCHEMA,
+                "transform": "identity",
+                "expression": "native=policy_action",
+                "componentwise": True,
+                "negative_policy_values": "not_applicable",
+                "policy_zero_is_no_intervention": True,
+            },
+        }
+    action_interface = _normalize_policy_action_contract(
+        policy_action_contract,
+        action_names=actions,
+        policy_space=action_space,
+    )
     action_contract = normalize_json_types({
         "names": actions,
         "names_sha256": ordered_contract_sha256(actions),
         "semantics": {name: action_semantics[name] for name in actions},
         "agent_step_min": float(config.agent_step_min),
         "space": action_space,
+        "policy_interface": action_interface,
     })
     artifact_sha = file_sha256(checkpoint) if checkpoint.is_file() else None
     manifest = {
@@ -355,6 +644,17 @@ def validate_policy_manifest(
         raise PolicyCompatibilityError(
             "observation-normalization hash is internally inconsistent"
         )
+    try:
+        normalized_preprocessing = _normalize_observation_preprocessing(
+            normalization,
+            width=len(observation_names),
+        )
+    except ValueError as exc:
+        raise PolicyCompatibilityError(str(exc)) from exc
+    if normalized_preprocessing != normalization:
+        raise PolicyCompatibilityError(
+            "observation_normalization is not canonical"
+        )
     observation_space = manifest.get("observation_space")
     if not isinstance(observation_space, dict):
         raise PolicyCompatibilityError("observation_space must be a JSON object")
@@ -375,8 +675,18 @@ def validate_policy_manifest(
     if normalized_observation_space != observation_space:
         raise PolicyCompatibilityError("observation_space is not canonical")
     action_contract = manifest.get("action_contract")
-    if not isinstance(action_contract, dict) or not isinstance(
-        action_contract.get("names"), list
+    if (
+        not isinstance(action_contract, dict)
+        or set(action_contract)
+        != {
+            "names",
+            "names_sha256",
+            "semantics",
+            "agent_step_min",
+            "space",
+            "policy_interface",
+        }
+        or not isinstance(action_contract.get("names"), list)
     ):
         raise PolicyCompatibilityError("action_contract is malformed")
     if action_contract.get("names_sha256") != ordered_contract_sha256(
@@ -400,6 +710,18 @@ def validate_policy_manifest(
         raise PolicyCompatibilityError(str(exc)) from exc
     if normalized_action_space != action_space:
         raise PolicyCompatibilityError("action space contract is not canonical")
+    try:
+        normalized_action_interface = _normalize_policy_action_contract(
+            action_contract["policy_interface"],
+            action_names=action_contract["names"],
+            policy_space=action_space,
+        )
+    except ValueError as exc:
+        raise PolicyCompatibilityError(str(exc)) from exc
+    if normalized_action_interface != action_contract["policy_interface"]:
+        raise PolicyCompatibilityError(
+            "policy action contract is not canonical"
+        )
 
     missing_expected = sorted(
         set(POLICY_MANIFEST_CONTRACT_KEYS) - set(expected_normalized)

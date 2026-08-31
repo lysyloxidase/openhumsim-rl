@@ -11,6 +11,7 @@ from pathlib import Path
 import numpy as np
 
 from . import __version__
+from .config import HumanConfig
 from .env import HumanHomeostasisEnv, ACTION_NAMES
 from .cgm import CGMObservationConfig, blood_to_cgm_trace
 from .cgm_reference import calibrate_normative_cgm_reference
@@ -37,6 +38,55 @@ from .event_replay import (
     fit_mechanistic_event_profile,
     save_json as save_event_json,
 )
+
+
+def _positive_finite_float(value: str) -> float:
+    try:
+        parsed = float(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be a number") from exc
+    if not np.isfinite(parsed) or parsed <= 0.0:
+        raise argparse.ArgumentTypeError("must be finite and greater than zero")
+    return parsed
+
+
+def _positive_int(value: str) -> int:
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be an integer") from exc
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be greater than zero")
+    return parsed
+
+
+def _seed(value: str) -> int:
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be an integer") from exc
+    if parsed < 0:
+        raise argparse.ArgumentTypeError("must be nonnegative")
+    return parsed
+
+
+def _port(value: str) -> int:
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be an integer") from exc
+    if not 1 <= parsed <= 65535:
+        raise argparse.ArgumentTypeError("must be in [1, 65535]")
+    return parsed
+
+
+def _scenario_or_usage_error(
+    parser: argparse.ArgumentParser,
+    error: ValueError,
+) -> None:
+    if str(error).startswith("Unknown scenario "):
+        parser.error(str(error))
+    raise error
 
 
 
@@ -86,7 +136,12 @@ def doctor() -> dict:
 
 
 def run_demo(scenario: str, minutes: float, seed: int) -> dict:
-    env = HumanHomeostasisEnv(scenario=scenario)
+    if not np.isfinite(float(minutes)) or float(minutes) <= 0.0:
+        raise ValueError("minutes must be finite and greater than zero")
+    env = HumanHomeostasisEnv(
+        config=HumanConfig(episode_minutes=float(minutes)),
+        scenario=scenario,
+    )
     _, info = env.reset(seed=seed)
     zero = np.zeros(len(ACTION_NAMES), dtype=np.float32)
     total = 0.0
@@ -134,7 +189,7 @@ def _source_checkout_root() -> Path | None:
         if (
             (root / "pyproject.toml").is_file()
             and (root / "tests").is_dir()
-            and (root / "validation" / "run_validation_v23.py").is_file()
+            and (root / "validation" / "run_validation_v0232.py").is_file()
         ):
             return root
     return None
@@ -163,11 +218,39 @@ def main(argv: list[str] | None = None) -> int:
 
     p_demo = sub.add_parser("demo", help="Run a zero-action local simulation smoke test")
     p_demo.add_argument("--scenario", default="baseline")
-    p_demo.add_argument("--minutes", type=float, default=60.0)
-    p_demo.add_argument("--seed", type=int, default=42)
+    p_demo.add_argument("--minutes", type=_positive_finite_float, default=60.0)
+    p_demo.add_argument("--seed", type=_seed, default=42)
     p_demo.add_argument("--full-state", action="store_true", help="Print all mechanistic state variables")
 
-    p_val = sub.add_parser("validate", help="Run repository tests and v0.23.1 integrity checks")
+    p_dashboard = sub.add_parser(
+        "dashboard",
+        help="Open the packaged local research dashboard",
+    )
+    p_dashboard.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="bind host (default: loopback)",
+    )
+    p_dashboard.add_argument(
+        "--allowed-host",
+        action="append",
+        default=[],
+        metavar="NAME_OR_IP",
+        help="additional exact HTTP Host allowed for LAN/DNS access (repeatable)",
+    )
+    p_dashboard.add_argument(
+        "--port",
+        type=_port,
+        default=8765,
+        help="TCP port (default: 8765)",
+    )
+    p_dashboard.add_argument(
+        "--no-open",
+        action="store_true",
+        help="do not open a browser",
+    )
+
+    p_val = sub.add_parser("validate", help="Run repository tests and v0.23.2 integrity checks")
     p_val.add_argument("--scientific-only", action="store_true")
 
     p_data = sub.add_parser("data", help="External-data utilities")
@@ -186,13 +269,13 @@ def main(argv: list[str] | None = None) -> int:
     p_age = data_sub.add_parser("shah-age-strata", help="Print exact Shah-2019 Table-2 age-stratified CGM targets")
     p_split = data_sub.add_parser("split-jaeb-cgm", help="Create participant-level train/validation/test splits from a Jaeb archive")
     p_split.add_argument("archive")
-    p_split.add_argument("--seed", type=int, default=2019)
+    p_split.add_argument("--seed", type=_seed, default=2019)
     p_split.add_argument("--glucose-column")
     p_split.add_argument("--subject-column")
     p_split.add_argument("--out", default="validation/jaeb_cgm_split_v0.9.json")
     p_fit = data_sub.add_parser("fit-jaeb-reference", help="Fit a TRAIN-only normative CGM distribution and evaluate validation/test subjects")
     p_fit.add_argument("archive")
-    p_fit.add_argument("--seed", type=int, default=2019)
+    p_fit.add_argument("--seed", type=_seed, default=2019)
     p_fit.add_argument("--glucose-column")
     p_fit.add_argument("--subject-column")
     p_fit.add_argument("--out", default="validation/jaeb_cgm_reference_fit_v0.9.json")
@@ -208,24 +291,24 @@ def main(argv: list[str] | None = None) -> int:
     p_em.add_argument("--out", default="validation/jaeb_event_metrics_v0.10.json")
     p_mech = data_sub.add_parser("fit-jaeb-event-model", help="TRAIN-only mechanistic event calibration with held-out participant validation/test")
     p_mech.add_argument("archive")
-    p_mech.add_argument("--seed", type=int, default=2020)
+    p_mech.add_argument("--seed", type=_seed, default=2020)
     p_mech.add_argument("--out", default="validation/jaeb_mechanistic_event_fit_v0.10.json")
     p_pub = data_sub.add_parser("calibrate-published-event-reference", help="Calibrate the replay layer to published DuBose meal/exercise aggregate targets")
     p_pub.add_argument("--out", default="validation/published_event_calibration_v0.10.json")
 
     p_measure = sub.add_parser("measurement-demo", help="Compare realistic clinical measurements with hidden mechanistic truth")
     p_measure.add_argument("--scenario", default="baseline")
-    p_measure.add_argument("--minutes", type=float, default=40.0)
-    p_measure.add_argument("--seed", type=int, default=42)
+    p_measure.add_argument("--minutes", type=_positive_finite_float, default=40.0)
+    p_measure.add_argument("--seed", type=_seed, default=42)
 
     p_pop = sub.add_parser("population-demo", help="Sample the v0.21 correlated engineering virtual-patient prior")
-    p_pop.add_argument("--n", type=int, default=8)
-    p_pop.add_argument("--seed", type=int, default=2020)
+    p_pop.add_argument("--n", type=_positive_int, default=8)
+    p_pop.add_argument("--seed", type=_seed, default=2020)
     p_pop.add_argument("--independent", action="store_true", help="Use the legacy independent LHS prior")
 
     p_cgm = sub.add_parser("cgm-demo", help="Show blood-to-interstitial CGM observation-model lag")
-    p_cgm.add_argument("--lag-min", type=float, default=6.0)
-    p_cgm.add_argument("--step-min", type=float, default=1.0)
+    p_cgm.add_argument("--lag-min", type=_positive_finite_float, default=6.0)
+    p_cgm.add_argument("--step-min", type=_positive_finite_float, default=1.0)
 
     args = parser.parse_args(argv)
 
@@ -233,11 +316,23 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(doctor(), indent=2))
         return 0
     if args.command == "demo":
-        result = run_demo(args.scenario, args.minutes, args.seed)
+        try:
+            result = run_demo(args.scenario, args.minutes, args.seed)
+        except ValueError as exc:
+            _scenario_or_usage_error(parser, exc)
         if not args.full_state:
             result = {k: v for k, v in result.items() if k != "state"}
         print(json.dumps(result, indent=2))
         return 0
+    if args.command == "dashboard":
+        from .dashboard_server import serve_dashboard
+
+        return serve_dashboard(
+            host=args.host,
+            allowed_hosts=tuple(args.allowed_host),
+            port=args.port,
+            open_browser=not args.no_open,
+        )
     if args.command == "validate":
         if not args.scientific_only:
             rc = _run_repo_command(
@@ -245,12 +340,24 @@ def main(argv: list[str] | None = None) -> int:
             )
             if rc:
                 return rc
-        return _run_repo_command([sys.executable, "validation/run_validation_v23.py"])
+        return _run_repo_command(
+            [sys.executable, "validation/run_validation_v0232.py"]
+        )
     if args.command == "measurement-demo":
-        env = HumanHomeostasisEnv(scenario=args.scenario, measurement_profile="realistic")
-        _, info = env.reset(seed=args.seed)
+        env = HumanHomeostasisEnv(
+            config=HumanConfig(episode_minutes=float(args.minutes)),
+            scenario=args.scenario,
+            measurement_profile="realistic",
+        )
+        try:
+            _, info = env.reset(seed=args.seed)
+        except ValueError as exc:
+            _scenario_or_usage_error(parser, exc)
         zero = np.zeros(len(ACTION_NAMES), dtype=np.float32)
-        steps = max(1, int(np.ceil(args.minutes / env.config.agent_step_min)))
+        steps = max(
+            1,
+            int(np.ceil(args.minutes / env.config.agent_step_min)),
+        )
         for _ in range(steps):
             _, _, term, trunc, info = env.step(zero)
             if term or trunc:

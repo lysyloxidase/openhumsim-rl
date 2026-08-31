@@ -33,4 +33,4 @@ __all__ = [
     "DUBOSE_REFERENCE", "DEFAULT_REPLAY_PROFILE", "extract_events_from_archive",
     "event_metrics_from_archive", "fit_mechanistic_event_profile",
 ]
-__version__ = "0.23.1"
+__version__ = "0.23.2"

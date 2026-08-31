@@ -37,10 +37,20 @@ except ImportError:
         def __getattr__(self, name: str):
             return getattr(self.env, name)
 
-from .env import HumanHomeostasisEnv, OBSERVABLE_REWARD_PROFILE
+from .env import (
+    ACTION_NAMES,
+    HumanHomeostasisEnv,
+    OBSERVABLE_REWARD_PROFILE,
+    POLICY_ACTION_CONTRACT_SCHEMA,
+    POLICY_ACTION_MAPPING_SCHEMA,
+    POLICY_OBSERVATION_CONTRACT_SCHEMA,
+)
 
 
 OBSERVATION_HISTORY_SNAPSHOT_SCHEMA = "openhumsim.observation-history-runtime.v2"
+OBSERVATION_HISTORY_PREPROCESSING_SCHEMA = (
+    "openhumsim.observation-history-preprocessing.v1"
+)
 
 
 class ObservationHistoryWrapper(_WrapperBase):
@@ -108,6 +118,22 @@ class ObservationHistoryWrapper(_WrapperBase):
         self._base_observation_names = tuple(str(name) for name in base_names)
         self._base_observation_low = base_low.copy()
         self._base_observation_high = base_high.copy()
+
+        policy_contract_builder = getattr(
+            env, "policy_observation_contract", None
+        )
+        if not callable(policy_contract_builder):
+            raise ValueError(
+                "ObservationHistoryWrapper requires a public policy observation "
+                "contract"
+            )
+        # Evaluate once during construction so an incompatible base fails before
+        # the wrapper exposes a policy space. The public method below evaluates
+        # it again, ensuring a later supported normalization change is reflected
+        # in checkpoint metadata instead of serving a stale cached contract.
+        base_policy_contract = policy_contract_builder()
+        if not isinstance(base_policy_contract, Mapping):
+            raise ValueError("base policy observation contract must be a mapping")
 
         center = getattr(env, "_obs_center", None)
         scale = getattr(env, "_obs_scale", None)
@@ -206,6 +232,78 @@ class ObservationHistoryWrapper(_WrapperBase):
     def latest_observation_slice(self) -> slice:
         stop = self._history_length * self._base_observation_size
         return slice(stop - self._base_observation_size, stop)
+
+    def policy_observation_contract(self) -> dict[str, Any]:
+        """Describe the exact flattened history supplied to a policy."""
+
+        values_stop = self._history_length * self._base_observation_size
+        output_size = values_stop + self._history_length
+        base_contract = deepcopy(self.env.policy_observation_contract())
+        expected_base_space = {
+            "shape": [self._base_observation_size],
+            "dtype": self._base_observation_dtype.name,
+            "low": [float(value) for value in self._base_observation_low],
+            "high": [float(value) for value in self._base_observation_high],
+        }
+        if (
+            not isinstance(base_contract, Mapping)
+            or base_contract.get("observation_names")
+            != list(self._base_observation_names)
+            or base_contract.get("observation_space") != expected_base_space
+        ):
+            raise RuntimeError(
+                "base policy observation contract changed after wrapper construction"
+            )
+        preprocessing = {
+            "schema": OBSERVATION_HISTORY_PREPROCESSING_SCHEMA,
+            "transform": "masked_history_concatenation",
+            "history_length": self._history_length,
+            "base_observation_size": self._base_observation_size,
+            "output_size": output_size,
+            "layout": {
+                "order": "oldest_to_newest_then_valid_history_mask",
+                "history_shape": [
+                    self._history_length,
+                    self._base_observation_size,
+                ],
+                "history_values_slice": [0, values_stop],
+                "valid_history_mask_slice": [values_stop, output_size],
+                "latest_observation_slice": [
+                    values_stop - self._base_observation_size,
+                    values_stop,
+                ],
+            },
+            "base_observation_contract": base_contract,
+            "padding_value": 0.0,
+            "valid_history_mask": {
+                "transform": "identity",
+                "length": self._history_length,
+                "values": [0.0, 1.0],
+                "semantics": "0=zero_padding,1=valid_observation",
+            },
+        }
+        return {
+            "schema": POLICY_OBSERVATION_CONTRACT_SCHEMA,
+            "observation_names": [str(name) for name in self.observation_names],
+            "observation_space": {
+                "shape": [int(size) for size in self.observation_space.shape],
+                "dtype": np.dtype(self.observation_space.dtype).name,
+                "low": [
+                    float(value)
+                    for value in np.asarray(self.observation_space.low).reshape(-1)
+                ],
+                "high": [
+                    float(value)
+                    for value in np.asarray(self.observation_space.high).reshape(-1)
+                ],
+            },
+            "preprocessing": preprocessing,
+        }
+
+    def policy_action_contract(self) -> dict[str, Any]:
+        """Preserve the wrapped environment's policy-action semantics."""
+
+        return deepcopy(self.env.policy_action_contract())
 
     def _coerce_observation(self, observation) -> np.ndarray:
         value = np.asarray(observation, dtype=self._base_observation_dtype)
@@ -411,6 +509,31 @@ class SymmetricActionHumanEnv(HumanHomeostasisEnv):
             high=np.ones_like(self.action_space.high, dtype=np.float32),
             dtype=np.float32,
         )
+
+    def policy_action_contract(self) -> dict[str, Any]:
+        """Describe the componentwise positive-part policy mapping."""
+
+        native_space = {
+            "shape": [len(ACTION_NAMES)],
+            "dtype": "float32",
+            "low": [0.0] * len(ACTION_NAMES),
+            "high": [1.0] * len(ACTION_NAMES),
+        }
+        return {
+            "schema": POLICY_ACTION_CONTRACT_SCHEMA,
+            "interface_id": "symmetric_positive_part_v1",
+            "action_names": [str(name) for name in ACTION_NAMES],
+            "policy_space": self._policy_box_contract(self.action_space),
+            "native_space": native_space,
+            "mapping": {
+                "schema": POLICY_ACTION_MAPPING_SCHEMA,
+                "transform": "componentwise_positive_part",
+                "expression": "native=max(policy_action,0)",
+                "componentwise": True,
+                "negative_policy_values": "mapped_to_zero",
+                "policy_zero_is_no_intervention": True,
+            },
+        }
 
     def step(self, action):
         a = np.asarray(action, dtype=np.float32)
