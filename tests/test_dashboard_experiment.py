@@ -11,6 +11,7 @@ from typing import Any, Iterator
 
 import pytest
 
+import examples.dashboard_server as dashboard_server
 from examples.dashboard_server import (
     DashboardHandler,
     DashboardSession,
@@ -129,11 +130,16 @@ def test_manifest_locks_interfaces_to_available_release_evidence() -> None:
     release = json.loads(RELEASE.read_text(encoding="utf-8"))
     observation = manifest["interfaces"]["observation"]
     action = manifest["interfaces"]["action"]
+    runtime_release_available = (
+        dashboard_server.RELEASE_MANIFEST.is_file()
+    )
 
     assert release["status"] == "released"
     assert __version__ == "0.23.2"
     release_is_current = release["version"] == __version__
-    assert release["version"] == (__version__ if release_is_current else "0.23.1")
+    assert release["version"] == (
+        __version__ if CURRENT_RELEASE.is_file() else "0.23.1"
+    )
     assert release["state_schema_version"] == "0.22"
     assert release["reward_profile"] == "latent_research_v0.23"
     assert release["benchmark_reward_profile"] == (
@@ -143,16 +149,24 @@ def test_manifest_locks_interfaces_to_available_release_evidence() -> None:
     assert observation["count"] == release["clinical_observation_count"] == 54
     assert observation["sha256"] == release["clinical_observation_sha256"]
     assert observation["release_declared_sha256"] == (
-        release["clinical_observation_sha256"] if release_is_current else None
+        release["clinical_observation_sha256"]
+        if release_is_current and runtime_release_available
+        else None
     )
-    assert observation["matches_release"] is (True if release_is_current else None)
+    assert observation["matches_release"] is (
+        True if release_is_current and runtime_release_available else None
+    )
     assert action["ordered_names"] == list(ACTION_NAMES)
     assert action["count"] == release["action_count"] == 8
     assert action["sha256"] == release["action_sha256"]
     assert action["release_declared_sha256"] == (
-        release["action_sha256"] if release_is_current else None
+        release["action_sha256"]
+        if release_is_current and runtime_release_available
+        else None
     )
-    assert action["matches_release"] is (True if release_is_current else None)
+    assert action["matches_release"] is (
+        True if release_is_current and runtime_release_available else None
+    )
 
     catalog = manifest["observation_catalog"]
     assert len(catalog) == 54
@@ -220,10 +234,11 @@ def test_source_fingerprint_is_recomputable_and_contains_no_host_paths_or_secret
 
     release_lock = source["release_manifest"]
     assert release_lock["source_id"] == "RELEASE_v0.23.2.json"
-    assert release_lock["available"] is CURRENT_RELEASE.is_file()
+    runtime_release = dashboard_server.RELEASE_MANIFEST
+    assert release_lock["available"] is runtime_release.is_file()
     assert release_lock["content_sha256"] == (
-        sha256(CURRENT_RELEASE.read_bytes()).hexdigest()
-        if CURRENT_RELEASE.is_file()
+        sha256(runtime_release.read_bytes()).hexdigest()
+        if runtime_release.is_file()
         else None
     )
 

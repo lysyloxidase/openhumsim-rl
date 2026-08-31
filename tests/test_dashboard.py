@@ -159,7 +159,8 @@ def test_dashboard_meta_locks_action_and_observation_contracts() -> None:
         "oral_probe_compound",
     )
     assert [item["name"] for item in meta["actions"]] == list(meta["action_names"])
-    if not CURRENT_RELEASE.is_file():
+    runtime_release = dashboard_server.RELEASE_MANIFEST
+    if not runtime_release.is_file():
         assert meta["availability"] == {
             "release_manifest": False,
             "validation_results": False,
@@ -177,7 +178,7 @@ def test_dashboard_meta_locks_action_and_observation_contracts() -> None:
         }
         return
 
-    release = json.loads(CURRENT_RELEASE.read_text(encoding="utf-8"))
+    release = json.loads(runtime_release.read_text(encoding="utf-8"))
     assert meta["availability"] == {
         "release_manifest": True,
         "validation_results": True,
