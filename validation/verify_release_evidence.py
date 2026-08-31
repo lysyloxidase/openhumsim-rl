@@ -20,6 +20,43 @@ import subprocess
 import sys
 from typing import Any, Mapping
 
+try:
+    from .release_contract_v0232 import (
+        ACTION_COUNT,
+        ACTION_SHA256,
+        BENCHMARK_REWARD_PROFILE,
+        CLINICAL_OBSERVATION_COUNT,
+        CLINICAL_OBSERVATION_SHA256,
+        DEBUG_REWARD_PROFILE,
+        EVIDENCE_ONLY_PATHS,
+        EXPECTED_CHECK_NAMES,
+        FULL_OBSERVATION_COUNT,
+        FULL_OBSERVATION_SHA256,
+        PYTEST_CONTRACTS,
+        RESULTS_RELATIVE_PATH,
+        STATE_SCHEMA_VERSION,
+        VERSION,
+        release_source_paths,
+    )
+except ImportError:  # direct execution from the validation directory
+    from release_contract_v0232 import (
+        ACTION_COUNT,
+        ACTION_SHA256,
+        BENCHMARK_REWARD_PROFILE,
+        CLINICAL_OBSERVATION_COUNT,
+        CLINICAL_OBSERVATION_SHA256,
+        DEBUG_REWARD_PROFILE,
+        EVIDENCE_ONLY_PATHS,
+        EXPECTED_CHECK_NAMES,
+        FULL_OBSERVATION_COUNT,
+        FULL_OBSERVATION_SHA256,
+        PYTEST_CONTRACTS,
+        RESULTS_RELATIVE_PATH,
+        STATE_SCHEMA_VERSION,
+        VERSION,
+        release_source_paths,
+    )
+
 try:  # Python 3.11+
     import tomllib
 except ModuleNotFoundError:  # pragma: no cover - exercised on supported 3.10
@@ -206,7 +243,12 @@ def _git(
     return completed
 
 
-def _verify_git_repository(root: Path, candidate_commit: str) -> str:
+def _verify_git_repository(
+    root: Path,
+    candidate_commit: str,
+    *,
+    version: str,
+) -> str:
     top_level = _git(root, "rev-parse", "--show-toplevel").stdout.strip()
     _require(
         Path(top_level).resolve() == root.resolve(),
@@ -234,6 +276,24 @@ def _verify_git_repository(root: Path, candidate_commit: str) -> str:
         ancestor.returncode == 0,
         "candidate commit is not an ancestor of HEAD",
     )
+    _require(version == VERSION, "release verifier contract version mismatch")
+    changed = _git(
+        root,
+        "diff",
+        "--name-status",
+        "--no-renames",
+        f"{candidate_commit}..{head_commit}",
+        "--",
+    ).stdout
+    allowed = set(EVIDENCE_ONLY_PATHS)
+    for line in changed.splitlines():
+        parts = line.split("\t")
+        _require(len(parts) == 2, "candidate-to-release diff is malformed")
+        status_code, path = parts
+        _require(
+            status_code in {"A", "M"} and path in allowed,
+            f"non-evidence change after candidate commit: {status_code} {path}",
+        )
     status = _git(
         root,
         "status",
@@ -330,6 +390,15 @@ def _verify_source_provenance(
         )
         records.append({"path": path_text, "sha256": declared_sha})
 
+    expected_paths = {
+        path.relative_to(root).as_posix()
+        for path in release_source_paths(root)
+    }
+    _require(
+        seen_paths == expected_paths,
+        "source fingerprint subject set does not match the release contract",
+    )
+
     _require(
         records == sorted(records, key=lambda item: item["path"]),
         "source fingerprint files must be sorted by path",
@@ -363,11 +432,15 @@ def _verify_result_summary(results: Mapping[str, Any]) -> tuple[int, int, int]:
     actual_passed = 0
     actual_executed = 0
     names: set[str] = set()
+    ordered_names: list[str] = []
+    checks_by_name: dict[str, Mapping[str, Any]] = {}
     for index, raw_check in enumerate(checks):
         check = _mapping(raw_check, f"validation check {index}")
         name = _nonempty_string(check.get("name"), f"validation check {index} name")
         _require(name not in names, f"duplicate validation check name: {name}")
         names.add(name)
+        ordered_names.append(name)
+        checks_by_name[name] = check
         check_passed = check.get("passed")
         _require(type(check_passed) is bool, f"validation check {name} passed must be boolean")
         actual_passed += int(check_passed)
@@ -389,6 +462,56 @@ def _verify_result_summary(results: Mapping[str, Any]) -> tuple[int, int, int]:
     _require(
         actual_executed == executed,
         "validation executed_regression_cases does not match checks",
+    )
+    _require(
+        tuple(ordered_names) == EXPECTED_CHECK_NAMES,
+        "validation check names or order do not match the release contract",
+    )
+    for name, targets in PYTEST_CONTRACTS:
+        values = _mapping(
+            checks_by_name[name].get("values"),
+            f"validation check {name} values",
+        )
+        _require(
+            values.get("test_paths") == list(targets),
+            f"validation check {name} pytest targets do not match the release contract",
+        )
+        if len(targets) == 1:
+            _require(
+                values.get("test_path") == targets[0],
+                f"validation check {name} single pytest target is inconsistent",
+            )
+
+    version_values = _mapping(
+        checks_by_name["exact_release_version"].get("values"),
+        "exact_release_version values",
+    )
+    _require(
+        version_values.get("version") == VERSION,
+        "exact release version check does not match the release contract",
+    )
+    profile_values = _mapping(
+        checks_by_name["state_schema_and_reward_profiles"].get("values"),
+        "state schema and reward profile values",
+    )
+    _require(
+        profile_values
+        == {
+            "state_schema_version": STATE_SCHEMA_VERSION,
+            "debug_reward_profile": DEBUG_REWARD_PROFILE,
+            "benchmark_reward_profile": BENCHMARK_REWARD_PROFILE,
+        },
+        "state schema or reward profile check does not match the release contract",
+    )
+    provenance = _mapping(results.get("source_provenance"), "source provenance")
+    source_values = _mapping(
+        checks_by_name["source_snapshot_stable_during_gate"].get("values"),
+        "source snapshot stability values",
+    )
+    _require(
+        source_values.get("before_sha256") == provenance.get("sha256")
+        and source_values.get("after_sha256") == provenance.get("sha256"),
+        "source snapshot stability check does not match provenance",
     )
     return passed, total, executed
 
@@ -441,6 +564,35 @@ def _verify_package_build(release: Mapping[str, Any], version: str) -> None:
     )
     if "dashboard_smoke" in package:
         _require(package.get("dashboard_smoke") == "passed", "dashboard smoke did not pass")
+
+
+def _verify_release_contract(release: Mapping[str, Any]) -> None:
+    expected = {
+        "state_schema_version": STATE_SCHEMA_VERSION,
+        "reward_profile": DEBUG_REWARD_PROFILE,
+        "default_debug_reward_profile": DEBUG_REWARD_PROFILE,
+        "benchmark_reward_profile": BENCHMARK_REWARD_PROFILE,
+        "clinical_observation_count": CLINICAL_OBSERVATION_COUNT,
+        "clinical_observation_sha256": CLINICAL_OBSERVATION_SHA256,
+        "full_observation_count": FULL_OBSERVATION_COUNT,
+        "full_observation_sha256": FULL_OBSERVATION_SHA256,
+        "action_count": ACTION_COUNT,
+        "action_sha256": ACTION_SHA256,
+        "default_observation_profile": "clinical",
+        "default_measurement_profile": "realistic",
+        "default_info_profile": "debug",
+        "strict_benchmark_info_profile": "benchmark",
+        "checkpoint_basename": "openhumsim_ppo_v0232_smoke",
+        "historical_rl_checkpoints_compatible": False,
+        "full_observation_claimed_markov": False,
+        "independent_external_validation_bundled": False,
+        "clinical_use_supported": False,
+    }
+    for field, value in expected.items():
+        _require(
+            release.get(field) == value,
+            f"release contract field {field} does not match v0.23.2",
+        )
 
 
 def _verify_ci(
@@ -527,6 +679,7 @@ def verify_release_evidence(root: Path | str) -> dict[str, Any]:
     repository = Path(root).resolve()
     _require(repository.is_dir(), f"verification root is not a directory: {repository}")
     version = _read_project_version(repository)
+    _require(version == VERSION, "project version does not match the verifier contract")
     release_name = f"RELEASE_v{version}.json"
     results_name = f"validation/validation_results_v{version}.json"
 
@@ -542,6 +695,7 @@ def verify_release_evidence(root: Path | str) -> dict[str, Any]:
     _require(release.get("version") == version, "release manifest version does not match pyproject")
     _require(release.get("author") == "lysyloxidase", "release author is not lysyloxidase")
     _require(release.get("license") == "Apache-2.0", "release license is not Apache-2.0")
+    _verify_release_contract(release)
     _require(results.get("schema") == VALIDATION_SCHEMA, "unsupported validation results schema")
     _require(results.get("version") == version, "validation results version does not match pyproject")
     release_state_schema = _nonempty_string(
@@ -581,7 +735,15 @@ def verify_release_evidence(root: Path | str) -> dict[str, Any]:
         "focused gate execution time does not match results",
     )
     _timestamp(results.get("executed_at_utc"), "validation executed_at_utc")
-    _nonempty_string(gate.get("host_python"), "focused gate host_python")
+    gate_python = _nonempty_string(
+        gate.get("host_python"),
+        "focused gate host_python",
+    )
+    runtime = _mapping(results.get("runtime"), "validation runtime")
+    _require(
+        runtime.get("python") == gate_python,
+        "focused gate host Python does not match validation runtime",
+    )
     _require(
         gate.get("git_worktree_dirty") is False,
         "focused gate must record a clean candidate",
@@ -619,7 +781,11 @@ def verify_release_evidence(root: Path | str) -> dict[str, Any]:
         version=version,
         candidate_commit=candidate_commit,
     )
-    head_commit = _verify_git_repository(repository, candidate_commit)
+    head_commit = _verify_git_repository(
+        repository,
+        candidate_commit,
+        version=version,
+    )
 
     return {
         "schema": REPORT_SCHEMA,

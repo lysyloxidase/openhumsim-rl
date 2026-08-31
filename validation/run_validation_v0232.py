@@ -34,8 +34,14 @@ if str(SRC) not in sys.path:
     sys.path.insert(0, str(SRC))
 
 from historical_version_guard import require_exact_version
+from release_contract_v0232 import (
+    PYTEST_CONTRACTS,
+    RESULTS_RELATIVE_PATH,
+    VERSION,
+    release_source_paths,
+)
 
-require_exact_version("0.23.2")
+require_exact_version(VERSION)
 
 from openhumsim_rl import HumanHomeostasisEnv, __version__
 from openhumsim_rl.env import (
@@ -45,95 +51,8 @@ from openhumsim_rl.env import (
 from openhumsim_rl.physiology import STATE_SCHEMA_VERSION
 
 
-RESULTS_PATH = ROOT / "validation" / "validation_results_v0.23.2.json"
+RESULTS_PATH = ROOT / RESULTS_RELATIVE_PATH
 checks: list[dict[str, object]] = []
-
-# A contract may use several pytest targets so related release behavior remains
-# one top-level gate check while every executed case is still counted.
-PYTEST_CONTRACTS: tuple[tuple[str, tuple[str, ...]], ...] = (
-    (
-        "patch_release_regressions_v0231",
-        ("tests/test_patch_regressions_v0231.py",),
-    ),
-    (
-        "solver_and_config_regressions",
-        ("tests/test_solver_config_hardening.py",),
-    ),
-    (
-        "mechanics_continuity_and_total_peep",
-        ("tests/test_mechanics_continuity_v023.py",),
-    ),
-    (
-        "temporal_reward_and_measurement_contracts",
-        ("tests/test_temporal_contract_v023.py",),
-    ),
-    (
-        "transactional_step_contracts",
-        ("tests/test_step_transaction_v023.py",),
-    ),
-    (
-        "policy_manifest_and_checkpoint_contracts",
-        ("tests/test_policy_manifest_v023.py",),
-    ),
-    (
-        "environment_snapshot_contracts",
-        ("tests/test_environment_snapshot_v023.py",),
-    ),
-    (
-        "observation_history_and_baseline_harness_contracts",
-        ("tests/test_history_wrapper_v023.py",),
-    ),
-    (
-        "biophysics_and_result_only_pulmonary_contracts",
-        (
-            "tests/test_biophysics_regressions.py",
-            (
-                "tests/test_physics_regressions_v021.py::"
-                "test_hpv_fixed_point_advances_kinetics_only_once"
-            ),
-        ),
-    ),
-    (
-        "cli_policy_metadata_and_packaged_dashboard_contracts",
-        (
-            "tests/test_cli_contract.py",
-            "tests/test_config_manifest_v022.py",
-            "tests/test_dashboard_http.py",
-            (
-                "tests/test_dashboard.py::"
-                "test_dashboard_is_self_contained_and_has_research_boundary"
-            ),
-            (
-                "tests/test_dashboard.py::"
-                "test_packaged_dashboard_is_canonical_and_legacy_import_is_compatible"
-            ),
-            (
-                "tests/test_dashboard.py::"
-                "test_dashboard_session_exposes_measurements_separately_from_debug_truth"
-            ),
-            (
-                "tests/test_dashboard.py::"
-                "test_dashboard_step_uses_real_environment_and_validates_actions"
-            ),
-            (
-                "tests/test_dashboard.py::"
-                "test_dashboard_step_rolls_back_after_post_transition_frame_failure"
-            ),
-            (
-                "tests/test_dashboard.py::"
-                "test_dashboard_reset_rolls_back_after_frame_failure"
-            ),
-            (
-                "tests/test_dashboard.py::"
-                "test_dashboard_documentation_targets_existing_files"
-            ),
-        ),
-    ),
-    (
-        "release_evidence_verifier_contracts",
-        ("tests/test_release_evidence.py",),
-    ),
-)
 
 
 def add(name: str, passed: bool, values: dict[str, object]) -> None:
@@ -178,41 +97,8 @@ def run_pytest_contract(name: str, test_targets: tuple[str, ...]) -> None:
     add(name, completed.returncode == 0, values)
 
 
-def _pytest_source_paths() -> tuple[Path, ...]:
-    paths = {
-        ROOT / target.split("::", maxsplit=1)[0]
-        for _, targets in PYTEST_CONTRACTS
-        for target in targets
-    }
-    return tuple(sorted(paths, key=lambda path: path.relative_to(ROOT).as_posix()))
-
-
 def _source_paths() -> tuple[Path, ...]:
-    paths = list((ROOT / "src" / "openhumsim_rl").glob("**/*.py"))
-    paths.extend(_pytest_source_paths())
-    paths.extend(
-        (
-            Path(__file__).resolve(),
-            ROOT / "validation" / "historical_version_guard.py",
-            ROOT / "validation" / "verify_release_evidence.py",
-            ROOT / "examples" / "train_ppo.py",
-            ROOT / "examples" / "dashboard_server.py",
-            ROOT / "src" / "openhumsim_rl" / "dashboard" / "index.html",
-            ROOT / "dashboard" / "index.html",
-            ROOT / "validation" / "rl_benchmark_v0.23.py",
-            ROOT / "README.md",
-            ROOT / "docs" / "dashboard.md",
-            ROOT / "LICENSE",
-            ROOT / "NOTICE",
-            ROOT / "CITATION.cff",
-            ROOT / ".github" / "workflows" / "ci.yml",
-            ROOT / ".github" / "workflows" / "release.yml",
-            ROOT / "pyproject.toml",
-        )
-    )
-    return tuple(
-        sorted(set(paths), key=lambda path: path.relative_to(ROOT).as_posix())
-    )
+    return release_source_paths(ROOT)
 
 
 def _source_snapshot() -> dict[str, object]:
@@ -275,7 +161,7 @@ source_snapshot_before = _source_snapshot()
 
 add(
     "exact_release_version",
-    __version__ == "0.23.2",
+    __version__ == VERSION,
     {"version": __version__},
 )
 
@@ -314,7 +200,7 @@ add(
 
 payload = {
     "schema": "openhumsim.validation-results.v1",
-    "version": "0.23.2",
+    "version": VERSION,
     "state_schema_version": "0.22",
     "scope": (
         "internal v0.23.2 pulmonary and respiratory mechanics, solver/configuration, "
