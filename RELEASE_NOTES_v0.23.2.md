@@ -1,4 +1,4 @@
-# OpenHumSim-RL v0.23.2 release candidate
+# OpenHumSim-RL v0.23.2
 
 > Research software only. OpenHumSim-RL is not clinically validated and must
 > not be used for diagnosis, treatment selection, dosing, alarms, ventilator
@@ -6,7 +6,7 @@
 
 ## Release scope
 
-Version 0.23.2 is a patch candidate in the v0.23 model and interface family. It
+Version 0.23.2 is a patch release in the v0.23 model and interface family. It
 is intended to preserve state schema `0.22`, the 54/138 observation widths, the
 eight actions and the `latent_research_v0.23` /
 `observable_benchmark_v0.23` reward profiles. Those identifiers describe
@@ -75,22 +75,24 @@ matching shape alone is not compatibility evidence.
 
 ## Verification status
 
-- Focused v0.23.2 integrity gate: **PENDING**. Run
-  `python validation/run_validation_v0232.py` on the final clean candidate.
+- Focused v0.23.2 integrity gate: **14/14 checks passed**, covering 178
+  executed regression cases on clean candidate commit
+  `98139c0ac432c3552d03afdfd003bdca4b1b42d8`.
 - Machine-readable focused result:
-  `validation/validation_results_v0.23.2.json` — **PENDING; not generated**.
-- Complete repository suite with warnings as errors: **PENDING**.
-- Wheel/source build, metadata check and isolated-install smoke tests:
-  **PENDING**.
-- Supported-interpreter GitHub Actions and CodeQL evidence: **PENDING**.
-- Authoritative `RELEASE_v0.23.2.json`: **PENDING; not created**.
+  `validation/validation_results_v0.23.2.json`, SHA-256
+  `89024e8a16fcb622b77c65d65f38849fdf16a0a49327975de490a03d4df333d3`.
+- Complete repository suite: **370/370 passed** with warnings treated as
+  errors on CPython 3.12.13.
+- Wheel/source build, Twine metadata check, isolated wheel install, CLI and
+  packaged-dashboard smoke checks: **passed**.
+- GitHub Actions: Python **3.10, 3.12 and 3.14**, scientific gate and package
+  smoke all passed in [run 33369298624](https://github.com/lysyloxidase/openhumsim-rl/actions/runs/33369298624).
+- CodeQL passed in [run 33369298701](https://github.com/lysyloxidase/openhumsim-rl/actions/runs/33369298701).
+- `RELEASE_v0.23.2.json` is the authoritative machine-readable release record.
 
-No pass count, source hash, commit, artifact hash or CI run is claimed in this
-candidate document. Replace the pending fields only with evidence produced by
-the exact final source.
-
-See `VALIDATION_AUDIT_v0.23.2.md` for the planned evidence boundary and
-remaining limitations.
+Tagged release artifacts include a workflow-generated `SHA256SUMS` file. See
+`VALIDATION_AUDIT_v0.23.2.md` for the evidence boundary and remaining
+limitations.
 
 OpenHumSim-RL is distributed under the Apache License 2.0. Copyright 2026
 lysyloxidase.

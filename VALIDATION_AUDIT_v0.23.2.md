@@ -1,27 +1,28 @@
-# OpenHumSim-RL v0.23.2 validation audit — candidate
+# OpenHumSim-RL v0.23.2 validation audit
 
 ## Decision
 
-**PENDING / NOT YET RELEASE EVIDENCE.**
+**PASS for the documented internal release gates.**
 
-The v0.23.2 focused gate, complete test suite, package build and supported
-interpreter CI have not yet been recorded for the final clean candidate. This
-document describes what must be checked and how the implemented changes should
-be interpreted. It does not claim a passing release, a clinically validated
-model or an independently reproduced result.
+The focused v0.23.2 gate, complete repository suite, package build and
+supported-interpreter CI passed for clean candidate commit
+`98139c0ac432c3552d03afdfd003bdca4b1b42d8`. This is internal verification of
+the stated software and mechanistic contracts. It is not clinical validation,
+independent reproduction or evidence of treatment safety or efficacy.
 
 ## Intended contract
 
 - Package release: `0.23.2`.
-- Persisted state schema: `0.22` (intended unchanged).
-- Debug reward: `latent_research_v0.23` (intended unchanged).
-- Benchmark reward: `observable_benchmark_v0.23` (intended unchanged).
-- Clinical/full observation widths: 54/138 (intended unchanged).
-- Action width: 8 (intended unchanged).
+- Persisted state schema: `0.22` (confirmed unchanged).
+- Debug reward: `latent_research_v0.23` (confirmed unchanged).
+- Benchmark reward: `observable_benchmark_v0.23` (confirmed unchanged).
+- Clinical/full observation widths: 54/138 (confirmed unchanged).
+- Action width: 8 (confirmed unchanged).
 - Historical policy compatibility: not inferred from equal tensor shapes.
 
-Every intended-unchanged item above must be confirmed by the focused gate and
-final release manifest. It is not a substitute for executing those checks.
+The exact ordered observation and action hashes are recorded in
+`RELEASE_v0.23.2.json`. Equal tensor shapes alone remain insufficient evidence
+of policy compatibility.
 
 ## Focused evidence protocol
 
@@ -138,16 +139,24 @@ prescription, drug or fluid dosing, diagnosis, prognosis or bedside control.
 6. Internal regression tests and synthetic scenarios are not independent
    external validation.
 
-## Evidence still required
+## Recorded evidence
 
-- Focused gate execution, top-level pass/total and executed case count: **TODO**.
-- Exact clean Git commit and source fingerprint: **TODO**.
-- SHA-256 of `validation/validation_results_v0.23.2.json`: **TODO**.
-- Full repository suite count and runtime with warnings as errors: **TODO**.
-- Wheel and source-distribution names, hashes, metadata and isolated install:
-  **TODO**.
-- Supported Python matrix, package smoke job and CodeQL run: **TODO**.
-- Final `RELEASE_v0.23.2.json` tied to the same source and evidence: **TODO**.
-
-Until those fields are replaced with actual results, there is no authoritative
-v0.23.2 release record.
+- Focused gate: 14/14 top-level checks and 178 executed regression cases;
+  CPython 3.12.13; executed at `2026-08-31T07:38:12.861473+00:00`.
+- Candidate commit: `98139c0ac432c3552d03afdfd003bdca4b1b42d8` with a clean worktree.
+- Source fingerprint: 64 files, SHA-256
+  `b9be0a27670f01e6eec1f58eb8169e0c22f73281184ca0324726f6d266450aed`.
+- Focused result: `validation/validation_results_v0.23.2.json`, SHA-256
+  `89024e8a16fcb622b77c65d65f38849fdf16a0a49327975de490a03d4df333d3`.
+- Complete repository suite: 370/370 passed with warnings as errors in
+  569.03 seconds on CPython 3.12.13.
+- Local distributions: `openhumsim_rl-0.23.2-py3-none-any.whl` and
+  `openhumsim_rl-0.23.2.tar.gz`; build, Twine metadata, isolated installation,
+  CLI, dashboard resource and checkout-only validation guard passed. Their
+  local SHA-256 values are recorded in `RELEASE_v0.23.2.json`; tagged workflow
+  artifacts carry their own authoritative `SHA256SUMS`.
+- GitHub Actions [run 33369298624](https://github.com/lysyloxidase/openhumsim-rl/actions/runs/33369298624):
+  Python 3.10, 3.12 and 3.14 test jobs, scientific gate and package smoke all
+  passed for the candidate commit.
+- CodeQL [run 33369298701](https://github.com/lysyloxidase/openhumsim-rl/actions/runs/33369298701): passed for the same candidate commit.
+- `RELEASE_v0.23.2.json` binds these results to the release contract.
