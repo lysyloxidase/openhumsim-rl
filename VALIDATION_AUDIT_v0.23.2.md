@@ -6,7 +6,7 @@
 
 The focused v0.23.2 gate, complete repository suite, package build and
 supported-interpreter CI passed for clean candidate commit
-`98139c0ac432c3552d03afdfd003bdca4b1b42d8`. This is internal verification of
+`0677efbc969df8f231f7206b00c6263bd44a6a46`. This is internal verification of
 the stated software and mechanistic contracts. It is not clinical validation,
 independent reproduction or evidence of treatment safety or efficacy.
 
@@ -142,21 +142,21 @@ prescription, drug or fluid dosing, diagnosis, prognosis or bedside control.
 ## Recorded evidence
 
 - Focused gate: 14/14 top-level checks and 178 executed regression cases;
-  CPython 3.12.13; executed at `2026-08-31T07:38:12.861473+00:00`.
-- Candidate commit: `98139c0ac432c3552d03afdfd003bdca4b1b42d8` with a clean worktree.
+  CPython 3.12.13; executed at `2026-08-31T20:37:58.502155+00:00`.
+- Candidate commit: `0677efbc969df8f231f7206b00c6263bd44a6a46` with a clean worktree.
 - Source fingerprint: 64 files, SHA-256
-  `b9be0a27670f01e6eec1f58eb8169e0c22f73281184ca0324726f6d266450aed`.
+  `c4c1aa1392d44e100f99163c677f57d180efa955de129dd50474f9ebcba10efe`.
 - Focused result: `validation/validation_results_v0.23.2.json`, SHA-256
-  `89024e8a16fcb622b77c65d65f38849fdf16a0a49327975de490a03d4df333d3`.
+  `a55ff6563faa711f11ef516e7bc2fa5430df3daa0f6d791deb7023b73a28e855`.
 - Complete repository suite: 370/370 passed with warnings as errors in
-  569.03 seconds on CPython 3.12.13.
+  788.40 seconds on CPython 3.12.13.
 - Local distributions: `openhumsim_rl-0.23.2-py3-none-any.whl` and
   `openhumsim_rl-0.23.2.tar.gz`; build, Twine metadata, isolated installation,
   CLI, dashboard resource and checkout-only validation guard passed. Their
   local SHA-256 values are recorded in `RELEASE_v0.23.2.json`; tagged workflow
   artifacts carry their own authoritative `SHA256SUMS`.
-- GitHub Actions [run 33369298624](https://github.com/lysyloxidase/openhumsim-rl/actions/runs/33369298624):
+- GitHub Actions [run 33438421715](https://github.com/lysyloxidase/openhumsim-rl/actions/runs/33438421715):
   Python 3.10, 3.12 and 3.14 test jobs, scientific gate and package smoke all
   passed for the candidate commit.
-- CodeQL [run 33369298701](https://github.com/lysyloxidase/openhumsim-rl/actions/runs/33369298701): passed for the same candidate commit.
+- CodeQL [run 33438421707](https://github.com/lysyloxidase/openhumsim-rl/actions/runs/33438421707): passed for the same candidate commit.
 - `RELEASE_v0.23.2.json` binds these results to the release contract.

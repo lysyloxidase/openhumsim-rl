@@ -77,17 +77,17 @@ matching shape alone is not compatibility evidence.
 
 - Focused v0.23.2 integrity gate: **14/14 checks passed**, covering 178
   executed regression cases on clean candidate commit
-  `98139c0ac432c3552d03afdfd003bdca4b1b42d8`.
+  `0677efbc969df8f231f7206b00c6263bd44a6a46`.
 - Machine-readable focused result:
   `validation/validation_results_v0.23.2.json`, SHA-256
-  `89024e8a16fcb622b77c65d65f38849fdf16a0a49327975de490a03d4df333d3`.
+  `a55ff6563faa711f11ef516e7bc2fa5430df3daa0f6d791deb7023b73a28e855`.
 - Complete repository suite: **370/370 passed** with warnings treated as
   errors on CPython 3.12.13.
 - Wheel/source build, Twine metadata check, isolated wheel install, CLI and
   packaged-dashboard smoke checks: **passed**.
 - GitHub Actions: Python **3.10, 3.12 and 3.14**, scientific gate and package
-  smoke all passed in [run 33369298624](https://github.com/lysyloxidase/openhumsim-rl/actions/runs/33369298624).
-- CodeQL passed in [run 33369298701](https://github.com/lysyloxidase/openhumsim-rl/actions/runs/33369298701).
+  smoke all passed in [run 33438421715](https://github.com/lysyloxidase/openhumsim-rl/actions/runs/33438421715).
+- CodeQL passed in [run 33438421707](https://github.com/lysyloxidase/openhumsim-rl/actions/runs/33438421707).
 - `RELEASE_v0.23.2.json` is the authoritative machine-readable release record.
 
 Tagged release artifacts include a workflow-generated `SHA256SUMS` file. See
